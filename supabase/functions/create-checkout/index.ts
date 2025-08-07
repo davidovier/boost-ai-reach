@@ -46,7 +46,7 @@ serve(async (req) => {
       throw new Error("Price ID is required");
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(Deno.env.get("sk_test_51RtTG0RcFBge5UFS9kWBGwvdxdRXxqWfFMkPlGdCshWCrWY1Cw6jb5Tpof3bUfHZCz4MxILmvBOPn5NqwJW3lkTM00WIkcvey8") || "", {
       apiVersion: "2023-10-16",
     });
 
