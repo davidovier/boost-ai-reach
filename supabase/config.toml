@@ -2,3 +2,6 @@ project_id = "xngfyktcvkxbsvrkmpjc"
 
 [functions.stripe-webhooks]
 verify_jwt = false
+
+[functions.create-scan]
+verify_jwt = true
