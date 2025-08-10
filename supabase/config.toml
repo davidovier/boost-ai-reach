@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.create-scan]
 verify_jwt = true
+
+[functions.run-prompt]
+verify_jwt = true
