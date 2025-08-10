@@ -217,20 +217,9 @@ serve(async (req) => {
         return jsonResponse({ error: "Failed to delete competitor" }, { status: 500 });
       }
 
-      // Optionally decrement competitor_count (best-effort, clamp to >=0)
-      const { data: usageRow } = await supabase
-        .from("usage_metrics")
-        .select("competitor_count")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (usageRow) {
-        const next = Math.max(0, (usageRow.competitor_count ?? 0) - 1);
-        const { error: updErr } = await supabase
-          .from("usage_metrics")
-          .update({ competitor_count: next })
-          .eq("user_id", user.id);
-        if (updErr) console.error("usage_metrics update error", updErr);
-      }
+      // Note: We do not decrement usage_metrics.competitor_count due to RLS non-decreasing policy.
+      // Deleting a competitor only removes the record; usage metrics reflect historical usage.
+
 
       return jsonResponse({ success: true });
     }
