@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.competitors]
 verify_jwt = true
+
+[functions.reports]
+verify_jwt = true
