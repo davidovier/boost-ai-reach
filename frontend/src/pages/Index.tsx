@@ -11,13 +11,14 @@ const Index = () => {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           A minimal, fast dashboard to track crawlability, summarizability, and how AI models reference your brand.
         </p>
-        <Button 
-          onClick={() => navigate('/dashboard')}
-          size="lg"
-          className="mt-6"
-        >
-          Get Started
-        </Button>
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <Button onClick={() => navigate('/dashboard')} size="lg">
+            Open Dashboard
+          </Button>
+          <Button onClick={() => navigate('/auth/sign-up')} size="lg" variant="secondary">
+            Create Free Account
+          </Button>
+        </div>
       </div>
     </div>
   );
