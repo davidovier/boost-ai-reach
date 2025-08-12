@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { MobileHeader } from './MobileHeader';
-import { TopBar } from './TopBar';
 
 export function MainLayout() {
   return (
