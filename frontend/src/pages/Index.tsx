@@ -5,8 +5,8 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-6">
+    <div className="min-h-[calc(100vh-56px)] flex items-center justify-center bg-background">
+      <div className="text-center space-y-6 max-w-3xl mx-auto px-6">
         <h1 className="text-4xl font-bold text-foreground">Welcome to FindableAI</h1>
         <p className="text-xl text-muted-foreground">
           Optimize your content for AI discovery and visibility
