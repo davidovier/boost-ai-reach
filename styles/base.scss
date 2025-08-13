@@ -1,0 +1,37 @@
+@use 'variables' as *;
+
+/* Base adjustments and accessibility */
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  z-index: 1000;
+  padding: 0.5rem 0.75rem;
+  background: $color-bg;
+  color: $color-fg;
+  border: 2px solid $color-primary;
+  border-radius: 0.5rem;
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling for anchor links */
+html:focus-within {
+  scroll-behavior: smooth;
+}

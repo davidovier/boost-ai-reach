@@ -1,0 +1,13 @@
+@use 'variables' as *;
+
+/* Minimal layout enhancements using design tokens */
+header {
+  background: $color-bg;
+}
+
+footer {
+  background: $color-bg;
+}
+
+/* Avoid opinionated styles; Tailwind handles most layout.
+   Only provide token-based fallbacks here. */
