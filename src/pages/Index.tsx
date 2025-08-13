@@ -58,7 +58,7 @@ const Index = () => {
                 <Button size="lg" onClick={() => navigate('/onboarding')}>
                   Run a free scan
                 </Button>
-                <Button size="lg" variant="secondary" onClick={() => navigate('/account')}>
+                <Button size="lg" variant="secondary" onClick={() => navigate('/pricing')}>
                   See pricing
                 </Button>
               </div>
