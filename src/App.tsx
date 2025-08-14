@@ -8,6 +8,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Scans from "./pages/Scans";
+import ScanDetail from "./pages/ScanDetail";
 import AITests from "./pages/AITests";
 import Competitors from "./pages/Competitors";
 import Reports from "./pages/Reports";
@@ -33,6 +34,7 @@ const App = () => (
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/scans" element={<Scans />} />
+              <Route path="/scans/:id" element={<ScanDetail />} />
               <Route path="/ai-tests" element={<AITests />} />
               <Route path="/competitors" element={<Competitors />} />
               <Route path="/reports" element={<Reports />} />
