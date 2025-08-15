@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Smartphone } from 'lucide-react';
+import { SEO } from '@/components/SEO';
+import { CompetitorComparisonChart } from '@/components/CompetitorComparisonChart';
+import { stringifyJsonLd } from '@/lib/seo';
 
 interface CompetitorItem {
   id: string;
@@ -24,7 +27,6 @@ export default function Competitors() {
   const [domain, setDomain] = useState('');
 
   useEffect(() => {
-    document.title = 'Competitors – AI Findability Comparison | FindableAI';
     fetchList();
   }, []);
 
@@ -87,8 +89,40 @@ export default function Competitors() {
     return first?.comparison.userBaseline ?? null;
   }, [items]);
 
+  const competitorListJsonLd = useMemo(() => {
+    if (items.length === 0) return null;
+    
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Competitor Analysis List',
+      description: 'AI findability scores for tracked competitors',
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.domain,
+        description: `AI findability score: ${item.latestSnapshot?.score ?? 'Not available'}`,
+      })),
+    };
+  }, [items]);
+
   return (
-    <div className="space-y-6">
+    <>
+      <SEO 
+        title="Competitors – AI Findability Comparison | FindableAI"
+        description="Track and compare your competitors' AI findability scores. Monitor how your site performs against competition in AI search results."
+        url="/competitors"
+      />
+      
+      {competitorListJsonLd && (
+        <script 
+          type="application/ld+json" 
+          dangerouslySetInnerHTML={{ __html: stringifyJsonLd(competitorListJsonLd) }} 
+        />
+      )}
+
+      <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Competitors</h1>
         <p className="text-muted-foreground">Track and compare your competitors' AI findability scores</p>
@@ -112,7 +146,20 @@ export default function Competitors() {
         )}
       </Card>
 
-      <Card className="p-0 overflow-hidden">
+      {/* Comparison Chart */}
+      {items.length > 0 && (
+        <CompetitorComparisonChart 
+          userBaseline={baseline}
+          competitors={items.map(item => ({
+            id: item.id,
+            domain: item.domain,
+            score: item.latestSnapshot?.score ?? null,
+          }))}
+        />
+      )}
+
+      {/* Desktop Table */}
+      <Card className="p-0 overflow-hidden hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -162,6 +209,67 @@ export default function Competitors() {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Mobile Card Layout */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <Card className="p-4">
+            <div className="text-center text-muted-foreground">Loading…</div>
+          </Card>
+        ) : items.length === 0 ? (
+          <Card className="p-4">
+            <div className="text-center text-muted-foreground">No competitors yet</div>
+          </Card>
+        ) : (
+          items.map((item) => {
+            const score = item.latestSnapshot?.score ?? null;
+            const delta = item.comparison.delta;
+            return (
+              <Card key={item.id} className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-foreground truncate">{item.domain}</h3>
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Score:</span>
+                        <span className="font-medium">{score ?? '—'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">vs Baseline:</span>
+                        {delta == null ? (
+                          <span>—</span>
+                        ) : (
+                          <span className={delta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                            {delta >= 0 ? '+' : ''}{delta}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Last Snapshot:</span>
+                        <span className="text-xs">
+                          {item.latestSnapshot?.snapshot_date 
+                            ? new Date(item.latestSnapshot.snapshot_date).toLocaleDateString() 
+                            : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    aria-label={`Delete ${item.domain}`} 
+                    onClick={() => handleDelete(item.id)}
+                    className="shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            );
+          })
+        )}
+      </div>
     </div>
+    </>
   );
 }
