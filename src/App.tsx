@@ -12,6 +12,7 @@ import ScanDetail from "./pages/ScanDetail";
 import AITests from "./pages/AITests";
 import Competitors from "./pages/Competitors";
 import Reports from "./pages/Reports";
+import ReportDetail from "./pages/ReportDetail";
 import Account from "./pages/Account";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const App = () => (
         <Route path="/prompts" element={<AITests />} />
               <Route path="/competitors" element={<Competitors />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/reports/:id" element={<ReportDetail />} />
               <Route path="/account" element={<Account />} />
               <Route path="/admin" element={<Admin />} />
             </Route>
