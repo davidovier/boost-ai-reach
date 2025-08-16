@@ -8,6 +8,7 @@ import { DashboardConfigTab } from '@/components/admin/DashboardConfigTab';
 import { AuditLogsTab } from '@/components/admin/AuditLogsTab';
 import { BillingTab } from '@/components/admin/BillingTab';
 import { useSearchParams } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
 
 function AdminPage() {
   const [params] = useSearchParams();
@@ -18,11 +19,18 @@ function AdminPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
-        <p className="text-muted-foreground">Manage users, usage, reports, features, logs and billing</p>
-      </header>
+    <>
+      <SEO
+        title="Admin Panel"
+        description="Manage users, usage, reports, dashboard configuration, audit logs and billing"
+        noindex
+      />
+      
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+          <p className="text-muted-foreground">Manage users, usage, reports, features, logs and billing</p>
+        </header>
 
       <AdminSubNav />
 
@@ -34,7 +42,8 @@ function AdminPage() {
         {tab === 'logs' && <AuditLogsTab />}
         {tab === 'billing' && <BillingTab />}
       </main>
-    </div>
+      </div>
+    </>
   );
 }
 

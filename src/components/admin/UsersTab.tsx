@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const roles = ['user','manager','admin'] as const;
 const plans = ['free','pro','growth','enterprise'] as const;
@@ -72,9 +73,17 @@ export function UsersTab() {
         </TableHeader>
         <TableBody>
           {loading ? (
-            <TableRow><TableCell colSpan={5}>Loading…</TableCell></TableRow>
+            Array.from({ length: 3 }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-8 w-16" /></TableCell>
+              </TableRow>
+            ))
           ) : rows.length === 0 ? (
-            <TableRow><TableCell colSpan={5}>No users</TableCell></TableRow>
+            <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No users found</TableCell></TableRow>
           ) : rows.map((r) => (
             <TableRow key={r.id}>
               <TableCell className="font-medium">{r.email}</TableCell>

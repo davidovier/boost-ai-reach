@@ -5,11 +5,12 @@ interface SEOProps {
   description?: string; // under 160 chars
   url?: string; // canonical URL
   ogImage?: string; // absolute or relative URL
+  noindex?: boolean; // prevent search engine indexing
   // Back-compat (deprecated): if provided, used as url
   canonical?: string;
 }
 
-export function SEO({ title, description, url, ogImage, canonical }: SEOProps) {
+export function SEO({ title, description, url, ogImage, noindex, canonical }: SEOProps) {
   useEffect(() => {
     const canonicalUrl = url || canonical || (typeof window !== 'undefined' ? window.location.href : '');
     const defaultOgImage = (typeof window !== 'undefined')
@@ -54,6 +55,9 @@ export function SEO({ title, description, url, ogImage, canonical }: SEOProps) {
 
     // Standard meta
     upsertMetaByName('description', description);
+    if (noindex) {
+      upsertMetaByName('robots', 'noindex, nofollow');
+    }
     upsertLink('canonical', canonicalUrl);
 
     // OpenGraph
@@ -68,7 +72,7 @@ export function SEO({ title, description, url, ogImage, canonical }: SEOProps) {
     upsertMetaByName('twitter:title', title);
     upsertMetaByName('twitter:description', description);
     upsertMetaByName('twitter:image', ogImage || defaultOgImage);
-  }, [title, description, url, ogImage, canonical]);
+  }, [title, description, url, ogImage, noindex, canonical]);
 
   return null;
 }

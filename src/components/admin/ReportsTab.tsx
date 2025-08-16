@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Row { id: string; pdf_url: string | null; site_id: string | null; created_at: string; }
 
@@ -35,9 +36,16 @@ export function ReportsTab() {
         </TableHeader>
         <TableBody>
           {loading ? (
-            <TableRow><TableCell colSpan={4}>Loading…</TableCell></TableRow>
+            Array.from({ length: 3 }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-4 w-64" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-64" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+              </TableRow>
+            ))
           ) : rows.length === 0 ? (
-            <TableRow><TableCell colSpan={4}>No reports</TableCell></TableRow>
+            <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No reports generated yet</TableCell></TableRow>
           ) : rows.map(r => (
             <TableRow key={r.id}>
               <TableCell className="font-mono text-xs">{r.id}</TableCell>
