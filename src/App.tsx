@@ -16,6 +16,7 @@ import ReportDetail from "./pages/ReportDetail";
 import Account from "./pages/Account";
 import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
+import AdminUsage from "./pages/AdminUsage";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Pricing from "./pages/Pricing";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/account" element={<Account />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/usage" element={<AdminUsage />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
