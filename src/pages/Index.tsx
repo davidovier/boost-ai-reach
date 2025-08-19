@@ -58,8 +58,16 @@ const Index = () => {
                 <Button size="lg" onClick={() => navigate('/onboarding')}>
                   Run a free scan
                 </Button>
-                <Button size="lg" variant="secondary" onClick={() => navigate('/pricing')}>
+                <Button size="lg" variant="secondary" onClick={() => navigate('/signin')}>
+                  Sign in
+                </Button>
+              </div>
+              <div className="mt-4 flex items-center gap-4">
+                <Button size="lg" variant="outline" onClick={() => navigate('/pricing')}>
                   See pricing
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => navigate('/signup')}>
+                  Sign up free
                 </Button>
               </div>
             </div>
