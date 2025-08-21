@@ -27,6 +27,32 @@ interface Scan {
 
 export default function Scans() {
   const { user } = useAuth();
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'Scans', item: `${origin}/scans` },
+  ]);
+
+  return (
+    <>
+      <SEO 
+        title="Website Scans - FindableAI"
+        description="View and manage your website scan results, AI findability scores, and optimization recommendations."
+        url="/scans"
+      />
+      
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
+      />
+
+      <ScansContent user={user} />
+    </>
+  );
+}
+
+function ScansContent({ user }: { user: any }) {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

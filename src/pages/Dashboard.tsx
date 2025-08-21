@@ -74,7 +74,8 @@ export default function Dashboard() {
       <SEO 
         title="Dashboard - FindableAI"
         description="Monitor your AI findability optimization progress with real-time analytics and insights."
-        url={`${window.location.origin}/dashboard`}
+        url="/dashboard"
+        noindex={true}
       />
       
       <div className="space-y-8">

@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEO } from '@/components/SEO';
-import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { withAdminGuard } from '@/components/auth/withRoleGuard';
 import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
 
@@ -49,15 +48,6 @@ function AdminUsersPage() {
   const emailFilter = searchParams.get('email') || '';
   const roleFilter = searchParams.get('role') || '';
   const planFilter = searchParams.get('plan') || '';
-
-  const breadcrumbs = getBreadcrumbJsonLd([
-    { name: 'Admin', item: `${window.location.origin}/admin` },
-    { name: 'Users', item: `${window.location.origin}/admin/users` }
-  ]);
-
-  useEffect(() => {
-    document.title = 'User Management – Admin – FindableAI';
-  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -180,17 +170,13 @@ function AdminUsersPage() {
 
   return (
     <>
-      <SEO
-        title="User Management – Admin"
-        description="Manage user accounts, roles, and permissions"
-        noindex
+      <SEO 
+        title="User Management - Admin Panel - FindableAI"
+        description="Manage user accounts, roles, and permissions in the FindableAI admin panel."
+        url="/admin/users"
+        noindex={true}
       />
       
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
-      />
-
       <div className="space-y-6">
         <header>
           <h1 className="text-3xl font-bold text-foreground">User Management</h1>
@@ -252,12 +238,12 @@ function AdminUsersPage() {
                   placeholder="Search by email..."
                   value={emailFilter}
                   onChange={(e) => updateFilter('email', e.target.value)}
-                  className="pl-10"
+                  className="pl-10 focus-ring"
                 />
               </div>
               
               <Select value={roleFilter} onValueChange={(value) => updateFilter('role', value)}>
-                <SelectTrigger>
+                <SelectTrigger className="focus-ring">
                   <SelectValue placeholder="Filter by role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -269,7 +255,7 @@ function AdminUsersPage() {
               </Select>
               
               <Select value={planFilter} onValueChange={(value) => updateFilter('plan', value)}>
-                <SelectTrigger>
+                <SelectTrigger className="focus-ring">
                   <SelectValue placeholder="Filter by plan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -326,15 +312,15 @@ function AdminUsersPage() {
                           onValueChange={(value: Role) => updateUserRole(user.id, value)}
                           disabled={updating === user.id}
                         >
-                          <SelectTrigger className="w-24">
-                            <Badge variant={getRoleBadgeVariant(user.role)}>
+                          <SelectTrigger className="w-24 focus-ring">
+                            <Badge variant={getRoleBadgeVariant(user.role) as any}>
                               {user.role}
                             </Badge>
                           </SelectTrigger>
                           <SelectContent>
                             {roles.map(role => (
                               <SelectItem key={role} value={role}>
-                                <Badge variant={getRoleBadgeVariant(role)}>
+                                <Badge variant={getRoleBadgeVariant(role) as any}>
                                   {role}
                                 </Badge>
                               </SelectItem>
@@ -343,7 +329,7 @@ function AdminUsersPage() {
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getPlanBadgeVariant(user.plan)}>
+                        <Badge variant={getPlanBadgeVariant(user.plan) as any}>
                           {user.plan}
                         </Badge>
                       </TableCell>
@@ -378,6 +364,7 @@ function AdminUsersPage() {
                   size="sm"
                   onClick={() => updatePage(page - 1)}
                   disabled={page === 1}
+                  className="btn-focus"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Previous
@@ -392,7 +379,7 @@ function AdminUsersPage() {
                         variant={pageNum === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => updatePage(pageNum)}
-                        className="w-8"
+                        className="w-8 btn-focus"
                       >
                         {pageNum}
                       </Button>
@@ -405,6 +392,7 @@ function AdminUsersPage() {
                   size="sm"
                   onClick={() => updatePage(page + 1)}
                   disabled={page === totalPages}
+                  className="btn-focus"
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />

@@ -7,6 +7,7 @@ import { PromptHistory } from "@/components/forms/PromptHistory";
 import { PromptResults } from "@/components/forms/PromptResults";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getBreadcrumbJsonLd, stringifyJsonLd } from "@/lib/seo";
 
 // Mock data - replace with actual API calls
 const mockHistory = [
@@ -42,6 +43,12 @@ export default function AITests() {
   const { toast } = useToast();
   const [selectedResult, setSelectedResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'AI Tests', item: `${origin}/ai-tests` },
+  ]);
 
   const handleSubmitPrompt = async (data: { prompt: string }) => {
     if (!user) {
@@ -95,18 +102,23 @@ export default function AITests() {
   return (
     <>
       <SEO 
-        title="AI Tests - FindableAI"
-        description="Test how AI models discover and reference your content with our advanced prompt simulation tools."
-        url="/prompts"
+        title="AI Findability Tests - FindableAI"
+        description="Test how AI models discover and mention your website with custom prompts and competitive analysis."
+        url="/ai-tests"
       />
       
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
+      />
+
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">AI Tests</h1>
+        <header>
+          <h1 className="text-3xl font-bold text-foreground">AI Findability Tests</h1>
           <p className="text-muted-foreground mt-2">
-            Test how AI models discover and reference your content
+            Test how AI models discover and recommend your website with custom prompts
           </p>
-        </div>
+        </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Input Form */}

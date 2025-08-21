@@ -1,0 +1,42 @@
+// Enhanced keyboard focus states for better accessibility
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+}
+
+// Enhanced button focus states
+.btn-focus {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+// Form input focus states
+.input-focus {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+// Link focus states
+.link-focus {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:rounded-sm;
+}
+
+// Card focus states (for interactive cards)
+.card-focus {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+// Skip link styles
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground;
+}
+
+// High contrast focus for important actions
+.focus-high-contrast {
+  @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary focus-visible:ring-offset-2;
+}
+
+// Focus within containers
+.focus-within-highlight:focus-within {
+  @apply ring-2 ring-primary ring-offset-2;
+}

@@ -20,10 +20,11 @@ function AdminPage() {
 
   return (
     <>
-      <SEO
-        title="Admin Panel"
-        description="Manage users, usage, reports, dashboard configuration, audit logs and billing"
-        noindex
+      <SEO 
+        title="Admin Panel - FindableAI"
+        description="Administrative panel for managing users, usage, reports, dashboard configuration, audit logs and billing."
+        url="/admin"
+        noindex={true}
       />
       
       <div className="space-y-6">

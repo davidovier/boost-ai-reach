@@ -123,9 +123,10 @@ export default function Account() {
   return (
     <>
       <SEO 
-        title="Account Settings – Manage Profile & Billing | FindableAI"
+        title="Account Settings - FindableAI"
         description="Manage your FindableAI account settings, subscription plan, billing information, and API access."
         url="/account"
+        noindex={true}
       />
       
       <script 

@@ -239,36 +239,14 @@ function AdminDashboardConfigPage() {
     return Object.values(config.modules).filter(Boolean).length;
   };
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Admin",
-        "item": "/admin"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Dashboard Configuration",
-        "item": "/admin/dashboard-config"
-      }
-    ]
-  };
-
   return (
     <>
       <SEO
-        title="Dashboard Configuration - Admin Panel"
-        description="Configure dashboard modules and widgets for different user roles and plans"
-        noindex
+        title="Dashboard Configuration - Admin Panel - FindableAI"
+        description="Configure dashboard layouts and feature flags for different user roles and plans."
+        url="/admin/dashboard-config"
+        noindex={true}
       />
-      
-      <script type="application/ld+json">
-        {JSON.stringify(breadcrumbJsonLd)}
-      </script>
 
       <div className="space-y-6">
         <header>
@@ -294,7 +272,7 @@ function AdminDashboardConfigPage() {
                   <div className="space-y-2">
                     <Label htmlFor="role-select">User Role</Label>
                     <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
-                      <SelectTrigger id="role-select">
+                      <SelectTrigger id="role-select" className="focus-ring">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -308,7 +286,7 @@ function AdminDashboardConfigPage() {
                   <div className="space-y-2">
                     <Label htmlFor="plan-select">Subscription Plan</Label>
                     <Select value={selectedPlan} onValueChange={(value: Plan) => setSelectedPlan(value)}>
-                      <SelectTrigger id="plan-select">
+                      <SelectTrigger id="plan-select" className="focus-ring">
                         <SelectValue placeholder="Select plan" />
                       </SelectTrigger>
                       <SelectContent>
@@ -379,6 +357,7 @@ function AdminDashboardConfigPage() {
                             id={module.key}
                             checked={config.modules[module.key] || false}
                             onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
+                            className="focus-ring"
                           />
                         </div>
                       );
@@ -393,7 +372,7 @@ function AdminDashboardConfigPage() {
               <Button
                 onClick={saveConfiguration}
                 disabled={saving}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 btn-focus"
               >
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving...' : 'Save Configuration'}
