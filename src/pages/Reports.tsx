@@ -124,27 +124,27 @@ export default function Reports() {
         </div>
 
         {loading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="animate-pulse">
-                <CardHeader>
+                <CardHeader className="padding-mobile">
                   <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2 mt-2"></div>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-20 bg-muted rounded"></div>
+                <CardContent className="padding-mobile pt-0">
+                  <div className="h-16 bg-muted rounded"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : reports.length === 0 ? (
-          <Card className="p-8 text-center">
+          <Card className="padding-mobile text-center">
             <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <CardTitle className="mb-2">No reports generated yet</CardTitle>
             <CardDescription className="mb-4">
               Generate your first report to get actionable insights and recommendations
             </CardDescription>
-            <Button onClick={handleGenerateReport} disabled={generating}>
+            <Button onClick={handleGenerateReport} disabled={generating} className="btn-focus">
               {generating ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -154,34 +154,34 @@ export default function Reports() {
             </Button>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {reports.map((report) => (
-              <Card key={report.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
+              <Card key={report.id} className="hover-scale transition-all duration-200">
+                <CardHeader className="padding-mobile">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
+                        <FileText className="h-5 w-5 flex-shrink-0" />
                         Report
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-1 mt-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatPeriod(report.period_start, report.period_end)}
+                      <CardDescription className="flex items-center gap-1 mt-1 text-xs sm:text-sm">
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{formatPeriod(report.period_start, report.period_end)}</span>
                       </CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs shrink-0">
                       {report.pdf_url ? 'Ready' : 'Processing'}
                     </Badge>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-3">
+                <CardContent className="padding-mobile pt-0 space-y-3">
                   <div className="text-sm text-muted-foreground">
                     Generated: {new Date(report.created_at).toLocaleDateString()}
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button asChild variant="outline" size="sm" className="flex-1">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button asChild variant="outline" size="sm" className="flex-1 btn-focus">
                       <Link to={`/reports/${report.id}`}>
                         <FileText className="mr-1 h-3 w-3" />
                         View
@@ -189,7 +189,7 @@ export default function Reports() {
                     </Button>
                     
                     {report.pdf_url && (
-                      <Button asChild variant="outline" size="sm" className="flex-1">
+                      <Button asChild variant="outline" size="sm" className="flex-1 btn-focus">
                         <a href={report.pdf_url} download target="_blank" rel="noopener noreferrer">
                           <Download className="mr-1 h-3 w-3" />
                           PDF

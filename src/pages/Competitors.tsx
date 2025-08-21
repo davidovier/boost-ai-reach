@@ -3,9 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, Trash2, Smartphone } from 'lucide-react';
+import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsive-table';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { CompetitorComparisonChart } from '@/components/CompetitorComparisonChart';
 import { stringifyJsonLd } from '@/lib/seo';
@@ -158,117 +158,67 @@ export default function Competitors() {
         />
       )}
 
-      {/* Desktop Table */}
-      <Card className="p-0 overflow-hidden hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Domain</TableHead>
-              <TableHead className="hidden md:table-cell">Latest Score</TableHead>
-              <TableHead className="hidden md:table-cell">Δ vs Baseline</TableHead>
-              <TableHead className="hidden md:table-cell">Last Snapshot</TableHead>
-              <TableHead className="w-[80px]" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">Loading…</TableCell>
-              </TableRow>
-            ) : items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">No competitors yet</TableCell>
-              </TableRow>
-            ) : (
-              items.map((it) => {
-                const score = it.latestSnapshot?.score ?? null;
-                const delta = it.comparison.delta;
-                return (
-                  <TableRow key={it.id}>
-                    <TableCell className="font-medium">{it.domain}</TableCell>
-                    <TableCell className="hidden md:table-cell">{score ?? '—'}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {delta == null ? '—' : (
-                        <span className={delta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                          {delta >= 0 ? '+' : ''}{delta}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {it.latestSnapshot?.snapshot_date ? new Date(it.latestSnapshot.snapshot_date).toLocaleString() : '—'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" aria-label={`Delete ${it.domain}`} onClick={() => handleDelete(it.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </Card>
-
-      {/* Mobile Card Layout */}
-      <div className="md:hidden space-y-4">
-        {loading ? (
-          <Card className="p-4">
-            <div className="text-center text-muted-foreground">Loading…</div>
+      <ResponsiveTable
+        data={items}
+        loading={loading}
+        columns={[
+          {
+            key: 'domain',
+            label: 'Domain',
+            render: (domain) => <span className="font-medium">{domain}</span>
+          },
+          {
+            key: 'latestSnapshot',
+            label: 'Score',
+            render: (snapshot) => snapshot?.score ?? '—'
+          },
+          {
+            key: 'comparison',
+            label: 'vs Baseline',
+            render: (comparison) => {
+              const delta = comparison?.delta;
+              if (delta == null) return '—';
+              return (
+                <span className={delta >= 0 ? 'text-success' : 'text-destructive'}>
+                  {delta >= 0 ? '+' : ''}{delta}
+                </span>
+              );
+            },
+            hideOnMobile: true
+          },
+          {
+            key: 'latestSnapshot',
+            label: 'Last Snapshot',
+            render: (snapshot) => {
+              if (!snapshot?.snapshot_date) return '—';
+              return <TableDate date={snapshot.snapshot_date} />;
+            },
+            hideOnMobile: true
+          },
+          {
+            key: 'actions',
+            label: '',
+            render: (_, item) => (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                aria-label={`Delete ${item.domain}`}
+                onClick={() => handleDelete(item.id)}
+                className="btn-focus min-h-[44px] min-w-[44px]"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            ),
+            className: 'text-right w-[80px]'
+          }
+        ]}
+        emptyState={
+          <Card className="p-8 text-center">
+            <div className="text-muted-foreground">No competitors yet</div>
           </Card>
-        ) : items.length === 0 ? (
-          <Card className="p-4">
-            <div className="text-center text-muted-foreground">No competitors yet</div>
-          </Card>
-        ) : (
-          items.map((item) => {
-            const score = item.latestSnapshot?.score ?? null;
-            const delta = item.comparison.delta;
-            return (
-              <Card key={item.id} className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground truncate">{item.domain}</h3>
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">Score:</span>
-                        <span className="font-medium">{score ?? '—'}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">vs Baseline:</span>
-                        {delta == null ? (
-                          <span>—</span>
-                        ) : (
-                          <span className={delta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                            {delta >= 0 ? '+' : ''}{delta}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">Last Snapshot:</span>
-                        <span className="text-xs">
-                          {item.latestSnapshot?.snapshot_date 
-                            ? new Date(item.latestSnapshot.snapshot_date).toLocaleDateString() 
-                            : '—'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    aria-label={`Delete ${item.domain}`} 
-                    onClick={() => handleDelete(item.id)}
-                    className="shrink-0"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            );
-          })
-        )}
-      </div>
+        }
+        className="padding-mobile"
+      />
     </div>
     </>
   );

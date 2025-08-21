@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ResponsiveTable, TableBadge } from '@/components/ui/responsive-table';
 import { supabase } from '@/integrations/supabase/client';
 import { Download, Copy, Search, Calendar, User, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -288,104 +288,123 @@ function AdminLogsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date/Time</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Details</TableHead>
-                      <TableHead>IP Address</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLogs.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                          No audit logs found matching your filters
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredLogs.map((log) => (
-                        <TableRow key={log.id} className="group">
-                          <TableCell className="font-mono text-sm">
-                            {format(parseISO(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">{log.user_email}</span>
-                              {log.user_id && (
-                                <span className="text-xs text-muted-foreground font-mono">
-                                  {log.user_id.slice(0, 8)}...
-                                </span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getActionBadgeVariant(log.action)}>
-                              {log.action.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">{log.table_name || 'N/A'}</span>
-                              {log.record_id && (
-                                <span className="text-xs text-muted-foreground font-mono">
-                                  {log.record_id.slice(0, 8)}...
-                                </span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="space-y-1">
-                              {log.old_values && Object.keys(log.old_values).length > 0 && (
-                                <div className="text-xs">
-                                  <span className="text-muted-foreground">Old: </span>
-                                  <code className="font-mono bg-muted px-1 rounded">
-                                    {JSON.stringify(log.old_values).slice(0, 50)}...
-                                  </code>
-                                </div>
-                              )}
-                              {log.new_values && Object.keys(log.new_values).length > 0 && (
-                                <div className="text-xs">
-                                  <span className="text-muted-foreground">New: </span>
-                                  <code className="font-mono bg-muted px-1 rounded">
-                                    {JSON.stringify(log.new_values).slice(0, 50)}...
-                                  </code>
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs text-muted-foreground">
-                            {(log.ip_address as string) || 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyToClipboard(JSON.stringify(log, null, 2))}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+            <ResponsiveTable
+              data={filteredLogs}
+              loading={loading}
+              columns={[
+                {
+                  key: 'created_at',
+                  label: 'Date/Time',
+                  render: (date) => (
+                    <span className="font-mono text-sm">
+                      {format(parseISO(date), 'MMM dd, yyyy HH:mm:ss')}
+                    </span>
+                  )
+                },
+                {
+                  key: 'user_email',
+                  label: 'User',
+                  render: (email, log) => (
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{email}</span>
+                      {log.user_id && (
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {log.user_id.slice(0, 8)}...
+                        </span>
+                      )}
+                    </div>
+                  )
+                },
+                {
+                  key: 'action',
+                  label: 'Action',
+                  render: (action) => (
+                    <TableBadge variant={getActionBadgeVariant(action)}>
+                      {action.replace('_', ' ').toUpperCase()}
+                    </TableBadge>
+                  )
+                },
+                {
+                  key: 'table_name',
+                  label: 'Target',
+                  render: (tableName, log) => (
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{tableName || 'N/A'}</span>
+                      {log.record_id && (
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {log.record_id.slice(0, 8)}...
+                        </span>
+                      )}
+                    </div>
+                  ),
+                  hideOnMobile: true
+                },
+                {
+                  key: 'details',
+                  label: 'Details',
+                  render: (_, log) => (
+                    <div className="space-y-1 max-w-xs">
+                      {log.old_values && Object.keys(log.old_values).length > 0 && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Old: </span>
+                          <code className="font-mono bg-muted px-1 rounded">
+                            {JSON.stringify(log.old_values).slice(0, 50)}...
+                          </code>
+                        </div>
+                      )}
+                      {log.new_values && Object.keys(log.new_values).length > 0 && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">New: </span>
+                          <code className="font-mono bg-muted px-1 rounded">
+                            {JSON.stringify(log.new_values).slice(0, 50)}...
+                          </code>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                  hideOnMobile: true
+                },
+                {
+                  key: 'ip_address',
+                  label: 'IP',
+                  render: (ip) => (
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {(ip as string) || 'N/A'}
+                    </span>
+                  ),
+                  hideOnMobile: true
+                },
+                {
+                  key: 'actions',
+                  label: '',
+                  render: (_, log) => (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(JSON.stringify(log, null, 2))}
+                      className="btn-focus opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Copy log entry"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  ),
+                  className: 'w-[50px]'
+                }
+              ]}
+              emptyState={
+                <div className="text-center py-8 text-muted-foreground">
+                  No audit logs found matching your filters
+                </div>
+              }
+              loadingSkeleton={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              }
+              className="[&_tbody_tr]:group"
+            />
           </CardContent>
         </Card>
       </div>

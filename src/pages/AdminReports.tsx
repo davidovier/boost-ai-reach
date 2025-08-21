@@ -4,7 +4,7 @@ import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsive-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -283,127 +283,136 @@ function AdminReportsPage() {
             <CardTitle>All Reports</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox
-                        checked={selectedReports.size === reports.length && reports.length > 0}
-                        onCheckedChange={handleSelectAll}
-                        aria-label="Select all reports"
-                      />
-                    </TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Site</TableHead>
-                    <TableHead>Period</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-4 w-4" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-8 w-16" /></TableCell>
-                      </TableRow>
-                    ))
-                  ) : reports.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No reports found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    reports.map((report) => {
-                      const status = getReportStatus(report);
+            <ResponsiveTable
+              data={reports}
+              loading={loading}
+              columns={[
+                {
+                  key: 'select',
+                  label: (
+                    <Checkbox
+                      checked={selectedReports.size === reports.length && reports.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all reports"
+                      className="btn-focus"
+                    />
+                  ) as any,
+                  render: (_, report) => (
+                    <Checkbox
+                      checked={selectedReports.has(report.id)}
+                      onCheckedChange={(checked) => handleSelectReport(report.id, checked as boolean)}
+                      aria-label={`Select report for ${report.user_name}`}
+                      className="btn-focus"
+                    />
+                  ),
+                  className: 'w-12',
+                  hideOnMobile: true
+                },
+                {
+                  key: 'user',
+                  label: 'User',
+                  render: (_, report) => (
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="font-medium">{report.user_name}</div>
+                        <div className="text-sm text-muted-foreground">{report.user_email}</div>
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  key: 'site',
+                  label: 'Site',
+                  render: (_, report) => {
+                    if (report.site_url) {
                       return (
-                        <TableRow key={report.id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedReports.has(report.id)}
-                              onCheckedChange={(checked) => handleSelectReport(report.id, checked as boolean)}
-                              aria-label={`Select report for ${report.user_name}`}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <div>
-                                <div className="font-medium">{report.user_name}</div>
-                                <div className="text-sm text-muted-foreground">{report.user_email}</div>
-                              </div>
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">{report.site_name || 'Unnamed Site'}</div>
+                            <div className="text-sm text-muted-foreground truncate max-w-48">
+                              {report.site_url}
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            {report.site_url ? (
-                              <div className="flex items-center gap-2">
-                                <Globe className="h-4 w-4 text-muted-foreground" />
-                                <div>
-                                  <div className="font-medium">{report.site_name || 'Unnamed Site'}</div>
-                                  <div className="text-sm text-muted-foreground truncate max-w-48">
-                                    {report.site_url}
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-muted-foreground flex items-center gap-2">
-                                <Globe className="h-4 w-4" />
-                                All Sites
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm">{formatPeriod(report.period_start, report.period_end)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={status.variant}>{status.label}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(report.created_at).toLocaleDateString()}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {report.pdf_url ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => window.open(report.pdf_url!, '_blank')}
-                                className="flex items-center gap-1"
-                              >
-                                <Download className="h-3 w-3" />
-                                Download
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled
-                                className="flex items-center gap-1"
-                              >
-                                <RefreshCw className="h-3 w-3" />
-                                {status.label}
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
+                          </div>
+                        </div>
                       );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    }
+                    return (
+                      <div className="text-muted-foreground flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        All Sites
+                      </div>
+                    );
+                  },
+                  hideOnMobile: true
+                },
+                {
+                  key: 'period',
+                  label: 'Period',
+                  render: (_, report) => (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{formatPeriod(report.period_start, report.period_end)}</span>
+                    </div>
+                  ),
+                  hideOnMobile: true
+                },
+                {
+                  key: 'status',
+                  label: 'Status',
+                  render: (_, report) => {
+                    const status = getReportStatus(report);
+                    return <TableBadge variant={status.variant}>{status.label}</TableBadge>;
+                  }
+                },
+                {
+                  key: 'created_at',
+                  label: 'Created',
+                  render: (date) => <TableDate date={date} />
+                },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  render: (_, report) => {
+                    const status = getReportStatus(report);
+                    return report.pdf_url ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(report.pdf_url!, '_blank')}
+                        className="flex items-center gap-1 btn-focus"
+                      >
+                        <Download className="h-3 w-3" />
+                        Download
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled
+                        className="flex items-center gap-1"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                        {status.label}
+                      </Button>
+                    );
+                  }
+                }
+              ]}
+              emptyState={
+                <div className="text-center py-8 text-muted-foreground">
+                  No reports found
+                </div>
+              }
+              loadingSkeleton={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              }
+            />
           </CardContent>
         </Card>
       </div>
