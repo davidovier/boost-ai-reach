@@ -16,15 +16,15 @@ export function MainLayout() {
               <MobileHeader />
             </nav>
           </header>
-          <main id="main-content" className="flex-1 p-4 md:p-6" role="main">
-            <Outlet />
-          </main>
-          <footer className="border-t p-4 md:p-6 text-sm text-muted-foreground">
-            <div className="flex items-center justify-between gap-4">
-              <p>&copy; {new Date().getFullYear()} FindableAI. All rights reserved.</p>
-              <a href="/" className="hover:underline">Back to home</a>
-            </div>
-          </footer>
+        <main id="main-content" className="flex-1 p-3 sm:p-4 lg:p-6" role="main">
+          <Outlet />
+        </main>
+        <footer className="border-t p-3 sm:p-4 lg:p-6 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+            <p>&copy; {new Date().getFullYear()} FindableAI. All rights reserved.</p>
+            <a href="/" className="hover:underline link-focus">Back to home</a>
+          </div>
+        </footer>
         </SidebarInset>
       </div>
     </SidebarProvider>

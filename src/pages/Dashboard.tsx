@@ -78,11 +78,10 @@ export default function Dashboard() {
         noindex={true}
       />
       
-      <div className="space-y-8">
-        {/* Header */}
+      <div className="space-y-6 sm:space-y-8">
         <header>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2">
             Overview of your AI findability optimization
           </p>
         </header>
@@ -90,20 +89,20 @@ export default function Dashboard() {
         {/* KPI Cards */}
         <section aria-labelledby="kpi-heading">
           <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+            <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Findability Score
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold text-foreground">72</div>
+                    <div className="text-xl sm:text-2xl font-bold text-foreground">72</div>
                     <p className="text-xs text-muted-foreground">
                       +12% from last month
                     </p>
@@ -112,19 +111,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Sites Tracked
                 </CardTitle>
                 <Search className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-xl sm:text-2xl font-bold text-foreground">
                       0
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -135,19 +134,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   AI Tests Used
                 </CardTitle>
                 <Zap className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-xl sm:text-2xl font-bold text-foreground">
                       {subscription?.usage?.prompt_count || 0}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -158,19 +157,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Last Scan Status
                 </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-6 sm:h-8 w-16 sm:w-24" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold text-foreground">Active</div>
+                    <div className="text-xl sm:text-2xl font-bold text-foreground">Active</div>
                     <p className="text-xs text-muted-foreground">
                       2 hours ago
                     </p>
@@ -182,7 +181,7 @@ export default function Dashboard() {
         </section>
 
         {/* Recent Activity */}
-        <section aria-labelledby="activity-heading">
+        <section aria-labelledby="activity-heading" className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
           <Card>
             <CardHeader>
               <CardTitle id="activity-heading" className="flex items-center gap-2">
@@ -192,21 +191,25 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               {activitiesLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
+                    <div key={i} className="flex items-center space-x-3 sm:space-x-4">
+                      <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-full" />
                       <div className="space-y-2 flex-1">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
+                        <Skeleton className="h-3 sm:h-4 w-3/4" />
+                        <Skeleton className="h-2 sm:h-3 w-1/2" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : activities.length > 0 ? (
-                <ul className="space-y-4" role="list">
-                  {activities.map((activity) => (
-                    <li key={activity.id} className="flex items-start space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                <ul className="space-y-3 sm:space-y-4" role="list">
+                  {activities.map((activity, index) => (
+                    <li 
+                      key={activity.id} 
+                      className="flex items-start space-x-3 sm:space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-colors animate-fade-in"
+                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+                    >
                       <div className="flex-shrink-0 p-2 rounded-full bg-muted">
                         {getActivityIcon(activity.type)}
                       </div>
@@ -214,7 +217,7 @@ export default function Dashboard() {
                         <p className="text-sm font-medium text-foreground truncate">
                           {activity.title}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
                           <time className="text-xs text-muted-foreground">
                             {activity.timestamp}
                           </time>
@@ -225,8 +228,8 @@ export default function Dashboard() {
                   ))}
                 </ul>
               ) : (
-                <div className="text-center py-8">
-                  <Activity className="mx-auto h-12 w-12 text-muted-foreground" />
+                <div className="text-center py-8 sm:py-12">
+                  <Activity className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
                   <h3 className="mt-2 text-sm font-semibold text-foreground">No activity yet</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Start by scanning your first website or running an AI test.

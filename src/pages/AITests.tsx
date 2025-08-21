@@ -112,41 +112,41 @@ export default function AITests() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
       />
 
-      <div className="space-y-8">
-        <header>
-          <h1 className="text-3xl font-bold text-foreground">AI Findability Tests</h1>
-          <p className="text-muted-foreground mt-2">
-            Test how AI models discover and recommend your website with custom prompts
-          </p>
-        </header>
+        <div className="space-y-6 sm:space-y-8">
+          <header>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">AI Findability Tests</h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2">
+              Test how AI models discover and recommend your website with custom prompts
+            </p>
+          </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Input Form */}
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">Run New Test</h2>
-              <PromptForm onSubmit={handleSubmitPrompt} isLoading={isLoading} />
-              
-              {subscription && (
-                <div className="text-sm text-muted-foreground">
-                  Usage: {subscription.usage?.prompt_count || 0} / {subscription.limits?.max_prompts || 1} prompts this month
-                </div>
-              )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Input Form */}
+            <div className="space-y-4 sm:space-y-6 animate-fade-in">
+              <div className="space-y-3 sm:space-y-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground">Run New Test</h2>
+                <PromptForm onSubmit={handleSubmitPrompt} isLoading={isLoading} />
+                
+                {subscription && (
+                  <div className="text-xs sm:text-sm text-muted-foreground bg-muted/30 p-3 rounded-md">
+                    Usage: {subscription.usage?.prompt_count || 0} / {subscription.limits?.max_prompts || 1} prompts this month
+                  </div>
+                )}
+              </div>
+
+              <PromptHistory 
+                history={mockHistory}
+                onSelectPrompt={setSelectedResult}
+              />
             </div>
 
-            <PromptHistory 
-              history={mockHistory}
-              onSelectPrompt={setSelectedResult}
-            />
-          </div>
-
-          {/* Results Panel */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-foreground">Results</h2>
-            <PromptResults result={selectedResult} />
+            {/* Results Panel */}
+            <div className="space-y-4 sm:space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground">Results</h2>
+              <PromptResults result={selectedResult} />
+            </div>
           </div>
         </div>
-      </div>
     </>
   );
 }

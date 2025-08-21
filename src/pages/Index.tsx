@@ -43,39 +43,58 @@ const Index = () => {
         {/* Hero */}
         <section className={`relative overflow-hidden ${styles.hero}`}>
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/40 to-background" aria-hidden="true" />
-          <div className="relative mx-auto max-w-6xl px-6 pt-28 pb-16 grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 grid md:grid-cols-2 gap-8 md:gap-10 items-center">
+            <div className="text-center md:text-left">
+              <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
                 <Sparkles className="h-3.5 w-3.5" /> New: AI Findability Score 2.0
               </span>
-              <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground">
+              <h1 className="mt-4 sm:mt-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
                 Optimize your brand for AI discovery
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground text-lg">
+              <p className="mx-auto md:mx-0 mt-4 max-w-xl text-muted-foreground text-base sm:text-lg leading-relaxed">
                 Run a free scan, simulate AI prompts, and get step-by-step fixes that improve how models and agents surface your content.
               </p>
-              <div className="mt-8 flex items-center gap-4">
-                <Button size="lg" onClick={() => navigate('/onboarding')}>
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate('/onboarding')}
+                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                >
                   Run a free scan
                 </Button>
-                <Button size="lg" variant="secondary" onClick={() => navigate('/signin')}>
+                <Button 
+                  size="lg" 
+                  variant="secondary" 
+                  onClick={() => navigate('/signin')}
+                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                >
                   Sign in
                 </Button>
               </div>
-              <div className="mt-4 flex items-center gap-4">
-                <Button size="lg" variant="outline" onClick={() => navigate('/pricing')}>
+              <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={() => navigate('/pricing')}
+                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                >
                   See pricing
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => navigate('/signup')}>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={() => navigate('/signup')}
+                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                >
                   Sign up free
                 </Button>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative mt-8 md:mt-0">
               <img
                 src="https://images.unsplash.com/photo-1526378722484-bd91ca387e72?q=80&w=1200&auto=format&fit=crop"
                 alt="AI analytics dashboard visualization for AI findability"
-                className="rounded-lg border bg-card shadow-sm w-full"
+                className="rounded-lg border bg-card shadow-sm w-full h-auto animate-fade-in"
                 loading="eager"
               />
             </div>
@@ -83,23 +102,27 @@ const Index = () => {
         </section>
 
         {/* Features */}
-        <section className="mx-auto max-w-6xl px-6 py-14">
-          <h2 className="text-2xl md:text-3xl font-semibold">What you get</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-14">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-center md:text-left">What you get</h2>
+          <div className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: Gauge, title: 'Findability Score', text: 'Unified 0–100 score with clear breakdowns.' },
               { icon: Bot, title: 'AI Simulations', text: 'Test prompts and see if your brand is included.' },
               { icon: ShieldCheck, title: 'Crawlability', text: 'Robots, sitemaps, and performance checks.' },
               { icon: Sparkles, title: 'Actionable Tips', text: 'Fixes for metadata, schema, and content.' },
-            ].map(({ icon: Icon, title, text }) => (
-              <article key={title} className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+            ].map(({ icon: Icon, title, text }, index) => (
+              <article 
+                key={title} 
+                className="rounded-lg border bg-card p-4 sm:p-6 text-card-foreground shadow-sm hover-scale animate-fade-in card-focus"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <Icon className="h-6 w-6 text-primary" />
                 <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
                 <img
                   src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop"
                   alt={`${title} illustration`}
-                  className="mt-4 rounded-md border"
+                  className="mt-4 rounded-md border w-full h-32 sm:h-40 object-cover"
                   loading="lazy"
                 />
               </article>
@@ -108,20 +131,24 @@ const Index = () => {
         </section>
 
         {/* How it works */}
-        <section className="mx-auto max-w-6xl px-6 pb-16">
-          <h2 className="text-2xl md:text-3xl font-semibold">How it works</h2>
-          <ol className="mt-6 grid gap-6 md:grid-cols-3">
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-16">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-center md:text-left">How it works</h2>
+          <ol className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {[
               { step: '1', title: 'Add your site', desc: 'Enter your URL and we prepare a quick baseline audit.' },
               { step: '2', title: 'Run a scan', desc: 'We analyze metadata, schema, crawlability, and summarizability.' },
               { step: '3', title: 'Get fixes', desc: 'Review your score with actionable tips to improve AI visibility.' },
-            ].map((s) => (
-              <li key={s.step} className="rounded-lg border bg-card p-6">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+            ].map((s, index) => (
+              <li 
+                key={s.step} 
+                className="rounded-lg border bg-card p-4 sm:p-6 hover-scale animate-fade-in card-focus"
+                style={{ animationDelay: `${(index + 4) * 0.1}s` }}
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                   {s.step}
                 </span>
                 <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </li>
             ))}
           </ol>

@@ -46,22 +46,29 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-sidebar-border">
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground font-semibold">
+          <SidebarGroupLabel className="text-sidebar-foreground font-semibold px-3 py-2">
             FindableAI
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="min-h-[44px] w-full">
                     <NavLink 
                       to={item.url} 
-                      className={({ isActive }) => getNavClassName(isActive)}
+                      className={({ isActive }) => `
+                        flex items-center gap-3 px-3 py-3 rounded-md transition-colors
+                        btn-focus
+                        ${isActive 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
+                          : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        }
+                      `}
                     >
-                      <item.icon className="h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!isCollapsed && <span className="flex-1 text-left">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -69,13 +76,20 @@ export function AppSidebar() {
               
               {canAccessAdmin && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="min-h-[44px] w-full">
                     <NavLink 
                       to="/admin" 
-                      className={({ isActive }) => getNavClassName(isActive)}
+                      className={({ isActive }) => `
+                        flex items-center gap-3 px-3 py-3 rounded-md transition-colors
+                        btn-focus
+                        ${isActive 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
+                          : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        }
+                      `}
                     >
-                      <Shield className="h-4 w-4" />
-                      {!isCollapsed && <span>Admin</span>}
+                      <Shield className="h-5 w-5 flex-shrink-0" />
+                      {!isCollapsed && <span className="flex-1 text-left">Admin</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

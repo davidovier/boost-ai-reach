@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { SEO } from '@/components/SEO';
 import { withAdminGuard } from '@/components/auth/withRoleGuard';
 import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsive-table';
 
 const roles = ['user', 'manager', 'admin'] as const;
 const plans = ['free', 'pro', 'growth', 'enterprise'] as const;
@@ -177,47 +177,47 @@ function AdminUsersPage() {
         noindex={true}
       />
       
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <header>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-          <p className="text-muted-foreground">Manage user accounts, roles, and permissions</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">User Management</h1>
+          <p className="text-muted-foreground mt-1">Manage user accounts, roles, and permissions</p>
         </header>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card className="stat-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Total Users</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{totalCount}</p>}
+              {loading ? <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" /> : <p className="text-xl sm:text-2xl font-bold">{totalCount}</p>}
             </CardContent>
           </Card>
           
           <Card className="stat-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Admins</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Admins</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>}
+              {loading ? <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" /> : <p className="text-xl sm:text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>}
             </CardContent>
           </Card>
           
           <Card className="stat-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Managers</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Managers</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{users.filter(u => u.role === 'manager').length}</p>}
+              {loading ? <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" /> : <p className="text-xl sm:text-2xl font-bold">{users.filter(u => u.role === 'manager').length}</p>}
             </CardContent>
           </Card>
           
           <Card className="stat-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Regular Users</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Regular Users</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{users.filter(u => u.role === 'user').length}</p>}
+              {loading ? <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" /> : <p className="text-xl sm:text-2xl font-bold">{users.filter(u => u.role === 'user').length}</p>}
             </CardContent>
           </Card>
         </div>
@@ -231,19 +231,19 @@ function AdminUsersPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by email..."
                   value={emailFilter}
                   onChange={(e) => updateFilter('email', e.target.value)}
-                  className="pl-10 focus-ring"
+                  className="pl-10 focus-ring min-h-[44px]"
                 />
               </div>
               
               <Select value={roleFilter} onValueChange={(value) => updateFilter('role', value)}>
-                <SelectTrigger className="focus-ring">
+                <SelectTrigger className="focus-ring min-h-[44px]">
                   <SelectValue placeholder="Filter by role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -255,7 +255,7 @@ function AdminUsersPage() {
               </Select>
               
               <Select value={planFilter} onValueChange={(value) => updateFilter('plan', value)}>
-                <SelectTrigger className="focus-ring">
+                <SelectTrigger className="focus-ring min-h-[44px]">
                   <SelectValue placeholder="Filter by plan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -272,81 +272,92 @@ function AdminUsersPage() {
         {/* Users Table */}
         <Card>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Usage (S/P/C/R)</TableHead>
-                  <TableHead>Joined</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  Array.from({ length: limit }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-48" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    </TableRow>
-                  ))
-                ) : users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No users found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.email}</TableCell>
-                      <TableCell>{user.name || '—'}</TableCell>
-                      <TableCell>
-                        <Select 
-                          value={user.role} 
-                          onValueChange={(value: Role) => updateUserRole(user.id, value)}
-                          disabled={updating === user.id}
-                        >
-                          <SelectTrigger className="w-24 focus-ring">
-                            <Badge variant={getRoleBadgeVariant(user.role) as any}>
-                              {user.role}
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {roles.map(role => (
-                              <SelectItem key={role} value={role}>
-                                <Badge variant={getRoleBadgeVariant(role) as any}>
-                                  {role}
-                                </Badge>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getPlanBadgeVariant(user.plan) as any}>
-                          {user.plan}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {user.usage ? 
-                          `${user.usage.scan_count}/${user.usage.prompt_count}/${user.usage.competitor_count}/${user.usage.report_count}` 
-                          : '—'
-                        }
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <ResponsiveTable
+              data={users}
+              loading={loading}
+              loadingSkeleton={
+                <div className="p-4 space-y-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-4 space-y-3">
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-6 w-20" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              }
+              emptyState={
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-lg font-medium">No users found</p>
+                  <p className="text-sm mt-1">Try adjusting your filters</p>
+                </div>
+              }
+              columns={[
+                {
+                  key: 'email',
+                  label: 'Email',
+                  className: 'font-medium',
+                },
+                {
+                  key: 'name',
+                  label: 'Name',
+                  render: (value) => value || '—',
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'role',
+                  label: 'Role',
+                  render: (value, user) => (
+                    <Select 
+                      value={value} 
+                      onValueChange={(newRole: Role) => updateUserRole(user.id, newRole)}
+                      disabled={updating === user.id}
+                    >
+                      <SelectTrigger className="w-24 focus-ring min-h-[40px]">
+                        <TableBadge variant={getRoleBadgeVariant(value)}>
+                          {value}
+                        </TableBadge>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map(role => (
+                          <SelectItem key={role} value={role}>
+                            <TableBadge variant={getRoleBadgeVariant(role)}>
+                              {role}
+                            </TableBadge>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ),
+                },
+                {
+                  key: 'plan',
+                  label: 'Plan',
+                  render: (value) => (
+                    <TableBadge variant={getPlanBadgeVariant(value)}>
+                      {value}
+                    </TableBadge>
+                  ),
+                },
+                {
+                  key: 'usage',
+                  label: 'Usage (S/P/C/R)',
+                  className: 'font-mono text-sm',
+                  render: (value) => value ? 
+                    `${value.scan_count}/${value.prompt_count}/${value.competitor_count}/${value.report_count}` 
+                    : '—',
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'created_at',
+                  label: 'Joined',
+                  render: (value) => <TableDate date={value} />,
+                  hideOnMobile: true,
+                },
+              ]}
+            />
           </CardContent>
         </Card>
 

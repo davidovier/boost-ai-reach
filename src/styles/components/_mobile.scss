@@ -1,0 +1,110 @@
+// Mobile-specific utilities and components
+@use '../variables' as *;
+
+// Touch-friendly button sizes
+.btn-touch {
+  min-height: 44px;
+  min-width: 44px;
+  @apply px-4 py-2;
+}
+
+// Mobile-optimized spacing
+.space-mobile {
+  @apply space-y-3;
+  
+  @media (min-width: 640px) {
+    @apply space-y-4;
+  }
+  
+  @media (min-width: 1024px) {
+    @apply space-y-6;
+  }
+}
+
+// Interactive element animations
+.hover-scale {
+  @apply transition-transform duration-200;
+  
+  &:hover {
+    @apply scale-105;
+  }
+  
+  &:active {
+    @apply scale-95;
+  }
+}
+
+// Story link animation
+.story-link {
+  @apply relative inline-block;
+  
+  &::after {
+    content: '';
+    @apply absolute w-full h-0.5 bottom-0 left-0 bg-primary;
+    @apply scale-x-0 origin-bottom-right;
+    @apply transition-transform duration-300;
+  }
+  
+  &:hover::after {
+    @apply scale-x-100 origin-bottom-left;
+  }
+}
+
+// Mobile table wrapper
+.table-mobile-wrapper {
+  @apply overflow-x-auto;
+  
+  table {
+    @apply min-w-[600px];
+  }
+  
+  @media (max-width: 767px) {
+    @apply hidden;
+  }
+}
+
+// Mobile card list (shown instead of table)
+.mobile-card-list {
+  @apply block;
+  
+  @media (min-width: 768px) {
+    @apply hidden;
+  }
+}
+
+// Responsive padding utilities
+.padding-mobile {
+  @apply p-3;
+  
+  @media (min-width: 640px) {
+    @apply p-4;
+  }
+  
+  @media (min-width: 1024px) {
+    @apply p-6;
+  }
+}
+
+.padding-x-mobile {
+  @apply px-3;
+  
+  @media (min-width: 640px) {
+    @apply px-4;
+  }
+  
+  @media (min-width: 1024px) {
+    @apply px-6;
+  }
+}
+
+.padding-y-mobile {
+  @apply py-3;
+  
+  @media (min-width: 640px) {
+    @apply py-4;
+  }
+  
+  @media (min-width: 1024px) {
+    @apply py-6;
+  }
+}
