@@ -27,6 +27,9 @@ import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Pricing from "./pages/Pricing";
 import Changelog from "./pages/Changelog";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Cookies from "./pages/Cookies";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/changelog" element={<Changelog />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/cookies" element={<Cookies />} />
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/scans" element={<Scans />} />
