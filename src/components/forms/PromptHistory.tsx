@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Users } from "lucide-react";
+import { CheckCircle, XCircle, Users, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface PromptHistoryItem {
   id: string;
@@ -18,9 +19,10 @@ interface PromptHistoryItem {
 interface PromptHistoryProps {
   history: PromptHistoryItem[];
   onSelectPrompt?: (item: PromptHistoryItem) => void;
+  onRerunPrompt?: (prompt: string) => void;
 }
 
-export function PromptHistory({ history, onSelectPrompt }: PromptHistoryProps) {
+export function PromptHistory({ history, onSelectPrompt, onRerunPrompt }: PromptHistoryProps) {
   if (history.length === 0) {
     return (
       <Card>
@@ -37,47 +39,76 @@ export function PromptHistory({ history, onSelectPrompt }: PromptHistoryProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-foreground">Recent AI Tests</h3>
-      <div className="space-y-3">
-        {history.map((item) => (
-          <Card 
-            key={item.id} 
-            className="cursor-pointer hover:bg-accent/50 transition-colors"
-            onClick={() => onSelectPrompt?.(item)}
+    <div className="prompt-history space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">Recent Prompts</h3>
+        <div className="text-xs text-muted-foreground">
+          Click to view • Hover to rerun
+        </div>
+      </div>
+      
+      <div className="prompt-history__grid space-y-3">
+        {history.map((item, index) => (
+          <div 
+            key={item.id}
+            className="prompt-history__item animate-fade-in"
+            style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-sm font-medium leading-relaxed">
+            <div className="prompt-history__bubble group relative">
+              <div 
+                className="prompt-history__content cursor-pointer"
+                onClick={() => onSelectPrompt?.(item)}
+              >
+                <div className="prompt-history__text">
                   {item.prompt}
-                </CardTitle>
-                <div className="flex items-center gap-2 shrink-0">
-                  {item.includes_user_site ? (
-                    <Badge variant="default" className="text-xs">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Found
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-xs">
-                      <XCircle className="w-3 h-3 mr-1" />
-                      Not Found
-                    </Badge>
-                  )}
+                </div>
+                
+                <div className="prompt-history__meta">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(item.run_date), "MMM d")}
+                    </span>
+                    
+                    <div className="flex items-center gap-2">
+                      {item.includes_user_site ? (
+                        <Badge variant="default" className="prompt-history__badge">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Found
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="prompt-history__badge">
+                          <XCircle className="w-3 h-3 mr-1" />
+                          Not Found
+                        </Badge>
+                      )}
+                      
+                      {item.competitor_mentions && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Users className="w-3 h-3" />
+                          <span>{item.competitor_mentions}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>{format(new Date(item.run_date), "MMM d, yyyy 'at' h:mm a")}</span>
-                {item.competitor_mentions ? (
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    <span>{item.competitor_mentions} competitors</span>
-                  </div>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
+              
+              {onRerunPrompt && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="prompt-history__rerun absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRerunPrompt(item.prompt);
+                  }}
+                  title="Rerun this prompt"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+          </div>
         ))}
       </div>
     </div>

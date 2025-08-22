@@ -137,13 +137,16 @@ export default function AITests() {
               <PromptHistory 
                 history={mockHistory}
                 onSelectPrompt={setSelectedResult}
+                onRerunPrompt={(prompt) => handleSubmitPrompt({ prompt })}
               />
             </div>
 
             {/* Results Panel */}
-            <div className="space-y-4 sm:space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="space-y-4 sm:space-y-6" key={selectedResult?.id || 'empty'}>
               <h2 className="text-lg sm:text-xl font-semibold text-foreground">Results</h2>
-              <PromptResults result={selectedResult} />
+              <div className="animate-fade-in">
+                <PromptResults result={selectedResult} />
+              </div>
             </div>
           </div>
         </div>

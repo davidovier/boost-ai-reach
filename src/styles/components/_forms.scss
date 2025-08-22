@@ -1,4 +1,177 @@
 // Form components styling
+
+// Modern Prompt Form
+.prompt-form {
+  &__field {
+    position: relative;
+  }
+
+  &__textarea {
+    border: 2px solid hsl(var(--border));
+    background: hsl(var(--background));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    }
+    
+    &:focus-within {
+      transform: translateY(-1px);
+    }
+  }
+
+  &__label {
+    background: hsl(var(--background));
+    padding: 0 0.5rem;
+    font-weight: 500;
+    z-index: 10;
+  }
+
+  &__hint {
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    
+    .prompt-form__textarea:focus + & {
+      opacity: 1;
+    }
+  }
+
+  &__submit {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    border: none;
+    box-shadow: 0 4px 12px -4px hsl(var(--primary) / 0.4);
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px -4px hsl(var(--primary) / 0.5);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__error {
+    animation: slide-in-left 0.3s ease-out;
+  }
+}
+
+// Prompt History Bubbles
+.prompt-history {
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__item {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+
+  &__bubble {
+    position: relative;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: hsl(var(--card));
+    transition: all 0.2s ease;
+    overflow: hidden;
+    
+    &:hover {
+      border-color: hsl(var(--primary) / 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px hsl(var(--shadow) / 0.2);
+    }
+  }
+
+  &__content {
+    padding: 1rem;
+    position: relative;
+  }
+
+  &__text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    height: auto;
+  }
+
+  &__rerun {
+    border-radius: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    
+    &:hover {
+      background: hsl(var(--accent));
+      border-color: hsl(var(--primary));
+    }
+  }
+}
+
+// Animations
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .prompt-history {
+    &__bubble {
+      border-radius: 0.75rem;
+    }
+    
+    &__content {
+      padding: 0.875rem;
+    }
+    
+    &__text {
+      font-size: 0.85rem;
+    }
+  }
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
