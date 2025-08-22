@@ -1,3 +1,205 @@
+// Enhanced KPI cards with gradients, animations, and sparklines
+@use '../variables' as *;
+
+.kpi-card {
+  position: relative;
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: $radius;
+  padding: 1.5rem;
+  box-shadow: 
+    0 1px 3px 0 hsl(var(--foreground) / 0.05),
+    0 4px 6px -1px hsl(var(--foreground) / 0.03),
+    0 10px 20px -5px hsl(var(--primary) / 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  
+  // Gradient accent border on top
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+    border-radius: $radius $radius 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 4px 6px -1px hsl(var(--foreground) / 0.08),
+      0 10px 25px -5px hsl(var(--foreground) / 0.08),
+      0 20px 40px -10px hsl(var(--primary) / 0.15);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  .kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    
+    .kpi-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: $gradient-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: hsl(var(--primary-foreground));
+      box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+      
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+    
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      
+      &.positive {
+        color: hsl(142 76% 36%);
+      }
+      
+      &.negative {
+        color: hsl(0 84% 60%);
+      }
+      
+      &.neutral {
+        color: hsl(var(--muted-foreground));
+      }
+      
+      svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
+    }
+  }
+  
+  .kpi-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    
+    // Animation class for counting up
+    &.counting {
+      animation: pulse-glow 2s ease-out;
+    }
+  }
+  
+  .kpi-label {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  
+  .kpi-chart {
+    height: 40px;
+    position: relative;
+    
+    // Sparkline container
+    .sparkline {
+      width: 100%;
+      height: 100%;
+      
+      path {
+        fill: none;
+        stroke: hsl(var(--primary));
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-dasharray: 200;
+        stroke-dashoffset: 200;
+        animation: draw-line 2s ease-out 0.5s forwards;
+      }
+      
+      .fill-area {
+        fill: url(#sparkline-gradient);
+        opacity: 0;
+        animation: fade-in-area 1s ease-out 1.5s forwards;
+      }
+    }
+    
+    // Progress arc alternative
+    .progress-arc {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      margin: 0 auto;
+      
+      svg {
+        transform: rotate(-90deg);
+        
+        circle {
+          fill: none;
+          stroke-width: 3;
+          
+          &.bg {
+            stroke: hsl(var(--muted));
+          }
+          
+          &.progress {
+            stroke: hsl(var(--primary));
+            stroke-linecap: round;
+            stroke-dasharray: 94; // Half circle circumference
+            stroke-dashoffset: 94;
+            animation: draw-arc 2s ease-out 0.5s forwards;
+          }
+        }
+      }
+      
+      .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: hsl(var(--primary));
+      }
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 640px) {
+    padding: 1rem;
+    
+    .kpi-header .kpi-icon {
+      width: 2rem;
+      height: 2rem;
+      
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+    
+    .kpi-value {
+      font-size: 1.75rem;
+    }
+    
+    .kpi-chart {
+      height: 30px;
+    }
+  }
+}
+
+// Existing card styles
 .plan-card {
   border-color: hsl(var(--border));
   background: hsl(var(--card));
@@ -11,5 +213,33 @@
   &:hover {
     border-color: hsl(var(--border) / 0.8);
     box-shadow: 0 4px 12px hsl(var(--shadow) / 0.1);
+  }
+}
+
+// Animations
+@keyframes pulse-glow {
+  0%, 100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-in-area {
+  to {
+    opacity: 0.2;
+  }
+}
+
+@keyframes draw-arc {
+  to {
+    stroke-dashoffset: 0;
   }
 }

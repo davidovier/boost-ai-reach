@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { Sparkline, ProgressArc } from '@/components/ui/sparkline';
 import { Activity, TrendingUp, Zap, Search } from 'lucide-react';
 
 interface ActivityItem {
@@ -102,60 +104,91 @@ export default function Dashboard() {
           <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {/* AI Findability Score */}
-            <div className="card-stats animate-fade-in">
-              <div className="stats-header">
-                <div className="stats-icon">
+            <div className="kpi-card animate-fade-in">
+              <div className="kpi-header">
+                <div className="kpi-icon">
                   <Search className="h-5 w-5" />
                 </div>
+                <div className="kpi-trend positive">
+                  <TrendingUp className="h-4 w-4" />
+                  +5%
+                </div>
               </div>
-              <div className="stats-value">87</div>
-              <div className="stats-label">AI Findability Score</div>
-              <div className="stats-trend positive">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                +5% from last scan
+              <div className="kpi-value">
+                <AnimatedCounter value={87} />
+              </div>
+              <div className="kpi-label">AI Findability Score</div>
+              <div className="kpi-chart">
+                <Sparkline 
+                  data={[65, 70, 68, 75, 82, 79, 87]} 
+                  width={120} 
+                  height={40}
+                />
               </div>
             </div>
 
-            {/* Total Scans */}
-            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="stats-header">
-                <div className="stats-icon">
+            {/* Total Sites */}
+            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="kpi-header">
+                <div className="kpi-icon">
                   <Activity className="h-5 w-5" />
                 </div>
+                <div className="kpi-trend positive">
+                  <TrendingUp className="h-4 w-4" />
+                  +12%
+                </div>
               </div>
-              <div className="stats-value">24</div>
-              <div className="stats-label">Total Sites</div>
-              <div className="stats-trend positive">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                +12% this month
+              <div className="kpi-value">
+                <AnimatedCounter value={24} />
+              </div>
+              <div className="kpi-label">Total Sites</div>
+              <div className="kpi-chart">
+                <ProgressArc percentage={75} size={60} />
               </div>
             </div>
 
             {/* AI Tests */}
-            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="stats-header">
-                <div className="stats-icon">
+            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="kpi-header">
+                <div className="kpi-icon">
                   <Zap className="h-5 w-5" />
                 </div>
+                <div className="kpi-trend neutral">
+                  {subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}
+                </div>
               </div>
-              <div className="stats-value">{subscription?.usage?.prompt_count || 0}</div>
-              <div className="stats-label">AI Tests Run</div>
-              <div className="stats-trend">
-                of {subscription?.limits?.max_prompts || 1} this month
+              <div className="kpi-value">
+                <AnimatedCounter value={subscription?.usage?.prompt_count || 0} />
+              </div>
+              <div className="kpi-label">AI Tests Run</div>
+              <div className="kpi-chart">
+                <ProgressArc 
+                  percentage={Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)} 
+                  size={60} 
+                />
               </div>
             </div>
 
             {/* Last Scan Status */}
-            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div className="stats-header">
-                <div className="stats-icon">
+            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="kpi-header">
+                <div className="kpi-icon">
                   <TrendingUp className="h-5 w-5" />
                 </div>
+                <div className="kpi-trend positive">
+                  2hrs ago
+                </div>
               </div>
-              <div className="stats-value">Active</div>
-              <div className="stats-label">Last Scan Status</div>
-              <div className="stats-trend positive">
-                2 hours ago
+              <div className="kpi-value">
+                Active
+              </div>
+              <div className="kpi-label">Last Scan Status</div>
+              <div className="kpi-chart">
+                <Sparkline 
+                  data={[40, 65, 45, 70, 85, 90, 95]} 
+                  width={120} 
+                  height={40}
+                />
               </div>
             </div>
           </div>
