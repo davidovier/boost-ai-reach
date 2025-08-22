@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActionTooltip } from '@/components/ui/tooltip';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
-import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus } from 'lucide-react';
-import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsive-table';
+import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus, Eye, Edit, Trash2 } from 'lucide-react';
 
 interface Scan {
   id: string;
@@ -27,6 +27,7 @@ interface Scan {
 
 export default function Scans() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,16 +72,33 @@ export default function Scans() {
     }
   };
 
-  const getScoreColor = (score: number | null) => {
-    if (!score) return 'secondary';
-    if (score >= 80) return 'default';
-    if (score >= 60) return 'secondary';
-    return 'destructive';
+  const getScoreColor = (score: number | null): 'high' | 'medium' | 'low' => {
+    if (!score) return 'low';
+    if (score >= 70) return 'high';
+    if (score >= 40) return 'medium';
+    return 'low';
   };
 
-  const getIssueCount = (scan: Scan) => {
-    const scores = [scan.ai_findability_score, scan.crawlability_score, scan.summarizability_score];
-    return scores.filter(score => score && score < 70).length;
+  const getIssueCount = (scan: Scan): number => {
+    let issues = 0;
+    if ((scan.ai_findability_score || 0) < 70) issues++;
+    if ((scan.crawlability_score || 0) < 70) issues++;
+    if ((scan.summarizability_score || 0) < 70) issues++;
+    return issues;
+  };
+
+  const handleViewScan = (scanId: string) => {
+    navigate(`/scans/${scanId}`);
+  };
+
+  const handleEditScan = (scanId: string) => {
+    // Navigate to edit scan or trigger edit modal
+    console.log('Edit scan:', scanId);
+  };
+
+  const handleDeleteScan = (scanId: string) => {
+    // Trigger delete confirmation
+    console.log('Delete scan:', scanId);
   };
 
   return (
@@ -110,85 +128,218 @@ export default function Scans() {
           </Button>
         </header>
 
-        <ResponsiveTable
-          data={scans}
-          loading={loading}
-          loadingSkeleton={
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4 space-y-3">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-6 w-20" />
-                  </CardContent>
-                </Card>
+        {loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-4 space-y-3">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-6 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : scans.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No scans yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Add your first website to start analyzing its AI findability score
+              </p>
+              <Button className="btn-focus">
+                <Plus className="h-4 w-4 mr-2" />
+                Run Your First Scan
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto">
+              <table className="enhanced-table" role="table" aria-label="Website scans data">
+                <thead>
+                  <tr>
+                    <th scope="col">Website</th>
+                    <th scope="col">Scan Date</th>
+                    <th scope="col">AI Score</th>
+                    <th scope="col">Issues</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scans.map((scan, index) => (
+                    <tr 
+                      key={scan.id}
+                      onClick={() => handleViewScan(scan.id)}
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <td className="website-cell">
+                        <div className="website-name">{scan.site?.name || 'Unnamed Site'}</div>
+                        <div className="website-url">{scan.site?.url}</div>
+                      </td>
+                      <td>
+                        <time dateTime={scan.scan_date}>
+                          {format(new Date(scan.scan_date), 'MMM d, yyyy')}
+                        </time>
+                      </td>
+                      <td className="score-cell">
+                        <div className={`score-badge ${getScoreColor(scan.ai_findability_score)}`}>
+                          <span>{scan.ai_findability_score || 'N/A'}</span>
+                        </div>
+                      </td>
+                      <td className="issues-cell">
+                        <div className="issues-count">
+                          {getIssueCount(scan) > 0 ? (
+                            <>
+                              <AlertTriangle className="h-4 w-4 text-destructive" />
+                              <span className="count-badge">{getIssueCount(scan)}</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <span>None</span>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td className="actions-cell">
+                        <div className="action-buttons">
+                          <ActionTooltip content="View details">
+                            <button 
+                              className="action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewScan(scan.id);
+                              }}
+                              aria-label="View scan details"
+                            >
+                              <Eye />
+                            </button>
+                          </ActionTooltip>
+                          <ActionTooltip content="Edit scan">
+                            <button 
+                              className="action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditScan(scan.id);
+                              }}
+                              aria-label="Edit scan"
+                            >
+                              <Edit />
+                            </button>
+                          </ActionTooltip>
+                          <ActionTooltip content="Delete scan">
+                            <button 
+                              className="action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteScan(scan.id);
+                              }}
+                              aria-label="Delete scan"
+                            >
+                              <Trash2 />
+                            </button>
+                          </ActionTooltip>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="scans-cards">
+              {scans.map((scan, index) => (
+                <div 
+                  key={scan.id}
+                  className="scan-card animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => handleViewScan(scan.id)}
+                >
+                  <div className="card-header">
+                    <div className="website-info">
+                      <div className="website-name">{scan.site?.name || 'Unnamed Site'}</div>
+                      <div className="website-url">{scan.site?.url}</div>
+                    </div>
+                    <div className="card-actions">
+                      <ActionTooltip content="View details">
+                        <button 
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewScan(scan.id);
+                          }}
+                          aria-label="View scan details"
+                        >
+                          <Eye />
+                        </button>
+                      </ActionTooltip>
+                      <ActionTooltip content="Edit scan">
+                        <button 
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditScan(scan.id);
+                          }}
+                          aria-label="Edit scan"
+                        >
+                          <Edit />
+                        </button>
+                      </ActionTooltip>
+                      <ActionTooltip content="Delete scan">
+                        <button 
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteScan(scan.id);
+                          }}
+                          aria-label="Delete scan"
+                        >
+                          <Trash2 />
+                        </button>
+                      </ActionTooltip>
+                    </div>
+                  </div>
+                  <div className="card-content">
+                    <div className="metrics-grid">
+                      <div className="metric">
+                        <div className="metric-label">AI Score</div>
+                        <div className="metric-value">
+                          <div className={`score-badge ${getScoreColor(scan.ai_findability_score)}`}>
+                            {scan.ai_findability_score || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-label">Issues</div>
+                        <div className="metric-value">
+                          {getIssueCount(scan) > 0 ? (
+                            <div className="issues-count">
+                              <AlertTriangle className="h-4 w-4 text-destructive" />
+                              <span className="count-badge">{getIssueCount(scan)}</span>
+                            </div>
+                          ) : (
+                            <div className="issues-count">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <span>None</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="scan-date">
+                      Scanned on {format(new Date(scan.scan_date), 'MMM d, yyyy')}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
-          }
-          emptyState={
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No scans yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Add your first website to start analyzing its AI findability score
-                </p>
-                <Button className="btn-focus">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Run Your First Scan
-                </Button>
-              </CardContent>
-            </Card>
-          }
-          columns={[
-            {
-              key: 'site',
-              label: 'Website',
-              render: (site) => (
-                <div>
-                  <div className="font-medium">{site?.name || 'Unnamed Site'}</div>
-                  <div className="text-sm text-muted-foreground">{site?.url}</div>
-                </div>
-              ),
-            },
-            {
-              key: 'scan_date',
-              label: 'Scan Date',
-              render: (date) => <TableDate date={date} />,
-              hideOnMobile: true,
-            },
-            {
-              key: 'ai_findability_score',
-              label: 'AI Score',
-              render: (score) => (
-                <TableBadge variant={getScoreColor(score)}>
-                  {score || 'N/A'}
-                </TableBadge>
-              ),
-            },
-            {
-              key: 'issues',
-              label: 'Issues',
-              render: (_, scan) => {
-                const issues = getIssueCount(scan);
-                return issues > 0 ? (
-                  <div className="flex items-center gap-1 text-destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>{issues}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>None</span>
-                  </div>
-                );
-              },
-              hideOnMobile: true,
-            },
-          ]}
-          onRowClick={(scan) => window.location.href = `/scans/${scan.id}`}
-        />
+          </>
+        )}
       </div>
     </>
   );

@@ -26,3 +26,43 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+
+// Custom ActionTooltip for scans page
+import { useState, useRef } from 'react';
+
+interface ActionTooltipProps {
+  content: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function ActionTooltip({ content, children, className = '' }: ActionTooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  const showTooltip = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setIsVisible(true);
+  };
+
+  const hideTooltip = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, 100);
+  };
+
+  return (
+    <div 
+      className={`relative inline-block ${className}`}
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
+    >
+      {children}
+      <div className={`tooltip ${isVisible ? 'show' : ''}`}>
+        {content}
+      </div>
+    </div>
+  );
+}
