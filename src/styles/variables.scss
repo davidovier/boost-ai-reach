@@ -1,15 +1,43 @@
-// Styles: variables only, map to existing CSS variables defined in Tailwind design system
-// These SCSS variables are convenience aliases you can use inside other SCSS files
+// Modern design system variables - mapped to CSS custom properties
+// Use these SCSS variables inside other SCSS files for consistency
 
+// Base colors
 $color-bg: hsl(var(--background));
 $color-fg: hsl(var(--foreground));
 $color-border: hsl(var(--border));
 $color-muted: hsl(var(--muted));
 $color-muted-fg: hsl(var(--muted-foreground));
+
+// Cards and surfaces
 $color-card: hsl(var(--card));
 $color-card-fg: hsl(var(--card-foreground));
+
+// Primary colors with variations
 $color-primary: hsl(var(--primary));
 $color-primary-fg: hsl(var(--primary-foreground));
+$color-primary-hover: hsl(var(--primary-hover));
+$color-primary-glow: hsl(var(--primary-glow));
+
+// Secondary colors
 $color-secondary: hsl(var(--secondary));
 $color-secondary-fg: hsl(var(--secondary-foreground));
+
+// Accent colors
+$color-accent: hsl(var(--accent));
+$color-accent-fg: hsl(var(--accent-foreground));
+$color-accent-glow: hsl(var(--accent-glow));
+
+// Gradients
+$gradient-primary: var(--gradient-primary);
+$gradient-secondary: var(--gradient-secondary);
+$gradient-accent: var(--gradient-accent);
+$gradient-card: var(--gradient-card);
+
+// Shadows
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+$shadow-glow: var(--shadow-glow);
+
+// Border radius
 $radius: var(--radius);

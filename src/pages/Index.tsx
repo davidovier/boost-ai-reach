@@ -67,7 +67,8 @@ const Index = () => {
       <main className="min-h-screen bg-background">
         {/* Hero */}
         <section className={`relative overflow-hidden ${styles.hero}`}>
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/40 to-background" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-secondary opacity-80" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" aria-hidden="true" />
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 grid md:grid-cols-2 gap-8 md:gap-10 items-center">
             <div className="text-center md:text-left">
               <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
@@ -138,16 +139,18 @@ const Index = () => {
             ].map(({ icon: Icon, title, text }, index) => (
               <article 
                 key={title} 
-                className="rounded-lg border bg-card p-4 sm:p-6 text-card-foreground shadow-sm hover-scale animate-fade-in card-focus"
+                className="card-feature animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <Icon className="h-6 w-6 text-primary" />
-                <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
+                <div className="feature-icon">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
                 <img
                   src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop"
                   alt={`${title} illustration`}
-                  className="mt-4 rounded-md border w-full h-32 sm:h-40 object-cover"
+                  className="mt-6 rounded-lg border w-full h-32 sm:h-40 object-cover shadow-md"
                   loading="lazy"
                 />
               </article>
@@ -166,14 +169,14 @@ const Index = () => {
             ].map((s, index) => (
               <li 
                 key={s.step} 
-                className="rounded-lg border bg-card p-4 sm:p-6 hover-scale animate-fade-in card-focus"
+                className="card-enhanced p-6 hover-scale animate-fade-in"
                 style={{ animationDelay: `${(index + 4) * 0.1}s` }}
               >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground text-lg font-bold mb-4 shadow-glow">
                   {s.step}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{s.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{s.desc}</p>
               </li>
             ))}
           </ol>

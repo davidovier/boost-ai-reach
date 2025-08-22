@@ -100,107 +100,75 @@ export default function Dashboard() {
         {/* KPI Cards */}
         <section aria-labelledby="kpi-heading">
           <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-            <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Findability Score
-                </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
-                ) : (
-                  <>
-                    <div className="text-xl sm:text-2xl font-bold text-foreground">72</div>
-                    <p className="text-xs text-muted-foreground">
-                      +12% from last month
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* AI Findability Score */}
+            <div className="card-stats animate-fade-in">
+              <div className="stats-header">
+                <div className="stats-icon">
+                  <Search className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="stats-value">87</div>
+              <div className="stats-label">AI Findability Score</div>
+              <div className="stats-trend positive">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                +5% from last scan
+              </div>
+            </div>
 
-            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Sites Tracked
-                </CardTitle>
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
-                ) : (
-                  <>
-                    <div className="text-xl sm:text-2xl font-bold text-foreground">
-                      0
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      of {subscription?.limits?.max_sites || 1} allowed
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            {/* Total Scans */}
+            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="stats-header">
+                <div className="stats-icon">
+                  <Activity className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="stats-value">24</div>
+              <div className="stats-label">Total Sites</div>
+              <div className="stats-trend positive">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                +12% this month
+              </div>
+            </div>
 
-            <Card className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  AI Tests Used
-                </CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
-                ) : (
-                  <>
-                    <div className="text-xl sm:text-2xl font-bold text-foreground">
-                      {subscription?.usage?.prompt_count || 0}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      of {subscription?.limits?.max_prompts || 1} this month
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            {/* AI Tests */}
+            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="stats-header">
+                <div className="stats-icon">
+                  <Zap className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="stats-value">{subscription?.usage?.prompt_count || 0}</div>
+              <div className="stats-label">AI Tests Run</div>
+              <div className="stats-trend">
+                of {subscription?.limits?.max_prompts || 1} this month
+              </div>
+            </div>
 
-            <Card className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Last Scan Status
-                </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <Skeleton className="h-6 sm:h-8 w-16 sm:w-24" />
-                ) : (
-                  <>
-                    <div className="text-xl sm:text-2xl font-bold text-foreground">Active</div>
-                    <p className="text-xs text-muted-foreground">
-                      2 hours ago
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            {/* Last Scan Status */}
+            <div className="card-stats animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="stats-header">
+                <div className="stats-icon">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="stats-value">Active</div>
+              <div className="stats-label">Last Scan Status</div>
+              <div className="stats-trend positive">
+                2 hours ago
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Recent Activity */}
-        <section aria-labelledby="activity-heading" className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <Card>
-            <CardHeader>
-              <CardTitle id="activity-heading" className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        <section aria-labelledby="activity-heading" className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="card-dashboard">
+            <div className="card-header">
+              <h3 id="activity-heading">Recent Activity</h3>
+              <p>Your latest scans, tests, and reports</p>
+            </div>
+            <div className="card-content">
               {activitiesLoading ? (
                 <div className="space-y-3 sm:space-y-4">
                   {[1, 2, 3].map((i) => (
@@ -214,42 +182,145 @@ export default function Dashboard() {
                   ))}
                 </div>
               ) : activities.length > 0 ? (
-                <ul className="space-y-3 sm:space-y-4" role="list">
+                <ul className="space-y-4" role="list">
                   {activities.map((activity, index) => (
                     <li 
                       key={activity.id} 
-                      className="flex items-start space-x-3 sm:space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-colors animate-fade-in"
-                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+                      className="flex items-center space-x-4 p-3 rounded-lg hover:bg-secondary/50 transition-colors animate-fade-in"
+                      style={{ animationDelay: `${0.5 + index * 0.1}s` }}
                     >
-                      <div className="flex-shrink-0 p-2 rounded-full bg-muted">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary shadow-sm text-primary-foreground">
                         {getActivityIcon(activity.type)}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium leading-none">
                           {activity.title}
                         </p>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
-                          <time className="text-xs text-muted-foreground">
-                            {activity.timestamp}
-                          </time>
-                          {getStatusBadge(activity.status)}
-                        </div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          {activity.timestamp} • {getStatusBadge(activity.status)}
+                        </p>
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div className="text-center py-8 sm:py-12">
-                  <Activity className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
-                  <h3 className="mt-2 text-sm font-semibold text-foreground">No activity yet</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-secondary mx-auto mb-4">
+                    <Activity className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No activity yet</h3>
+                  <p className="text-muted-foreground">
                     Start by scanning your first website or running an AI test.
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </section>
+
+        {/* Additional Actions */}
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+          {/* Quick Actions */}
+          <div className="card-dashboard animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="card-header">
+              <h3>Quick Actions</h3>
+              <p>Start optimizing your AI findability</p>
+            </div>
+            <div className="card-content">
+              <div className="grid grid-cols-1 gap-3">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">Run New Scan</div>
+                    <div className="text-sm text-muted-foreground">Analyze your website's AI findability</div>
+                  </div>
+                </button>
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground mr-4 group-hover:scale-105 transition-transform">
+                    <Zap className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">Test AI Prompt</div>
+                    <div className="text-sm text-muted-foreground">See how AI models respond to queries</div>
+                  </div>
+                </button>
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">View Reports</div>
+                    <div className="text-sm text-muted-foreground">Download detailed optimization reports</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription Status */}
+          <div className="card-dashboard animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="card-header">
+              <h3>Plan Status</h3>
+              <p>Current usage and limits</p>
+            </div>
+            <div className="card-content">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-secondary">
+                  <div>
+                    <div className="font-semibold text-foreground capitalize">
+                      Free Plan
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Your current subscription
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-primary">
+                      Free
+                    </div>
+                  </div>
+                </div>
+
+                {/* Usage Progress */}
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>AI Tests</span>
+                      <span>{subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)}%` 
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Sites</span>
+                      <span>0 / {subscription?.limits?.max_sites || 1}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="bg-gradient-accent h-2 rounded-full transition-all duration-500"
+                        style={{ width: '0%' }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                  Upgrade to Pro
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

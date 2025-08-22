@@ -1,0 +1,163 @@
+// Enhanced card components with modern styling
+
+.card-enhanced {
+  background: $gradient-card;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  box-shadow: $shadow-md;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+    border-color: $color-primary;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-primary;
+    border-radius: $radius $radius 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+.card-stats {
+  @extend .card-enhanced;
+  padding: 1.5rem;
+  
+  .stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    
+    .stats-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: $gradient-accent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $color-accent-fg;
+    }
+  }
+  
+  .stats-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $color-fg;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stats-label {
+    font-size: 0.875rem;
+    color: $color-muted-fg;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stats-trend {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    
+    &.positive {
+      color: hsl(142 76% 36%);
+    }
+    
+    &.negative {
+      color: hsl(0 84% 60%);
+    }
+  }
+}
+
+.card-dashboard {
+  @extend .card-enhanced;
+  overflow: hidden;
+  
+  .card-header {
+    padding: 1.5rem 1.5rem 0.75rem;
+    border-bottom: 1px solid $color-border;
+    background: $gradient-secondary;
+    
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $color-fg;
+      margin: 0;
+    }
+    
+    p {
+      font-size: 0.875rem;
+      color: $color-muted-fg;
+      margin: 0.25rem 0 0;
+    }
+  }
+  
+  .card-content {
+    padding: 1.5rem;
+  }
+}
+
+.card-feature {
+  @extend .card-enhanced;
+  padding: 2rem;
+  text-align: center;
+  
+  .feature-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: $gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: $color-primary-fg;
+    box-shadow: $shadow-glow;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $color-fg;
+    margin-bottom: 0.75rem;
+  }
+  
+  p {
+    color: $color-muted-fg;
+    line-height: 1.6;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card-stats {
+    padding: 1rem;
+    
+    .stats-value {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .card-feature {
+    padding: 1.5rem;
+    
+    .feature-icon {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}
