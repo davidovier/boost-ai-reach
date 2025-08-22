@@ -1,13 +1,24 @@
 import { SEO } from '@/components/SEO';
 import { LegalLayout } from '@/components/layout/LegalLayout';
+import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 
 export default function Cookies() {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'Cookie Policy', item: `${origin}/cookies` },
+  ]);
+
   return (
     <>
       <SEO
         title="Cookie Policy - FindableAI"
         description="Learn about FindableAI's use of cookies and similar technologies to improve your experience on our AI-powered SEO platform."
         url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/cookies'}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
       />
       
       <LegalLayout title="Cookie Policy">

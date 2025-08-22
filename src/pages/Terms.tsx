@@ -1,13 +1,24 @@
 import { SEO } from '@/components/SEO';
 import { LegalLayout } from '@/components/layout/LegalLayout';
+import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 
 export default function Terms() {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'Terms of Service', item: `${origin}/terms` },
+  ]);
+
   return (
     <>
       <SEO
         title="Terms of Service - FindableAI"
         description="Read FindableAI's terms of service governing the use of our AI-powered SEO optimization platform and services."
         url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/terms'}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
       />
       
       <LegalLayout title="Terms of Service">

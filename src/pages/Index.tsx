@@ -20,6 +20,27 @@ const Index = () => {
     '@type': 'WebSite',
     name: 'FindableAI',
     url: pageUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${pageUrl}onboarding?url={search_term_string}`
+      },
+      'query-input': 'required name=search_term_string'
+    }
+  } as const;
+
+  const organizationJson = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'FindableAI',
+    url: pageUrl,
+    logo: `${origin}/placeholder.svg`,
+    description: 'AI Findability Optimization Platform helping websites improve their AI discovery and visibility',
+    sameAs: [
+      'https://twitter.com/FindableAI',
+      'https://linkedin.com/company/findableai'
+    ]
   } as const;
 
   return (
@@ -33,6 +54,10 @@ const Index = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(websiteJson) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(organizationJson) }}
       />
       <script
         type="application/ld+json"

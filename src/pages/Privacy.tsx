@@ -1,13 +1,24 @@
 import { SEO } from '@/components/SEO';
 import { LegalLayout } from '@/components/layout/LegalLayout';
+import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 
 export default function Privacy() {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'Privacy Policy', item: `${origin}/privacy` },
+  ]);
+
   return (
     <>
       <SEO
         title="Privacy Policy - FindableAI"
         description="Learn how FindableAI protects your privacy and handles your personal information. Transparent data practices for our AI-powered SEO platform."
         url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/privacy'}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
       />
       
       <LegalLayout title="Privacy Policy">

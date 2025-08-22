@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SEO } from '@/components/SEO';
+import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { Activity, TrendingUp, Zap, Search } from 'lucide-react';
 
 interface ActivityItem {
@@ -18,6 +19,12 @@ export default function Dashboard() {
   const { data: subscription, loading } = useSubscription();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const breadcrumbs = getBreadcrumbJsonLd([
+    { name: 'Home', item: origin },
+    { name: 'Dashboard', item: `${origin}/dashboard` },
+  ]);
 
   // Mock recent activities - in real app this would come from API
   useEffect(() => {
@@ -76,6 +83,10 @@ export default function Dashboard() {
         description="Monitor your AI findability optimization progress with real-time analytics and insights."
         url="/dashboard"
         noindex={true}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
       />
       
       <div className="space-y-6 sm:space-y-8">
