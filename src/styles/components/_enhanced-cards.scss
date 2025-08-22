@@ -1,4 +1,5 @@
 // Enhanced card components with modern styling
+@use '../variables' as *;
 
 .card-enhanced {
   background: $gradient-card;
