@@ -66,61 +66,85 @@ const Index = () => {
 
       <main className="min-h-screen bg-background">
         {/* Hero */}
-        <section className={`relative overflow-hidden ${styles.hero}`}>
-          <div className="absolute inset-0 bg-gradient-secondary opacity-80" aria-hidden="true" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" aria-hidden="true" />
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 grid md:grid-cols-2 gap-8 md:gap-10 items-center">
+        <section className={`hero-bg relative overflow-hidden ${styles.hero}`}>
+          <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95" aria-hidden="true" />
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-20 sm:pt-24 md:pt-32 pb-16 sm:pb-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center min-h-[600px]">
             <div className="text-center md:text-left">
-              <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
-                <Sparkles className="h-3.5 w-3.5" /> New: AI Findability Score 2.0
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm text-foreground shadow-lg">
+                <Sparkles className="h-4 w-4 text-primary" /> New: AI Findability Score 2.0
               </span>
-              <h1 className="mt-4 sm:mt-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
-                Optimize your brand for AI discovery
+              <h1 className="mt-6 sm:mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight">
+                Optimize your brand for{' '}
+                <span className="hero-gradient-text bg-gradient-primary bg-clip-text text-transparent">
+                  AI discovery
+                </span>
               </h1>
-              <p className="mx-auto md:mx-0 mt-4 max-w-xl text-muted-foreground text-base sm:text-lg leading-relaxed">
+              <p className="mx-auto md:mx-0 mt-6 max-w-2xl text-muted-foreground text-lg sm:text-xl leading-relaxed">
                 Run a free scan, simulate AI prompts, and get step-by-step fixes that improve how models and agents surface your content.
               </p>
-              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+              <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <Button 
                   size="lg" 
                   onClick={() => navigate('/onboarding')}
-                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                  className="w-full sm:w-auto min-h-[52px] px-8 text-lg font-semibold btn-focus shadow-xl bg-gradient-primary hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
                 >
                   Run a free scan
                 </Button>
                 <Button 
                   size="lg" 
-                  variant="secondary" 
+                  variant="outline" 
                   onClick={() => navigate('/signin')}
-                  className="w-full sm:w-auto min-h-[44px] btn-focus"
+                  className="w-full sm:w-auto min-h-[52px] px-8 text-lg font-medium btn-focus border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 backdrop-blur-sm"
                 >
                   Sign in
                 </Button>
               </div>
-              <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  onClick={() => navigate('/pricing')}
-                  className="w-full sm:w-auto min-h-[44px] btn-focus"
-                >
-                  See pricing
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  onClick={() => navigate('/signup')}
-                  className="w-full sm:w-auto min-h-[44px] btn-focus"
-                >
-                  Sign up free
-                </Button>
+              
+              {/* Trust Bar */}
+              <div className="mt-12 sm:mt-16">
+                <p className="text-center md:text-left text-sm text-muted-foreground mb-6">
+                  Trusted by teams at leading companies
+                </p>
+                <div className="trust-bar flex flex-wrap items-center justify-center md:justify-start gap-6 sm:gap-8">
+                  <img 
+                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=200&h=80&auto=format&fit=crop" 
+                    alt="Client company logo" 
+                    className="trust-logo"
+                    loading="lazy"
+                  />
+                  <div className="trust-divider"></div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?q=80&w=200&h=80&auto=format&fit=crop" 
+                    alt="Client company logo" 
+                    className="trust-logo"
+                  />
+                  <div className="trust-divider"></div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=200&h=80&auto=format&fit=crop" 
+                    alt="Client company logo" 
+                    className="trust-logo"
+                  />
+                  <div className="trust-divider"></div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1572021335469-31706a17aaef?q=80&w=200&h=80&auto=format&fit=crop" 
+                    alt="Client company logo" 
+                    className="trust-logo"
+                  />
+                  <div className="trust-divider"></div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1594498653385-d5172c532c00?q=80&w=200&h=80&auto=format&fit=crop" 
+                    alt="Client company logo" 
+                    className="trust-logo"
+                  />
+                </div>
               </div>
             </div>
-            <div className="relative mt-8 md:mt-0">
+            <div className="relative mt-12 md:mt-0">
+              <div className="absolute inset-0 bg-gradient-primary opacity-20 blur-3xl rounded-full transform scale-75"></div>
               <img
-                src="https://images.unsplash.com/photo-1526378722484-bd91ca387e72?q=80&w=1200&auto=format&fit=crop"
-                alt="AI analytics dashboard visualization for AI findability"
-                className="rounded-lg border bg-card shadow-sm w-full h-auto animate-fade-in"
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop"
+                alt="AI analytics dashboard visualization for AI findability optimization"
+                className="relative rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm shadow-2xl w-full h-auto animate-fade-in transform hover:scale-105 transition-all duration-500"
                 loading="eager"
               />
             </div>
