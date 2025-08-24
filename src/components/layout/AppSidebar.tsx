@@ -45,19 +45,31 @@ export function AppSidebar() {
       : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground';
 
   return (
-    <Sidebar className="border-sidebar-border">
+    <Sidebar 
+      className="border-sidebar-border"
+      role="complementary"
+      aria-label="Main navigation sidebar"
+    >
       <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground font-semibold px-3 py-2">
+          <SidebarGroupLabel 
+            className="text-sidebar-foreground font-semibold px-3 py-2"
+            id="sidebar-navigation"
+          >
             FindableAI
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu 
+              className="space-y-1"
+              role="navigation"
+              aria-labelledby="sidebar-navigation"
+            >
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="min-h-[44px] w-full">
                     <NavLink 
-                      to={item.url} 
+                      to={item.url}
+                      aria-label={`Navigate to ${item.title}`}
                       className={({ isActive }) => `
                         flex items-center gap-3 px-3 py-3 rounded-md transition-colors
                         btn-focus
@@ -67,8 +79,12 @@ export function AppSidebar() {
                         }
                       `}
                     >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <item.icon 
+                        className="h-5 w-5 flex-shrink-0" 
+                        aria-hidden="true"
+                      />
                       {!isCollapsed && <span className="flex-1 text-left">{item.title}</span>}
+                      {isCollapsed && <span className="sr-only">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -78,7 +94,8 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="min-h-[44px] w-full">
                     <NavLink 
-                      to="/admin" 
+                      to="/admin"
+                      aria-label="Navigate to Admin panel"
                       className={({ isActive }) => `
                         flex items-center gap-3 px-3 py-3 rounded-md transition-colors
                         btn-focus
@@ -88,8 +105,12 @@ export function AppSidebar() {
                         }
                       `}
                     >
-                      <Shield className="h-5 w-5 flex-shrink-0" />
+                      <Shield 
+                        className="h-5 w-5 flex-shrink-0" 
+                        aria-hidden="true"
+                      />
                       {!isCollapsed && <span className="flex-1 text-left">Admin</span>}
+                      {isCollapsed && <span className="sr-only">Admin</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

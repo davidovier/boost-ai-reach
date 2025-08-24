@@ -35,7 +35,12 @@ export function PromptForm({ onSubmit, isLoading = false }: PromptFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="prompt-form space-y-6">
+      <form 
+        onSubmit={form.handleSubmit(handleSubmit)} 
+        className="prompt-form space-y-6"
+        aria-label="AI Findability Test Form"
+        noValidate
+      >
         <FormField
           control={form.control}
           name="prompt"
@@ -44,22 +49,37 @@ export function PromptForm({ onSubmit, isLoading = false }: PromptFormProps) {
               <FormControl>
                 <div className="relative">
                   <Textarea
+                    {...field}
                     placeholder=" "
                     className="prompt-form__textarea peer min-h-[120px] pt-6 resize-none"
-                    {...field}
+                    aria-describedby={`prompt-hint ${form.formState.errors.prompt ? 'prompt-error' : ''}`}
+                    aria-invalid={!!form.formState.errors.prompt}
+                    aria-required="true"
                   />
-                  <FormLabel className="prompt-form__label absolute left-3 top-3 transition-all duration-200 ease-out pointer-events-none
-                    peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-muted-foreground
-                    peer-focus:top-2 peer-focus:text-sm peer-focus:text-primary
-                    peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-sm peer-not-placeholder-shown:text-primary">
+                  <FormLabel 
+                    className="prompt-form__label absolute left-3 top-3 transition-all duration-200 ease-out pointer-events-none
+                      peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-muted-foreground
+                      peer-focus:top-2 peer-focus:text-sm peer-focus:text-primary
+                      peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-sm peer-not-placeholder-shown:text-primary"
+                    htmlFor={field.name}
+                  >
                     Enter your AI prompt...
                   </FormLabel>
-                  <div className="prompt-form__hint absolute bottom-3 right-3 text-xs text-muted-foreground">
+                  <div 
+                    id="prompt-hint"
+                    className="prompt-form__hint absolute bottom-3 right-3 text-xs text-muted-foreground"
+                    aria-live="polite"
+                  >
                     e.g., "Best marketing agencies in London"
                   </div>
                 </div>
               </FormControl>
-              <FormMessage className="prompt-form__error" />
+              <FormMessage 
+                id="prompt-error"
+                className="prompt-form__error" 
+                role="alert"
+                aria-live="polite"
+              />
             </FormItem>
           )}
         />
@@ -68,15 +88,19 @@ export function PromptForm({ onSubmit, isLoading = false }: PromptFormProps) {
           disabled={isLoading} 
           className="prompt-form__submit w-full"
           size="lg"
+          aria-describedby={isLoading ? "loading-status" : undefined}
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Running Test...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              <span>Running Test...</span>
+              <span id="loading-status" className="sr-only">
+                Please wait while we run your AI findability test
+              </span>
             </>
           ) : (
             <>
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
               Run AI Findability Test
             </>
           )}

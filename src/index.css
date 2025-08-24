@@ -184,3 +184,5 @@ All colors MUST be HSL.
 }
 
 @import url('./styles/components/_empty-states.scss');
+@import url('./styles/components/_accessibility.scss');
+@import url('./styles/components/_focus.scss');

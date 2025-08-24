@@ -76,16 +76,31 @@ const Index = () => {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }}
       />
 
-      <main className="min-h-screen bg-background">
+      <main 
+        className="min-h-screen bg-background" 
+        role="main"
+        aria-label="Home page content"
+      >
         {/* Hero */}
-        <section className={`hero-bg relative overflow-hidden ${styles.hero}`}>
+        <section 
+          className={`hero-bg relative overflow-hidden ${styles.hero}`}
+          aria-labelledby="hero-heading"
+        >
           <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95" aria-hidden="true" />
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-20 sm:pt-24 md:pt-32 pb-16 sm:pb-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center min-h-[600px]">
             <div className="text-center md:text-left">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm text-foreground shadow-lg">
-                <Sparkles className="h-4 w-4 text-primary" /> New: AI Findability Score 2.0
-              </span>
-              <h1 className="mt-6 sm:mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight">
+              <div 
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm text-foreground shadow-lg"
+                role="banner"
+                aria-label="Product announcement"
+              >
+                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" /> 
+                New: AI Findability Score 2.0
+              </div>
+              <h1 
+                id="hero-heading"
+                className="mt-6 sm:mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight"
+              >
                 Optimize your brand for{' '}
                 <span className="hero-gradient-text bg-gradient-primary bg-clip-text text-transparent">
                   AI discovery
@@ -94,19 +109,28 @@ const Index = () => {
               <p className="mx-auto md:mx-0 mt-6 max-w-2xl text-muted-foreground text-lg sm:text-xl leading-relaxed">
                 Run a free scan, simulate AI prompts, and get step-by-step fixes that improve how models and agents surface your content.
               </p>
-              <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div 
+                className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6"
+                role="group"
+                aria-label="Primary actions"
+              >
                 <Button 
                   size="lg" 
                   onClick={() => navigate('/onboarding')}
                   className="w-full sm:w-auto min-h-[52px] px-8 text-lg font-semibold btn-focus shadow-xl bg-gradient-primary hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                  aria-describedby="scan-description"
                 >
                   Run a free scan
                 </Button>
+                <span id="scan-description" className="sr-only">
+                  Start analyzing your website's AI findability with our free scanning tool
+                </span>
                 <Button 
                   size="lg" 
                   variant="outline" 
                   onClick={() => navigate('/signin')}
                   className="w-full sm:w-auto min-h-[52px] px-8 text-lg font-medium btn-focus border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 backdrop-blur-sm"
+                  aria-label="Sign in to your existing account"
                 >
                   Sign in
                 </Button>
@@ -175,8 +199,16 @@ const Index = () => {
         </section>
 
         {/* Features */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-14">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-center md:text-left">What you get</h2>
+        <section 
+          className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-14"
+          aria-labelledby="features-heading"
+        >
+          <h2 
+            id="features-heading"
+            className="text-2xl sm:text-3xl font-semibold text-center md:text-left"
+          >
+            What you get
+          </h2>
           <div className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: Gauge, title: 'Findability Score', text: 'Unified 0–100 score with clear breakdowns.' },
@@ -188,12 +220,13 @@ const Index = () => {
                 key={title} 
                 className="card-feature animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                aria-describedby={`feature-${index}-desc`}
               >
-                <div className="feature-icon">
+                <div className="feature-icon" aria-hidden="true">
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3>{title}</h3>
-                <p>{text}</p>
+                <p id={`feature-${index}-desc`}>{text}</p>
                 <img
                   src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
                   alt={`${title} feature visualization - demonstrating how FindableAI improves ${title.toLowerCase()} for better AI discoverability`}
@@ -207,9 +240,20 @@ const Index = () => {
         </section>
 
         {/* How it works */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-16">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-center md:text-left">How it works</h2>
-          <ol className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <section 
+          className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-16"
+          aria-labelledby="how-it-works-heading"
+        >
+          <h2 
+            id="how-it-works-heading"
+            className="text-2xl sm:text-3xl font-semibold text-center md:text-left"
+          >
+            How it works
+          </h2>
+          <ol 
+            className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+            aria-label="Three-step process for improving AI findability"
+          >
             {[
               { step: '1', title: 'Add your site', desc: 'Enter your URL and we prepare a quick baseline audit.' },
               { step: '2', title: 'Run a scan', desc: 'We analyze metadata, schema, crawlability, and summarizability.' },
@@ -219,12 +263,21 @@ const Index = () => {
                 key={s.step} 
                 className="card-enhanced p-6 hover-scale animate-fade-in"
                 style={{ animationDelay: `${(index + 4) * 0.1}s` }}
+                aria-describedby={`step-${index}-desc`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground text-lg font-bold mb-4 shadow-glow">
+                <div 
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground text-lg font-bold mb-4 shadow-glow"
+                  aria-label={`Step ${s.step}`}
+                >
                   {s.step}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{s.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{s.desc}</p>
+                <p 
+                  id={`step-${index}-desc`}
+                  className="text-muted-foreground leading-relaxed"
+                >
+                  {s.desc}
+                </p>
               </li>
             ))}
           </ol>
