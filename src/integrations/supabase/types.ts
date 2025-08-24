@@ -281,6 +281,10 @@ export type Database = {
           id: string
           name: string | null
           plan: Database["public"]["Enums"]["subscription_plan"]
+          referral_code: string | null
+          referral_count: number | null
+          referral_earnings: number | null
+          referred_by: string | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
         }
@@ -290,6 +294,10 @@ export type Database = {
           id: string
           name?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          referral_code?: string | null
+          referral_count?: number | null
+          referral_earnings?: number | null
+          referred_by?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -299,10 +307,22 @@ export type Database = {
           id?: string
           name?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          referral_code?: string | null
+          referral_count?: number | null
+          referral_earnings?: number | null
+          referred_by?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prompt_simulations: {
         Row: {
@@ -664,6 +684,10 @@ export type Database = {
       cleanup_rate_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_user_plan_limits: {
         Args: { user_id: string }
