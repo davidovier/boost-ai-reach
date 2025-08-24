@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.version]
 verify_jwt = false
+
+[functions.dev-auth-me]
+verify_jwt = true
