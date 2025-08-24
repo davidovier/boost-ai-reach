@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_metadata: {
+        Row: {
+          backup_date: string
+          backup_time: string | null
+          created_at: string | null
+          encryption_key_hash: string
+          error_message: string | null
+          file_path: string
+          file_size: number | null
+          id: string
+          status: string | null
+          tables_backed_up: string[]
+        }
+        Insert: {
+          backup_date: string
+          backup_time?: string | null
+          created_at?: string | null
+          encryption_key_hash: string
+          error_message?: string | null
+          file_path: string
+          file_size?: number | null
+          id?: string
+          status?: string | null
+          tables_backed_up: string[]
+        }
+        Update: {
+          backup_date?: string
+          backup_time?: string | null
+          created_at?: string | null
+          encryption_key_hash?: string
+          error_message?: string | null
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          status?: string | null
+          tables_backed_up?: string[]
+        }
+        Relationships: []
+      }
       competitor_snapshots: {
         Row: {
           ai_findability_score: number | null
