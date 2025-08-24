@@ -9,7 +9,19 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, TrendingUp, Users, Activity } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { Suspense } from 'react';
+import { 
+  LazyBarChart, 
+  LazyLineChart, 
+  LazyResponsiveContainer, 
+  LazyBar, 
+  LazyLine, 
+  LazyXAxis, 
+  LazyYAxis, 
+  LazyCartesianGrid, 
+  LazyTooltip,
+  ChartLoader 
+} from '@/components/lazy/LazyCharts';
 
 interface UserUsageData {
   user_id: string;
@@ -270,15 +282,17 @@ function AdminUsagePage() {
                   <Skeleton className="h-full w-full" />
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="scans" stroke="hsl(var(--primary))" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <Suspense fallback={<ChartLoader />}>
+                  <LazyResponsiveContainer width="100%" height="100%">
+                    <LazyLineChart data={chartData}>
+                      <LazyCartesianGrid strokeDasharray="3 3" />
+                      <LazyXAxis dataKey="date" />
+                      <LazyYAxis />
+                      <LazyTooltip />
+                      <LazyLine type="monotone" dataKey="scans" stroke="hsl(var(--primary))" strokeWidth={2} />
+                    </LazyLineChart>
+                  </LazyResponsiveContainer>
+                </Suspense>
               )}
             </CardContent>
           </Card>
@@ -293,15 +307,17 @@ function AdminUsagePage() {
                   <Skeleton className="h-full w-full" />
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="prompts" fill="hsl(var(--primary))" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Suspense fallback={<ChartLoader />}>
+                  <LazyResponsiveContainer width="100%" height="100%">
+                    <LazyBarChart data={chartData}>
+                      <LazyCartesianGrid strokeDasharray="3 3" />
+                      <LazyXAxis dataKey="date" />
+                      <LazyYAxis />
+                      <LazyTooltip />
+                      <LazyBar dataKey="prompts" fill="hsl(var(--primary))" />
+                    </LazyBarChart>
+                  </LazyResponsiveContainer>
+                </Suspense>
               )}
             </CardContent>
           </Card>

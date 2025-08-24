@@ -7,7 +7,8 @@ import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsi
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
-import { CompetitorComparisonChart } from '@/components/CompetitorComparisonChart';
+import { Suspense } from 'react';
+import { LazyCompetitorComparisonChart, CompetitorChartLoader } from '@/components/lazy/LazyCompetitorChart';
 import { stringifyJsonLd } from '@/lib/seo';
 import { Skeleton, SkeletonTable } from '@/components/ui/skeleton-enhanced';
 import { CompetitorsChartSkeleton, CompetitorsTableSkeleton } from '@/components/ui/loading-states';
@@ -170,7 +171,8 @@ export default function Competitors() {
           <CompetitorsChartSkeleton />
         ) : items.length > 0 && (
           <div className="card-reveal" style={{ animationDelay: '0.2s' }}>
-            <CompetitorComparisonChart 
+          <Suspense fallback={<CompetitorChartLoader />}>
+            <LazyCompetitorComparisonChart 
               userBaseline={baseline}
               competitors={items.map(item => ({
                 id: item.id,
@@ -178,6 +180,7 @@ export default function Competitors() {
                 score: item.latestSnapshot?.score ?? null,
               }))}
             />
+          </Suspense>
           </div>
         )}
 

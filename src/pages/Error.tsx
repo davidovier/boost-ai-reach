@@ -42,10 +42,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           {/* Hero Image */}
           <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
             <img
-              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&crop=center"
+              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&crop=center&fm=webp"
               alt="System error illustration - technical difficulties with server infrastructure"
               className="w-full h-full object-cover"
               loading="eager"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
             <div className="absolute top-4 right-4 bg-destructive/90 text-destructive-foreground rounded-full p-3">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Confetti from 'react-confetti';
+import { Suspense } from 'react';
+import { LazyConfetti } from '@/components/lazy/LazyReactConfetti';
 import { CheckCircle, Circle, ArrowRight, Trophy, Sparkles } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Input } from '@/components/ui/input';
@@ -139,13 +140,15 @@ export default function Onboarding() {
       />
 
       {showConfetti && (
-        <Confetti
-          width={window.innerWidth}
-          height={window.innerHeight}
-          recycle={false}
-          numberOfPieces={200}
-          gravity={0.3}
-        />
+        <Suspense fallback={null}>
+          <LazyConfetti
+            width={window.innerWidth}
+            height={window.innerHeight}
+            recycle={false}
+            numberOfPieces={200}
+            gravity={0.3}
+          />
+        </Suspense>
       )}
 
       <main className="min-h-screen bg-gradient-to-br from-background to-secondary/20">

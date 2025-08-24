@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Calendar, Tag, Rss, FileJson } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Suspense } from 'react';
+import { LazyReactMarkdown, MarkdownLoader } from '@/components/lazy/LazyMarkdown';
 import { SEO } from '@/components/SEO';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -326,33 +326,35 @@ export default function Changelog() {
                   {/* Content */}
                   <div className="p-6">
                     <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground prose-strong:text-foreground">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          h3: ({ children, ...props }) => (
-                            <h3 className="text-lg font-semibold mb-3 mt-6 first:mt-0 text-foreground" {...props}>
-                              {children}
-                            </h3>
-                          ),
-                          ul: ({ children, ...props }) => (
-                            <ul className="space-y-1 mb-4" {...props}>
-                              {children}
-                            </ul>
-                          ),
-                          li: ({ children, ...props }) => (
-                            <li className="text-muted-foreground" {...props}>
-                              {children}
-                            </li>
-                          ),
-                          strong: ({ children, ...props }) => (
-                            <strong className="text-foreground font-semibold" {...props}>
-                              {children}
-                            </strong>
-                          )
-                        }}
-                      >
-                        {entry.content}
-                      </ReactMarkdown>
+                      <Suspense fallback={<MarkdownLoader />}>
+                        <LazyReactMarkdown 
+                          remarkPlugins={[]}
+                          components={{
+                            h3: ({ children, ...props }) => (
+                              <h3 className="text-lg font-semibold mb-3 mt-6 first:mt-0 text-foreground" {...props}>
+                                {children}
+                              </h3>
+                            ),
+                            ul: ({ children, ...props }) => (
+                              <ul className="space-y-1 mb-4" {...props}>
+                                {children}
+                              </ul>
+                            ),
+                            li: ({ children, ...props }) => (
+                              <li className="text-muted-foreground" {...props}>
+                                {children}
+                              </li>
+                            ),
+                            strong: ({ children, ...props }) => (
+                              <strong className="text-foreground font-semibold" {...props}>
+                                {children}
+                              </strong>
+                            )
+                          }}
+                        >
+                          {entry.content}
+                        </LazyReactMarkdown>
+                      </Suspense>
                     </div>
                   </div>
                 </CardContent>

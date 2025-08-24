@@ -18,10 +18,11 @@ export default function NotFound() {
           {/* Hero Image */}
           <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
             <img
-              src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=400&fit=crop&crop=center"  
+              src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=400&fit=crop&crop=center&fm=webp"  
               alt="Page not found illustration - lost path in digital maze navigation"
               className="w-full h-full object-cover"
               loading="eager"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
           </div>

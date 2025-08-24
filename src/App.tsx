@@ -5,34 +5,53 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { lazy, Suspense } from "react";
+
+// Critical pages loaded immediately
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Scans from "./pages/Scans";
-import ScanDetail from "./pages/ScanDetail";
-import AITests from "./pages/AITests";
-import Competitors from "./pages/Competitors";
-import Reports from "./pages/Reports";
-import ReportDetail from "./pages/ReportDetail";
-import Account from "./pages/Account";
-import Admin from "./pages/Admin";
-import AdminUsers from "./pages/AdminUsers";
-import AdminUsage from "./pages/AdminUsage";
-import AdminReports from "./pages/AdminReports";
-import AdminDashboardConfig from "./pages/AdminDashboardConfig";
-import AdminLogs from "./pages/AdminLogs";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
-import Onboarding from "./pages/Onboarding";
-import Pricing from "./pages/Pricing";
-import Changelog from "./pages/Changelog";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Cookies from "./pages/Cookies";
-import AlertTest from "./pages/AlertTest";
+
+// Public pages - code split
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Changelog = lazy(() => import("./pages/Changelog"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Cookies = lazy(() => import("./pages/Cookies"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+
+// App pages - code split
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Scans = lazy(() => import("./pages/Scans"));
+const ScanDetail = lazy(() => import("./pages/ScanDetail"));
+const AITests = lazy(() => import("./pages/AITests"));
+const Competitors = lazy(() => import("./pages/Competitors"));
+const Reports = lazy(() => import("./pages/Reports"));
+const ReportDetail = lazy(() => import("./pages/ReportDetail"));
+const Account = lazy(() => import("./pages/Account"));
+
+// Admin pages - heavily code split
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminUsage = lazy(() => import("./pages/AdminUsage"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
+const AdminDashboardConfig = lazy(() => import("./pages/AdminDashboardConfig"));
+const AdminLogs = lazy(() => import("./pages/AdminLogs"));
+const AlertTest = lazy(() => import("./pages/AlertTest"));
 
 const queryClient = new QueryClient();
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center space-y-4">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,39 +60,131 @@ const App = () => (
         <AppErrorBoundary>
           <Toaster />
           <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/changelog" element={<Changelog />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/cookies" element={<Cookies />} />
-            <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/scans" element={<Scans />} />
-              <Route path="/scans/:id" element={<ScanDetail />} />
-        <Route path="/ai-tests" element={<AITests />} />
-        <Route path="/prompts" element={<AITests />} />
-              <Route path="/competitors" element={<Competitors />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/reports/:id" element={<ReportDetail />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/usage" element={<AdminUsage />} />
-              <Route path="/admin/reports" element={<AdminReports />} />
-              <Route path="/admin/dashboard-config" element={<AdminDashboardConfig />} />
-              <Route path="/admin/logs" element={<AdminLogs />} />
-              <Route path="/admin/alerts" element={<AlertTest />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/reset-password" element={
+                <Suspense fallback={<PageLoader />}>
+                  <ResetPassword />
+                </Suspense>
+              } />
+              <Route path="/onboarding" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Onboarding />
+                </Suspense>
+              } />
+              <Route path="/pricing" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Pricing />
+                </Suspense>
+              } />
+              <Route path="/changelog" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Changelog />
+                </Suspense>
+              } />
+              <Route path="/privacy" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Privacy />
+                </Suspense>
+              } />
+              <Route path="/terms" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Terms />
+                </Suspense>
+              } />
+              <Route path="/cookies" element={
+                <Suspense fallback={<PageLoader />}>
+                  <Cookies />
+                </Suspense>
+              } />
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Dashboard />
+                  </Suspense>
+                } />
+                <Route path="/scans" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Scans />
+                  </Suspense>
+                } />
+                <Route path="/scans/:id" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ScanDetail />
+                  </Suspense>
+                } />
+                <Route path="/ai-tests" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AITests />
+                  </Suspense>
+                } />
+                <Route path="/prompts" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AITests />
+                  </Suspense>
+                } />
+                <Route path="/competitors" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Competitors />
+                  </Suspense>
+                } />
+                <Route path="/reports" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Reports />
+                  </Suspense>
+                } />
+                <Route path="/reports/:id" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ReportDetail />
+                  </Suspense>
+                } />
+                <Route path="/account" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Account />
+                  </Suspense>
+                } />
+                <Route path="/admin" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Admin />
+                  </Suspense>
+                } />
+                <Route path="/admin/users" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminUsers />
+                  </Suspense>
+                } />
+                <Route path="/admin/usage" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminUsage />
+                  </Suspense>
+                } />
+                <Route path="/admin/reports" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminReports />
+                  </Suspense>
+                } />
+                <Route path="/admin/dashboard-config" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminDashboardConfig />
+                  </Suspense>
+                } />
+                <Route path="/admin/logs" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminLogs />
+                  </Suspense>
+                } />
+                <Route path="/admin/alerts" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <AlertTest />
+                  </Suspense>
+                } />
+              </Route>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
         </AppErrorBoundary>
       </AuthProvider>
     </TooltipProvider>

@@ -119,38 +119,43 @@ const Index = () => {
                 </p>
                 <div className="trust-bar flex flex-wrap items-center justify-center md:justify-start gap-6 sm:gap-8">
                   <img 
-                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=200&h=80&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=200&h=80&auto=format&fit=crop&fm=webp" 
                     alt="Trusted enterprise client - technology company logo representing partnership success" 
                     className="trust-logo"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="trust-divider" aria-hidden="true"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?q=80&w=200&h=80&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?q=80&w=200&h=80&auto=format&fit=crop&fm=webp" 
                     alt="Trusted startup client - innovative company logo showcasing growth" 
                     className="trust-logo"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="trust-divider" aria-hidden="true"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=200&h=80&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=200&h=80&auto=format&fit=crop&fm=webp" 
                     alt="Trusted agency client - marketing firm logo demonstrating expertise" 
                     className="trust-logo"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="trust-divider" aria-hidden="true"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1572021335469-31706a17aaef?q=80&w=200&h=80&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1572021335469-31706a17aaef?q=80&w=200&h=80&auto=format&fit=crop&fm=webp" 
                     alt="Trusted corporate client - established business logo showing reliability" 
                     className="trust-logo"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="trust-divider" aria-hidden="true"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1594498653385-d5172c532c00?q=80&w=200&h=80&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1594498653385-d5172c532c00?q=80&w=200&h=80&auto=format&fit=crop&fm=webp" 
                     alt="Trusted scale-up client - fast-growing company logo indicating momentum" 
                     className="trust-logo"
-                    loading="lazy" 
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -158,10 +163,12 @@ const Index = () => {
             <div className="relative mt-12 md:mt-0">
               <div className="absolute inset-0 bg-gradient-primary opacity-20 blur-3xl rounded-full transform scale-75"></div>
               <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop"
-                alt="AI analytics dashboard visualization for AI findability optimization"
-                className="relative rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm shadow-2xl w-full h-auto animate-fade-in transform hover:scale-105 transition-all duration-500"
-                loading="eager"
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop"
+              alt="AI analytics dashboard visualization for AI findability optimization"
+              className="relative rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm shadow-2xl w-full h-auto animate-fade-in transform hover:scale-105 transition-all duration-500"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
               />
             </div>
           </div>
@@ -188,10 +195,11 @@ const Index = () => {
                 <h3>{title}</h3>
                 <p>{text}</p>
                 <img
-                  src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
                   alt={`${title} feature visualization - demonstrating how FindableAI improves ${title.toLowerCase()} for better AI discoverability`}
                   className="mt-6 rounded-lg border w-full h-32 sm:h-40 object-cover shadow-md"
                   loading="lazy"
+                  decoding="async"
                 />
               </article>
             ))}
