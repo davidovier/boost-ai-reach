@@ -13,6 +13,7 @@ import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBou
 import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
+import { InviteFriend } from '@/components/referral/InviteFriend';
 
 interface ActivityItem {
   id: string;

@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import ReferralRedirect from "./pages/ReferralRedirect";
 
 // Public pages - code split
 const Pricing = lazy(() => import("./pages/Pricing"));
@@ -65,6 +66,7 @@ const App = () => (
             <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/r/:code" element={<ReferralRedirect />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/reset-password" element={

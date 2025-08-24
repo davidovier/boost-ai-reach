@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { processReferralSignup } from '@/hooks/useReferral';
 import { useAuth } from '@/hooks/useAuth';
 import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
@@ -69,7 +70,7 @@ export default function SignUp() {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email.trim(),
         password: formData.password,
         options: {
@@ -89,6 +90,11 @@ export default function SignUp() {
           setError(error.message);
         }
         return;
+      }
+
+      // Process referral signup if user was created
+      if (data.user) {
+        await processReferralSignup(data.user.id);
       }
 
       setSuccess('Account created successfully! Please check your email for a confirmation link.');

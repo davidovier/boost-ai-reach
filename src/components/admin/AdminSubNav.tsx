@@ -9,6 +9,7 @@ const tabs = [
   { key: 'logs', label: 'Audit Logs' },
   { key: 'billing', label: 'Billing' },
   { key: 'ab-tests', label: 'A/B Tests' },
+  { key: 'referrals', label: 'Referrals' },
 ];
 
 export function AdminSubNav() {
