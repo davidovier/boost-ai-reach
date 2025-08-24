@@ -1,0 +1,280 @@
+@import '../variables';
+
+// Admin Panel Premium Styling
+.admin-breadcrumb-container {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, 
+    hsl(var(--card)) 0%, 
+    hsl(var(--muted) / 0.3) 100%);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow: 
+    0 2px 8px -2px rgba(0, 0, 0, 0.1),
+    0 0 0 1px hsl(var(--border));
+
+  .breadcrumb a {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: hsl(var(--primary));
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Enhanced header styling
+.admin-header {
+  position: relative;
+  padding: 1.5rem 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      hsl(var(--border)) 50%, 
+      transparent 100%);
+  }
+}
+
+// Navigation container with premium styling  
+.admin-nav-container {
+  position: relative;
+  
+  nav {
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--muted) / 0.2) 100%);
+    box-shadow: 
+      0 4px 12px -4px rgba(0, 0, 0, 0.1),
+      0 0 0 1px hsl(var(--border));
+    backdrop-filter: blur(8px);
+  }
+}
+
+// Main content with premium card styling
+.admin-main {
+  position: relative;
+}
+
+.admin-content-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px -8px rgba(0, 0, 0, 0.12),
+    0 2px 8px -2px rgba(0, 0, 0, 0.08),
+    0 0 0 1px hsl(var(--border));
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  
+  // Subtle inner glow
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--muted) / 0.1) 100%);
+    z-index: -1;
+  }
+}
+
+// Users Tab Specific Styling
+.users-tab-container {
+  space-y: 1.5rem;
+}
+
+// Filter banner (when filters are active)
+.filter-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.05) 0%, 
+    hsl(var(--primary) / 0.02) 100%);
+  border: 1px solid hsl(var(--primary) / 0.2);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  animation: fade-in 0.3s ease-out;
+}
+
+// Filters section 
+.users-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.search-filter {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+  
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: hsl(var(--muted-foreground));
+    z-index: 10;
+  }
+}
+
+.select-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+// Users table container with sticky header
+.users-table-container {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 70vh;
+  overflow-y: auto;
+  
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--muted) / 0.4) 100%);
+    backdrop-filter: blur(8px);
+    
+    th {
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      border-bottom: 2px solid hsl(var(--border));
+      padding: 1rem 0.75rem;
+    }
+  }
+  
+  // Enhanced table row hover
+  tbody tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: hsl(var(--muted) / 0.3);
+      transform: translateX(2px);
+      box-shadow: inset 3px 0 0 hsl(var(--primary));
+    }
+  }
+}
+
+// Modal overlay enhancements - ensure dark semi-transparent background
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+// Dialog content with premium styling
+[data-radix-dialog-content] {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px hsl(var(--border));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--muted) / 0.1) 100%);
+    z-index: -1;
+  }
+}
+
+// Mobile optimizations
+@media (max-width: 768px) {
+  .admin-content-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  
+  .users-filters {
+    padding: 0.75rem;
+    
+    .search-filter {
+      max-width: 100%;
+    }
+    
+    .select-filters {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+  
+  .users-table-container {
+    max-height: 60vh;
+    
+    .sticky-header th {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    tbody td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .filter-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+// Loading states with shimmer effect
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    hsl(var(--muted)) 0%, 
+    hsl(var(--muted-foreground) / 0.1) 50%, 
+    hsl(var(--muted)) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Focus states for accessibility
+.users-tab-container {
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
