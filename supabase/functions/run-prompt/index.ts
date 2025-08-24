@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceLimit } from "../_shared/limits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -160,21 +161,10 @@ serve(async (req) => {
 
     console.log("run-prompt invoked by", user.id, "prompt(len)", String(prompt).length);
 
-    // Enforce prompt quota
-    const { data: allowed, error: limitErr } = await supabase.rpc("check_usage_limit", {
-      user_id: user.id,
-      limit_type: "prompts",
-    });
-
-    if (limitErr) {
-      console.error("check_usage_limit error", limitErr);
-      return jsonResponse({ error: "Limit check failed" }, { status: 500 });
-    }
-    if (!allowed) {
-      return jsonResponse(
-        { error: { code: "quota_exceeded", limitType: "prompts", message: "Prompt quota reached" } },
-        { status: 402 },
-      );
+    // Enforce prompt quota using limits helper
+    const limitResult = await enforceLimit(user.id, 'prompt', authHeader);
+    if (!limitResult.success) {
+      return limitResult.response;
     }
 
     // Load user's context

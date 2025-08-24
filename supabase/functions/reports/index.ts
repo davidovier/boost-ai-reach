@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceLimit } from "../_shared/limits.ts";
 import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
@@ -265,6 +266,12 @@ serve(async (req) => {
     if (action === "generate") {
       const { data: { user }, error: userErr } = await userClient.auth.getUser();
       if (userErr || !user) return jsonResponse({ error: "Not authenticated" }, { status: 401 });
+
+      // Enforce report generation limit
+      const limitResult = await enforceLimit(user.id, 'report_generate', authHeader);
+      if (!limitResult.success) {
+        return limitResult.response;
+      }
 
       const siteId: string | undefined = body?.siteId;
       const res = await buildReportForUserSite(userClient, adminClient, user.id, siteId);

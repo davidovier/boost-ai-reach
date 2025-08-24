@@ -1,5 +1,6 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceLimit } from "../_shared/limits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -242,13 +243,11 @@ serve(async (req) => {
     return jsonResponse({ error: "Unable to resolve site or URL" }, 400);
   }
 
-  // Enforce 'scans' limit
-  const { data: allowed, error: limitErr } = await supabase.rpc("check_usage_limit", {
-    user_id: user.id,
-    limit_type: "scans",
-  });
-  if (limitErr) return jsonResponse({ error: limitErr.message }, 500);
-  if (!allowed) return jsonResponse({ error: "Scan limit reached for your plan" }, 403);
+  // Enforce 'scans' limit using limits helper
+  const limitResult = await enforceLimit(user.id, 'scan', authHeader);
+  if (!limitResult.success) {
+    return limitResult.response;
+  }
 
   // robots.txt check
   const urlObj = new URL(pageUrl);

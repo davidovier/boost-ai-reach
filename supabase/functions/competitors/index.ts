@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceLimit } from "../_shared/limits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -151,20 +152,10 @@ serve(async (req) => {
         return jsonResponse({ error: "Invalid domain" }, { status: 400 });
       }
 
-      // Enforce competitor quota
-      const { data: allowed, error: limitErr } = await supabase.rpc("check_usage_limit", {
-        user_id: user.id,
-        limit_type: "competitors",
-      });
-      if (limitErr) {
-        console.error("check_usage_limit error", limitErr);
-        return jsonResponse({ error: "Limit check failed" }, { status: 500 });
-      }
-      if (!allowed) {
-        return jsonResponse(
-          { error: { code: "quota_exceeded", limitType: "competitors", message: "Competitor slots exhausted" } },
-          { status: 402 },
-        );
+      // Enforce competitor quota using limits helper
+      const limitResult = await enforceLimit(user.id, 'competitor_add', authHeader);
+      if (!limitResult.success) {
+        return limitResult.response;
       }
 
       // Insert competitor
