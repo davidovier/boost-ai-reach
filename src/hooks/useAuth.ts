@@ -75,14 +75,18 @@ export function useAuthState() {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        // Only synchronous state updates here
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile when user logs in
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
+          // Defer Supabase calls with setTimeout to prevent deadlock
+          setTimeout(() => {
+            fetchProfile(session.user.id).then(profileData => {
+              setProfile(profileData);
+            });
+          }, 0);
         } else {
           setProfile(null);
         }
