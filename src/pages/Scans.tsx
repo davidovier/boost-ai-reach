@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,10 +32,13 @@ interface Scan {
 
 export default function Scans() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; scan?: Scan }>({ open: false });
+  const [deleting, setDeleting] = useState(false);
 
   const breadcrumbs = getBreadcrumbJsonLd([
     { name: 'Home', item: origin },
@@ -99,9 +104,42 @@ export default function Scans() {
     // TODO: Implement scan editing
   };
 
-  const handleDeleteScan = (scanId: string) => {
-    // Trigger delete confirmation
-    // TODO: Implement scan deletion
+  const openDeleteDialog = (scan: Scan) => {
+    setDeleteDialog({ open: true, scan });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false });
+    setDeleting(false);
+  };
+
+  const confirmDeleteScan = async () => {
+    if (!deleteDialog.scan) return;
+    
+    try {
+      setDeleting(true);
+      const { error } = await supabase
+        .from('scans')
+        .delete()
+        .eq('id', deleteDialog.scan.id);
+        
+      if (error) throw error;
+      
+      toast({ 
+        title: '✅ Scan deleted', 
+        description: `Scan for ${deleteDialog.scan.site?.name || 'site'} has been removed`,
+        className: 'success-animation'
+      });
+      setScans(prev => prev.filter(s => s.id !== deleteDialog.scan?.id));
+      closeDeleteDialog();
+    } catch (e) {
+      toast({ 
+        title: 'Failed to delete', 
+        description: 'Could not remove scan. Please try again.', 
+        variant: 'destructive' 
+      });
+      setDeleting(false);
+    }
   };
 
   return (
@@ -221,7 +259,7 @@ export default function Scans() {
                               className="action-btn interactive-hover"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDeleteScan(scan.id);
+                                openDeleteDialog(scan);
                               }}
                               aria-label="Delete scan"
                             >
@@ -277,10 +315,10 @@ export default function Scans() {
                       <ActionTooltip content="Delete scan">
                         <button 
                           className="action-btn touch-target"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteScan(scan.id);
-                          }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteDialog(scan);
+                            }}
                           aria-label="Delete scan"
                         >
                           <Trash2 />
@@ -325,6 +363,18 @@ export default function Scans() {
           </ComponentErrorBoundary>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !open && closeDeleteDialog()}
+        title="Delete Scan"
+        description={`Are you sure you want to delete the scan for "${deleteDialog.scan?.site?.name || 'this site'}"? This action cannot be undone and will permanently remove all scan data and results.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDeleteScan}
+        loading={deleting}
+      />
     </PageErrorBoundary>
   );
 }

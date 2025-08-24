@@ -7,6 +7,7 @@ import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsi
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Suspense } from 'react';
 import { LazyCompetitorComparisonChart, CompetitorChartLoader } from '@/components/lazy/LazyCompetitorChart';
 import { stringifyJsonLd } from '@/lib/seo';
@@ -29,6 +30,8 @@ export default function Competitors() {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [domain, setDomain] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item?: CompetitorItem }>({ open: false });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchList();
@@ -80,16 +83,39 @@ export default function Competitors() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const openDeleteDialog = (item: CompetitorItem) => {
+    setDeleteDialog({ open: true, item });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false });
+    setDeleting(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDialog.item) return;
+    
     try {
+      setDeleting(true);
       const { error } = await supabase.functions.invoke('competitors', {
-        body: { action: 'delete', id },
+        body: { action: 'delete', id: deleteDialog.item.id },
       });
       if (error) throw error;
-      toast({ title: 'Deleted', description: 'Competitor removed' });
-      setItems(prev => prev.filter(i => i.id !== id));
+      
+      toast({ 
+        title: '✅ Competitor deleted', 
+        description: `${deleteDialog.item.domain} has been removed`,
+        className: 'success-animation'
+      });
+      setItems(prev => prev.filter(i => i.id !== deleteDialog.item?.id));
+      closeDeleteDialog();
     } catch (e) {
-      toast({ title: 'Error', description: 'Failed to delete competitor', variant: 'destructive' });
+      toast({ 
+        title: 'Failed to delete', 
+        description: 'Could not remove competitor. Please try again.', 
+        variant: 'destructive' 
+      });
+      setDeleting(false);
     }
   };
 
@@ -233,7 +259,7 @@ export default function Competitors() {
                       variant="ghost" 
                       size="icon" 
                       aria-label={`Delete ${item.domain}`}
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => openDeleteDialog(item)}
                       className="btn-focus min-h-[44px] min-w-[44px] interactive-hover"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -256,6 +282,18 @@ export default function Competitors() {
           )}
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !open && closeDeleteDialog()}
+        title="Delete Competitor"
+        description={`Are you sure you want to delete "${deleteDialog.item?.domain}"? This action cannot be undone and will remove all associated tracking data.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDelete}
+        loading={deleting}
+      />
     </>
   );
 }

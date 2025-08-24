@@ -70,8 +70,8 @@ function AdminReportsPage() {
     } catch (error) {
       console.error('Error fetching reports:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch reports',
+        title: 'Failed to load reports',
+        description: 'Could not fetch admin reports. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -132,8 +132,9 @@ function AdminReportsPage() {
       await Promise.all(promises);
 
       toast({
-        title: 'Success',
-        description: `${selectedReports.size} report(s) queued for regeneration`,
+        title: '✅ Reports queued for regeneration',
+        description: `${selectedReports.size} report(s) will be regenerated`,
+        className: 'success-animation'
       });
 
       setSelectedReports(new Set());
@@ -141,8 +142,8 @@ function AdminReportsPage() {
     } catch (error) {
       console.error('Error regenerating reports:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to regenerate some reports',
+        title: 'Failed to regenerate reports',
+        description: 'Some reports could not be regenerated. Please try again.',
         variant: 'destructive',
       });
     } finally {

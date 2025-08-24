@@ -43,8 +43,8 @@ export default function Reports() {
     } catch (error: any) {
       console.error('Error fetching reports:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load reports',
+        title: 'Failed to load reports',
+        description: 'Could not fetch your reports. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -62,16 +62,17 @@ export default function Reports() {
       if (error) throw error;
 
       toast({
-        title: 'Report Generated',
+        title: '✅ Report generated',
         description: 'Your report has been generated successfully',
+        className: 'success-animation'
       });
 
       await fetchReports();
     } catch (error: any) {
       console.error('Error generating report:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to generate report',
+        title: 'Failed to generate report',
+        description: error.message || 'Could not create report. Please try again.',
         variant: 'destructive',
       });
     } finally {
