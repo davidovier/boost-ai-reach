@@ -37,6 +37,17 @@ const Index = () => {
     url: pageUrl,
     logo: `${origin}/placeholder.svg`,
     description: 'AI Findability Optimization Platform helping websites improve their AI discovery and visibility',
+    foundingDate: '2024',
+    industry: 'Software',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'US'
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      email: 'support@findable.ai'
+    },
     sameAs: [
       'https://twitter.com/FindableAI',
       'https://linkedin.com/company/findableai'

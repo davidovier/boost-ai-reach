@@ -148,21 +148,24 @@ export default function Changelog() {
     return colorMap[tag] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
     name: 'FindableAI Changelog',
     description: 'Complete changelog and version history for FindableAI platform updates, features, and improvements.',
-    url: `${window.location.origin}/changelog`,
+    url: `${origin}/changelog`,
     author: {
       '@type': 'Organization',
       name: 'FindableAI',
-      url: window.location.origin
+      url: origin
     },
     dateModified: entries.length > 0 ? entries[0].date : new Date().toISOString().split('T')[0],
     datePublished: entries.length > 0 ? entries[entries.length - 1].date : new Date().toISOString().split('T')[0],
     version: entries.length > 0 ? entries[0].version : '1.0.0',
-    isAccessibleForFree: true
+    isAccessibleForFree: true,
+    inLanguage: 'en-US',
+    genre: 'software documentation'
   };
 
   if (loading) {
@@ -196,13 +199,13 @@ export default function Changelog() {
         rel="alternate" 
         type="application/rss+xml" 
         title="FindableAI Changelog RSS" 
-        href={`${window.location.origin}/changelog.rss`} 
+        href={`${origin}/changelog.rss`} 
       />
       <link 
         rel="alternate" 
         type="application/json" 
         title="FindableAI Changelog JSON Feed" 
-        href={`${window.location.origin}/changelog.json`} 
+        href={`${origin}/changelog.json`} 
       />
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">

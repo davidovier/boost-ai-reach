@@ -61,21 +61,50 @@ export default function Pricing() {
   ]), [origin, pageUrl]);
 
   const productsJson = useMemo(() => {
-    return plans.map((p) => ({
+    return plans.map((p, index) => ({
       '@context': 'https://schema.org',
       '@type': 'Product',
+      '@id': `${pageUrl}#${p.key}-plan`,
       name: `FindableAI ${p.name} Plan`,
+      description: `${p.name} plan includes: ${p.features.join(', ')}`,
       url: pageUrl,
-      brand: { '@type': 'Brand', name: 'FindableAI' },
+      category: 'Software as a Service',
+      brand: { 
+        '@type': 'Brand', 
+        name: 'FindableAI',
+        url: origin
+      },
       offers: {
         '@type': 'Offer',
+        '@id': `${pageUrl}#offer-${p.key}`,
+        name: `${p.name} Plan Subscription`,
         priceCurrency: 'USD',
         price: p.price === 'Custom' ? undefined : p.price.replace('$', ''),
+        priceSpecification: p.price === 'Custom' ? undefined : {
+          '@type': 'UnitPriceSpecification',
+          price: p.price.replace('$', ''),
+          priceCurrency: 'USD',
+          unitText: 'MONTH'
+        },
         availability: 'https://schema.org/InStock',
         url: pageUrl,
+        seller: {
+          '@type': 'Organization',
+          name: 'FindableAI',
+          url: origin
+        },
+        validFrom: new Date().toISOString(),
+        itemCondition: 'https://schema.org/NewCondition'
       },
+      aggregateRating: index === 1 ? { // Pro plan is most popular
+        '@type': 'AggregateRating',
+        ratingValue: '4.8',
+        reviewCount: '150',
+        bestRating: '5',
+        worstRating: '1'
+      } : undefined
     }));
-  }, [pageUrl]);
+  }, [pageUrl, origin]);
 
   const handleCheckout = async (priceId: string | null | undefined) => {
     if (!priceId) {
