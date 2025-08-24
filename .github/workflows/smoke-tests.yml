@@ -1,0 +1,103 @@
+name: Smoke Tests
+
+on:
+  schedule:
+    # Run smoke tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+        
+      - name: Set environment
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "production" ]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+            echo "TARGET_URL=https://findableai.com" >> $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV  
+            echo "TARGET_URL=https://staging.findableai.com" >> $GITHUB_ENV
+          fi
+          
+      - name: Run smoke tests
+        env:
+          STAGING_URL: ${{ env.TARGET_URL }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+        run: |
+          chmod +x scripts/run-smoke-tests.sh
+          ./scripts/run-smoke-tests.sh ${{ env.ENVIRONMENT }}
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results-${{ env.ENVIRONMENT }}
+          path: |
+            playwright-report-staging/
+            smoke-test-*.log
+            test-results-staging.xml
+          retention-days: 30
+          
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { ENVIRONMENT } = process.env;
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Smoke Tests Failed - ${ENVIRONMENT}`,
+              body: `
+              Smoke tests failed for **${ENVIRONMENT}** environment.
+              
+              **Workflow**: ${{ github.workflow }}
+              **Run ID**: ${{ github.run_id }}
+              **Environment**: ${ENVIRONMENT}
+              **Triggered by**: ${{ github.event_name }}
+              
+              Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+              `,
+              labels: ['bug', 'smoke-test', 'urgent']
+            });
+            
+  # Optional: Slack notification
+  notify-slack:
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: always() && contains(needs.smoke-tests.result, 'failure')
+    steps:
+      - name: Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: "🚨 Smoke tests failed for ${{ github.event.inputs.environment || 'staging' }} environment"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
