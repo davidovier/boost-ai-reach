@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireRole } from "../_shared/role-middleware.ts";
 import { checkRateLimit, createRateLimitResponse, getClientIP, RATE_LIMITS } from "../_shared/rate-limiter.ts";
+import { 
+  validateQueryParams,
+  AnalyticsQuerySchema,
+  createValidationErrorResponse 
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -53,34 +58,20 @@ serve(async (req) => {
 
     // Supabase client already initialized above for rate limiting
 
-    // Parse query parameters
+    // Parse and validate query parameters
     const url = new URL(req.url);
-    const fromDate = url.searchParams.get('from');
-    const toDate = url.searchParams.get('to');
-
-    // Validate date parameters
-    if (!fromDate || !toDate) {
-      return new Response(
-        JSON.stringify({ error: 'Both from and to parameters are required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+    const queryParams = Object.fromEntries(url.searchParams.entries());
+    const queryValidation = validateQueryParams(AnalyticsQuerySchema, queryParams);
+    
+    if (!queryValidation.success) {
+      return createValidationErrorResponse(
+        queryValidation.error,
+        corsHeaders,
+        queryValidation.details
       );
     }
 
-    // Validate date format
-    const fromDateObj = new Date(fromDate);
-    const toDateObj = new Date(toDate);
-    if (isNaN(fromDateObj.getTime()) || isNaN(toDateObj.getTime())) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid date format. Use YYYY-MM-DD or ISO format' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
+    const { from: fromDate, to: toDate } = queryValidation.data;
 
     // Get event totals by type
     const { data: eventTotals, error: eventError } = await supabase

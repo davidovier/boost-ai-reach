@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
+import { validateRequestBody, RunPromptSchema, createValidationErrorResponse } from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -193,12 +194,28 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const body = await req.json().catch(() => null);
-    const prompt: string | undefined = body?.prompt;
+    const bodyText = await req.text();
+    let body;
     
-    if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
-      return jsonResponse({ error: "Invalid request body: 'prompt' required" }, { status: 400 });
+    try {
+      body = JSON.parse(bodyText);
+    } catch (error) {
+      return createValidationErrorResponse(
+        "Invalid JSON in request body",
+        corsHeaders
+      );
     }
+
+    const validation = validateRequestBody(RunPromptSchema, body);
+    if (!validation.success) {
+      return createValidationErrorResponse(
+        validation.error,
+        corsHeaders,
+        validation.details
+      );
+    }
+
+    const { prompt, includeCompetitors = false } = validation.data;
 
     console.log("POST /api/prompts invoked by user:", user.id, "prompt length:", prompt.length);
 

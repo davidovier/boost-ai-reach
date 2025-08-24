@@ -2,6 +2,18 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/role-middleware.ts";
 import { checkRateLimit, createRateLimitResponse, getClientIP, RATE_LIMITS } from "../_shared/rate-limiter.ts";
+import { 
+  validateRequestBody, 
+  validateQueryParams,
+  validatePathParams,
+  UserRoleUpdateSchema,
+  UserIdParamSchema,
+  OverrideUsageSchema,
+  AnalyticsQuerySchema,
+  AuditLogsQuerySchema,
+  FeatureConfigUpdateSchema,
+  createValidationErrorResponse 
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -85,25 +97,45 @@ serve(async (req) => {
     // POST /api/admin/user/:id/role - Update user role
     if (req.method === 'POST' && pathSegments.includes('user') && pathSegments.includes('role')) {
       const userId = pathSegments[pathSegments.indexOf('user') + 1];
-      if (!userId) {
-        return jsonResponse({ error: "Missing user ID" }, { status: 400 });
+      
+      // Validate path parameter
+      const pathValidation = validatePathParams(UserIdParamSchema, { userId });
+      if (!pathValidation.success) {
+        return createValidationErrorResponse(
+          pathValidation.error,
+          corsHeaders,
+          pathValidation.details
+        );
       }
 
-      const body = await req.json();
-      const { role, plan } = body;
-
-      if (!role && !plan) {
-        return jsonResponse({ error: "Role or plan is required" }, { status: 400 });
+      // Parse and validate request body
+      const bodyText = await req.text();
+      let body;
+      
+      try {
+        body = JSON.parse(bodyText);
+      } catch (error) {
+        return createValidationErrorResponse(
+          "Invalid JSON in request body",
+          corsHeaders
+        );
       }
 
-      const updateData: any = {};
-      if (role) updateData.role = role;
-      if (plan) updateData.plan = plan;
+      const bodyValidation = validateRequestBody(UserRoleUpdateSchema, body);
+      if (!bodyValidation.success) {
+        return createValidationErrorResponse(
+          bodyValidation.error,
+          corsHeaders,
+          bodyValidation.details
+        );
+      }
+
+      const { role } = bodyValidation.data;
 
       const { data, error } = await supabase
         .from('profiles')
-        .update(updateData)
-        .eq('id', userId)
+        .update({ role })
+        .eq('id', pathValidation.data.userId)
         .select('id, email, name, role, plan, updated_at')
         .single();
 
@@ -112,7 +144,7 @@ serve(async (req) => {
         return jsonResponse({ error: error.message }, { status: 500 });
       }
 
-      console.log(`Updated user ${userId} role/plan:`, updateData);
+      console.log(`Updated user ${pathValidation.data.userId} role:`, role);
       return jsonResponse({ 
         success: true,
         user: data,
@@ -122,16 +154,33 @@ serve(async (req) => {
 
     // POST /api/admin/override-usage - Override user usage limits
     if (req.method === 'POST' && pathSegments.includes('override-usage')) {
-      const body = await req.json();
-      const { userId, usageType, newValue, resetAll } = body;
-
-      if (!userId) {
-        return jsonResponse({ error: "Missing user ID" }, { status: 400 });
+      // Parse and validate request body
+      const bodyText = await req.text();
+      let body;
+      
+      try {
+        body = JSON.parse(bodyText);
+      } catch (error) {
+        return createValidationErrorResponse(
+          "Invalid JSON in request body",
+          corsHeaders
+        );
       }
 
+      const bodyValidation = validateRequestBody(OverrideUsageSchema, body);
+      if (!bodyValidation.success) {
+        return createValidationErrorResponse(
+          bodyValidation.error,
+          corsHeaders,
+          bodyValidation.details
+        );
+      }
+
+      const { userId, resetAll, scanCount, promptCount, competitorCount, reportCount } = bodyValidation.data;
+
       if (resetAll) {
-        // Reset all usage metrics for user
-        const { data, error } = await supabase
+        // Reset all usage metrics for all users if no specific userId
+        let query = supabase
           .from('usage_metrics')
           .update({
             scan_count: 0,
@@ -139,38 +188,47 @@ serve(async (req) => {
             competitor_count: 0,
             report_count: 0,
             last_reset: new Date().toISOString()
-          })
-          .eq('user_id', userId)
-          .select()
-          .single();
+          });
+
+        if (userId) {
+          query = query.eq('user_id', userId);
+        }
+
+        const { data, error } = await query.select();
 
         if (error) {
           console.error('Error resetting usage:', error);
           return jsonResponse({ error: error.message }, { status: 500 });
         }
 
-        console.log(`Reset all usage for user ${userId}`);
+        const resetCount = data?.length || 0;
+        console.log(`Reset usage for ${resetCount} user(s)${userId ? ` (specific user: ${userId})` : ' (all users)'}`);
+        
         return jsonResponse({
           success: true,
-          usage: data,
-          message: 'All usage metrics reset successfully'
+          reset_count: resetCount,
+          message: `Usage metrics reset successfully for ${resetCount} user(s)`
         });
       }
 
-      if (!usageType || newValue === undefined) {
+      if (!userId) {
         return jsonResponse({ 
-          error: "usageType and newValue are required (or use resetAll: true)" 
+          error: "userId is required for specific usage overrides" 
         }, { status: 400 });
       }
 
-      const validTypes = ['scan_count', 'prompt_count', 'competitor_count', 'report_count'];
-      if (!validTypes.includes(usageType)) {
+      // Build update data for specific metrics
+      const updateData: any = {};
+      if (scanCount !== undefined) updateData.scan_count = scanCount;
+      if (promptCount !== undefined) updateData.prompt_count = promptCount;
+      if (competitorCount !== undefined) updateData.competitor_count = competitorCount;
+      if (reportCount !== undefined) updateData.report_count = reportCount;
+
+      if (Object.keys(updateData).length === 0) {
         return jsonResponse({ 
-          error: `Invalid usageType. Must be one of: ${validTypes.join(', ')}` 
+          error: "At least one usage metric must be provided" 
         }, { status: 400 });
       }
-
-      const updateData = { [usageType]: newValue };
       const { data, error } = await supabase
         .from('usage_metrics')
         .update(updateData)
@@ -183,20 +241,30 @@ serve(async (req) => {
         return jsonResponse({ error: error.message }, { status: 500 });
       }
 
-      console.log(`Overrode ${usageType} to ${newValue} for user ${userId}`);
+      console.log(`Updated usage metrics for user ${userId}:`, updateData);
       return jsonResponse({
         success: true,
         usage: data,
-        message: `${usageType} updated successfully`
+        message: 'Usage metrics updated successfully'
       });
     }
 
     // GET /api/admin/audit-logs - Get audit logs
     if (req.method === 'GET' && pathSegments.includes('audit-logs')) {
-      const limit = parseInt(url.searchParams.get('limit') || '50');
-      const offset = parseInt(url.searchParams.get('offset') || '0');
-      const userId = url.searchParams.get('userId');
-      const action = url.searchParams.get('action');
+      // Parse and validate query parameters
+      const queryParams = Object.fromEntries(url.searchParams.entries());
+      const queryValidation = validateQueryParams(AuditLogsQuerySchema, queryParams);
+      
+      if (!queryValidation.success) {
+        return createValidationErrorResponse(
+          queryValidation.error,
+          corsHeaders,
+          queryValidation.details
+        );
+      }
+
+      const { page, limit, action, userId, from, to } = queryValidation.data;
+      const offset = (page - 1) * limit;
 
       let query = supabase
         .from('audit_logs')
@@ -214,6 +282,14 @@ serve(async (req) => {
 
       if (action) {
         query = query.eq('action', action);
+      }
+
+      if (from) {
+        query = query.gte('created_at', from);
+      }
+
+      if (to) {
+        query = query.lte('created_at', to);
       }
 
       const { data: logs, error } = await query;
@@ -241,6 +317,7 @@ serve(async (req) => {
         success: true,
         logs: logs || [],
         pagination: {
+          page,
           limit,
           offset,
           total: count || 0,

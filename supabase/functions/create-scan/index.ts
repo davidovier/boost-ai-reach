@@ -5,6 +5,7 @@ import { validateUrl, getBaseDomain } from "../_shared/url-validator.ts";
 import { extractMetadata, checkRobotsTxt, checkSitemap, ScanResult } from "../_shared/metadata-extractor.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
+import { validateRequestBody, CreateScanSchema, createValidationErrorResponse } from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,8 +63,28 @@ serve(async (req) => {
       return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
     // Parse and validate input
-    const body = await req.json();
-    const { siteId, url } = body;
+    const bodyText = await req.text();
+    let body;
+    
+    try {
+      body = JSON.parse(bodyText);
+    } catch (error) {
+      return createValidationErrorResponse(
+        "Invalid JSON in request body",
+        corsHeaders
+      );
+    }
+
+    const validation = validateRequestBody(CreateScanSchema, body);
+    if (!validation.success) {
+      return createValidationErrorResponse(
+        validation.error,
+        corsHeaders,
+        validation.details
+      );
+    }
+
+    const { siteId, url } = validation.data;
     
     let pageUrl: string;
     let targetSiteId: string;
