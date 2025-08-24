@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
 import { validateUrl, getBaseDomain } from "../_shared/url-validator.ts";
 import { extractMetadata, checkRobotsTxt, checkSitemap, ScanResult } from "../_shared/metadata-extractor.ts";
+import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -114,6 +115,15 @@ serve(async (req) => {
         if (insErr) return jsonResponse({ error: insErr.message }, 500);
         if (!newSite) return jsonResponse({ error: "Failed to create site" }, 500);
         targetSiteId = newSite.id as string;
+
+        // Log site created event
+        const requestMetadata = extractRequestMetadata(req);
+        await logEvent(supabase, user.id, 'site_created', {
+          ...requestMetadata,
+          site_id: targetSiteId,
+          url: pageUrl,
+          name: name
+        });
       }
     } else {
       return jsonResponse({ error: "Either 'siteId' or 'url' must be provided" }, 400);
@@ -261,6 +271,20 @@ serve(async (req) => {
     if (usageErr) {
       console.warn("Failed to update usage metrics:", usageErr);
     }
+
+    // Log scan completed event
+    const requestMetadata = extractRequestMetadata(req);
+    await logEvent(supabase, user.id, 'scan_completed', {
+      ...requestMetadata,
+      scan_id: scanRecord.id,
+      site_id: targetSiteId,
+      url: pageUrl,
+      ai_findability_score: findabilityScore,
+      crawlability_score: calculateCrawlabilityScore(scanData),
+      summarizability_score: calculateSummarizabilityScore(scanData),
+      tips_generated: tips.length,
+      scan_duration: Date.now() - scanStartTime
+    });
 
     console.log("Scan completed successfully:", scanRecord.id);
 

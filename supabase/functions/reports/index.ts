@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
+import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -274,6 +275,14 @@ async function processReportGeneration(
           error_message: null
         })
         .eq("id", reportId);
+
+      // Log report generated event
+      await logEvent(adminClient, userId, 'report_generated', {
+        report_id: reportId,
+        site_id: siteId,
+        generation_duration: Date.now() - Date.parse(new Date().toISOString()),
+        success: true
+      });
     }
   } catch (error) {
     console.error(`Report generation error: ${reportId}`, error);

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logEvent } from "../_shared/event-logger.ts";
 
 const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
 if (!stripeSecretKey) {
@@ -109,9 +110,31 @@ const handleSubscriptionEvent = async (subscription: Stripe.Subscription) => {
 
   // Update user's plan in profiles
   if (status === 'active') {
+    // Get current plan for comparison
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .single();
+
+    const previousPlan = currentProfile?.plan || 'free';
+    
     await updateUserPlan(userId, plan);
     // Reset usage metrics when plan becomes active
     await resetUsageMetrics(userId);
+
+    // Log plan upgrade event if it's actually an upgrade
+    if (plan !== previousPlan) {
+      await logEvent(supabase, userId, 'plan_upgraded', {
+        from_plan: previousPlan,
+        to_plan: plan,
+        stripe_subscription_id: subscription.id,
+        stripe_customer_id: subscription.customer,
+        billing_cycle: subscription.items.data[0]?.price.recurring?.interval || 'monthly',
+        amount: subscription.items.data[0]?.price.unit_amount || 0,
+        subscription_status: status
+      });
+    }
   } else if (status === 'canceled' || status === 'unpaid') {
     // Downgrade to free plan
     await updateUserPlan(userId, 'free');

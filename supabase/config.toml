@@ -38,3 +38,6 @@ verify_jwt = true
 
 [functions.competitors-compare]
 verify_jwt = true
+
+[functions.user-signup-logger]
+verify_jwt = false

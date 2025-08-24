@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
+import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -262,6 +263,17 @@ serve(async (req) => {
     if (usageError) {
       console.warn("Failed to update usage metrics:", usageError);
     }
+
+    // Log prompt run event
+    const requestMetadata = extractRequestMetadata(req);
+    await logEvent(supabase, user.id, 'prompt_run', {
+      ...requestMetadata,
+      prompt_length: prompt.length,
+      mentioned_user_site: mentionedUserSite,
+      competitors_found: competitors.length,
+      tokens_used: tokens_used,
+      relevance_score: analysis.relevance_score
+    });
 
     console.log("Prompt simulation completed:", simulationRecord.id);
 

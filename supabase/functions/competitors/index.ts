@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
+import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -175,6 +176,16 @@ serve(async (req) => {
 
       // Create snapshot in background (auto-queue first snapshot)
       const snapshot = await createSnapshotForDomain(supabase, compRow.id, compRow.domain);
+
+      // Log competitor added event
+      const requestMetadata = extractRequestMetadata(req);
+      await logEvent(supabase, user.id, 'competitor_added', {
+        ...requestMetadata,
+        competitor_id: compRow.id,
+        domain: compRow.domain,
+        notes: compRow.notes,
+        snapshot_score: snapshot.score
+      });
 
       // Update usage metrics
       const { data: usageRow } = await supabase
