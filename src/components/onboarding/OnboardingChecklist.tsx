@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CheckCircle, Circle, Sparkles, Target, BarChart3 } from 'lucide-react';
-import { useABTest, trackABTestEvent, ABTestVariant } from '@/hooks/useABTest';
+import { CheckCircle, Circle, Sparkles, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ChecklistItem {
@@ -11,6 +11,7 @@ interface ChecklistItem {
   description: string;
   completed: boolean;
   action?: () => void;
+  actionPath?: string;
 }
 
 interface OnboardingChecklistProps {
@@ -19,128 +20,74 @@ interface OnboardingChecklistProps {
 }
 
 export function OnboardingChecklist({ onComplete, className = '' }: OnboardingChecklistProps) {
-  const { variant, loading } = useABTest('onboarding_checklist');
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [items, setItems] = useState<ChecklistItem[]>([]);
 
   useEffect(() => {
-    if (!variant) return;
-
-    const baseItems: ChecklistItem[] = [
+    const onboardingItems: ChecklistItem[] = [
       {
         id: 'welcome',
         title: 'Welcome to FindableAI',
         description: 'Get started with AI findability optimization',
         completed: true
+      },
+      {
+        id: 'add_site',
+        title: 'Add Your Website',
+        description: 'Enter your website URL for analysis',
+        completed: false,
+        actionPath: '/sites'
+      },
+      {
+        id: 'run_scan',
+        title: 'Run Comprehensive Scan',
+        description: 'Deep analysis of metadata, schema, and structure',
+        completed: false,
+        actionPath: '/scans'
+      },
+      {
+        id: 'test_prompts',
+        title: 'Test AI Prompts',
+        description: 'See how AI responds to queries about your industry',
+        completed: false,
+        actionPath: '/ai-tests'
+      },
+      {
+        id: 'review_tips',
+        title: 'Review Optimization Tips',
+        description: 'Get actionable recommendations for improvement',
+        completed: false,
+        actionPath: '/scans'
       }
     ];
 
-    if (variant === 'short') {
-      setItems([
-        ...baseItems,
-        {
-          id: 'add_site',
-          title: 'Add Your Website',
-          description: 'Enter your website URL to begin scanning',
-          completed: false
-        },
-        {
-          id: 'run_scan',
-          title: 'Run First Scan',
-          description: 'Analyze your site\'s AI findability',
-          completed: false
-        }
-      ]);
-    } else {
-      setItems([
-        ...baseItems,
-        {
-          id: 'learn_about_ai',
-          title: 'Learn About AI Findability',
-          description: 'Understand how AI tools discover content',
-          completed: false
-        },
-        {
-          id: 'add_site',
-          title: 'Add Your Website',
-          description: 'Enter your website URL for analysis',
-          completed: false
-        },
-        {
-          id: 'run_scan',
-          title: 'Run Comprehensive Scan',
-          description: 'Deep analysis of metadata, schema, and structure',
-          completed: false
-        },
-        {
-          id: 'test_prompts',
-          title: 'Test AI Prompts',
-          description: 'See how AI responds to queries about your industry',
-          completed: false
-        },
-        {
-          id: 'review_tips',
-          title: 'Review Optimization Tips',
-          description: 'Get actionable recommendations for improvement',
-          completed: false
-        }
-      ]);
-    }
-  }, [variant]);
+    setItems(onboardingItems);
+  }, []);
 
-  const handleItemClick = async (itemId: string) => {
-    setItems(prev => prev.map(item => 
-      item.id === itemId ? { ...item, completed: !item.completed } : item
+  const handleItemClick = async (item: ChecklistItem) => {
+    // If item has an action path and isn't completed, navigate to it
+    if (item.actionPath && !item.completed) {
+      navigate(item.actionPath);
+      return;
+    }
+
+    // Toggle completion status
+    setItems(prev => prev.map(i => 
+      i.id === item.id ? { ...i, completed: !i.completed } : i
     ));
-
-    // Track individual step completion
-    if (variant && user) {
-      await trackABTestEvent(
-        'onboarding_checklist',
-        'onboarding_step_completed',
-        variant,
-        { step_id: itemId }
-      );
-    }
   };
 
-  const handleComplete = async () => {
-    const completedCount = items.filter(item => item.completed).length;
-    const totalCount = items.length;
-    const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-
-    // Track completion event
-    if (variant && user) {
-      await trackABTestEvent(
-        'onboarding_checklist',
-        'onboarding_completed',
-        variant,
-        {
-          completed_steps: completedCount,
-          total_steps: totalCount,
-          completion_rate: completionRate,
-          completed_at: new Date().toISOString()
-        }
-      );
-    }
-
+  const handleComplete = () => {
+    // Hide the onboarding checklist
     onComplete?.();
+    
+    // Navigate to dashboard if not already there
+    if (window.location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
   };
 
-  if (loading) {
-    return (
-      <Card className={`p-6 ${className}`}>
-        <div className="animate-pulse">
-          <div className="h-6 bg-muted rounded mb-4 w-3/4"></div>
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-4 bg-muted rounded w-full"></div>
-            ))}
-          </div>
-        </div>
-      </Card>
-    );
-  }
 
   const completedCount = items.filter(item => item.completed).length;
   const totalCount = items.length;
@@ -150,21 +97,14 @@ export function OnboardingChecklist({ onComplete, className = '' }: OnboardingCh
     <Card className={`p-6 ${className}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-lg bg-primary/10">
-          {variant === 'short' ? (
-            <Target className="w-5 h-5 text-primary" />
-          ) : (
-            <Sparkles className="w-5 h-5 text-primary" />
-          )}
+          <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div>
           <h3 className="text-lg font-semibold">
-            {variant === 'short' ? 'Quick Start' : 'Complete Onboarding'}
+            Get Started with FindableAI
           </h3>
           <p className="text-sm text-muted-foreground">
-            {variant === 'short' 
-              ? 'Get started in 2 simple steps'
-              : 'Master AI findability in 5 guided steps'
-            }
+            Follow these steps to optimize your AI visibility
           </p>
         </div>
       </div>
@@ -188,8 +128,14 @@ export function OnboardingChecklist({ onComplete, className = '' }: OnboardingCh
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-            onClick={() => handleItemClick(item.id)}
+            className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
+              item.actionPath && !item.completed 
+                ? 'cursor-pointer hover:bg-primary/5 hover:border-primary/30' 
+                : item.completed 
+                  ? 'cursor-pointer hover:bg-muted/50' 
+                  : 'cursor-default'
+            }`}
+            onClick={() => handleItemClick(item)}
           >
             {item.completed ? (
               <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
@@ -197,9 +143,14 @@ export function OnboardingChecklist({ onComplete, className = '' }: OnboardingCh
               <Circle className="w-5 h-5 text-muted-foreground mt-0.5" />
             )}
             <div className="flex-1">
-              <h4 className={`font-medium ${item.completed ? 'text-muted-foreground line-through' : ''}`}>
-                {item.title}
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className={`font-medium ${item.completed ? 'text-muted-foreground line-through' : ''}`}>
+                  {item.title}
+                </h4>
+                {item.actionPath && !item.completed && (
+                  <span className="text-xs text-primary font-medium">Click to start →</span>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 {item.description}
               </p>
@@ -216,17 +167,10 @@ export function OnboardingChecklist({ onComplete, className = '' }: OnboardingCh
       >
         <BarChart3 className="w-4 h-4 mr-2" />
         {completedCount === totalCount 
-          ? 'Continue to Dashboard' 
-          : `Continue (${completedCount}/${totalCount} completed)`
+          ? 'Got it! Continue to Dashboard' 
+          : `Continue Anyway (${completedCount}/${totalCount} completed)`
         }
       </Button>
-
-      {/* Variant Debug Info (only in development) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-4 p-2 bg-muted rounded text-xs text-muted-foreground">
-          A/B Test Variant: {variant}
-        </div>
-      )}
     </Card>
   );
 }

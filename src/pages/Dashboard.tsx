@@ -295,7 +295,13 @@ export default function Dashboard() {
         {/* Onboarding Guide for New Users */}
         {metrics.totalSites === 0 && !metricsLoading && (
           <div className="animate-fade-in">
-            <OnboardingChecklist className="mb-6" />
+            <OnboardingChecklist 
+              className="mb-6" 
+              onComplete={() => {
+                // The onboarding checklist will handle its own hiding
+                // We could add additional logic here if needed
+              }}
+            />
           </div>
         )}
 
