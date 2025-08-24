@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  validateRequestBody,
+  CreateCheckoutSchema,
+  createValidationErrorResponse,
+  validateRequest
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 // Pricing configuration
@@ -32,21 +39,34 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate request structure
+  const requestValidation = validateRequest(req);
+  if (!requestValidation.success) {
+    return createValidationErrorResponse(requestValidation.error, corsHeaders);
+  }
+
   // Only allow POST requests
   if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { 
-        status: 405, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return createValidationErrorResponse('Method not allowed', corsHeaders);
   }
 
   try {
     console.log('Billing checkout function started');
 
-    // Get environment variables
+    // Validate request body
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (error) {
+      return createValidationErrorResponse("Invalid JSON in request body", corsHeaders);
+    }
+
+    const bodyValidation = validateRequestBody(CreateCheckoutSchema, requestBody);
+    if (!bodyValidation.success) {
+      return createValidationErrorResponse(bodyValidation.error, corsHeaders, bodyValidation.details);
+    }
+
+    const { priceId, successUrl, cancelUrl, quantity = 1 } = bodyValidation.data;
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');

@@ -1,8 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  validateQueryParams,
+  HealthQuerySchema,
+  createValidationErrorResponse,
+  validateRequest
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
 serve(async (req) => {
@@ -13,15 +20,26 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== 'GET') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { 
-        status: 405, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+  // Validate request structure
+  const requestValidation = validateRequest(req);
+  if (!requestValidation.success) {
+    return createValidationErrorResponse(requestValidation.error, corsHeaders);
   }
+
+  if (req.method !== 'GET') {
+    return createValidationErrorResponse('Method not allowed', corsHeaders);
+  }
+
+  // Validate query parameters
+  const { url } = requestValidation;
+  const queryParams = Object.fromEntries(url.searchParams.entries());
+  const validation = validateQueryParams(HealthQuerySchema, queryParams);
+  
+  if (!validation.success) {
+    return createValidationErrorResponse(validation.error, corsHeaders, validation.details);
+  }
+
+  const { deep } = validation.data;
 
   try {
     // Verify critical environment variables exist

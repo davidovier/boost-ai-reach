@@ -10,6 +10,16 @@ import {
   getCacheHeaders,
   getNoCacheHeaders
 } from "../_shared/cache.ts";
+import {
+  validateRequestBody,
+  validateQueryParams,
+  validatePathParams,
+  GenerateReportSchema,
+  ReportIdSchema,
+  ReportQuerySchema,
+  createValidationErrorResponse,
+  validateRequest
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
