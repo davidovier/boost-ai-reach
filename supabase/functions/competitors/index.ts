@@ -6,7 +6,7 @@ import { enforceLimit } from "../_shared/limits.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
 };
 
 function jsonResponse(body: unknown, init: ResponseInit = {}) {
@@ -116,10 +116,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, { status: 405 });
-  }
-
+  const url = new URL(req.url);
+  const pathSegments = url.pathname.split('/').filter(Boolean);
+  
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -141,15 +140,17 @@ serve(async (req) => {
       return jsonResponse({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const action = String(body?.action || "list");
+    console.log(`${req.method} /api/competitors invoked by user:`, user.id);
 
-    if (action === "add") {
+    // POST /api/competitors - Add new competitor
+    if (req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
       const domainRaw: string | undefined = body?.domain;
       const notes: string | undefined = body?.notes;
+      
       const norm = domainRaw ? normalizeDomain(domainRaw) : null;
       if (!norm) {
-        return jsonResponse({ error: "Invalid domain" }, { status: 400 });
+        return jsonResponse({ error: "Invalid domain format" }, { status: 400 });
       }
 
       // Enforce competitor quota using limits helper
@@ -162,7 +163,7 @@ serve(async (req) => {
       const { data: compRow, error: insErr } = await supabase
         .from("competitors")
         .insert({ user_id: user.id, domain: norm, notes: notes ?? null })
-        .select("id, domain, notes, created_at")
+        .select("id, domain, notes, created_at, updated_at")
         .single();
 
       if (insErr) {
@@ -170,15 +171,18 @@ serve(async (req) => {
         return jsonResponse({ error: "Failed to add competitor" }, { status: 500 });
       }
 
-      // Create snapshot (best-effort)
+      console.log("Competitor added:", compRow.id, "domain:", compRow.domain);
+
+      // Create snapshot in background (auto-queue first snapshot)
       const snapshot = await createSnapshotForDomain(supabase, compRow.id, compRow.domain);
 
-      // Increment usage competitor_count if we track it as count of active competitors
+      // Update usage metrics
       const { data: usageRow } = await supabase
         .from("usage_metrics")
         .select("competitor_count")
         .eq("user_id", user.id)
         .maybeSingle();
+      
       if (!usageRow) {
         const { error: insUsageErr } = await supabase
           .from("usage_metrics")
@@ -193,16 +197,30 @@ serve(async (req) => {
       }
 
       return jsonResponse({
+        success: true,
         competitor: compRow,
-        latestSnapshot: { score: snapshot.score },
+        latestSnapshot: { 
+          score: snapshot.score,
+          snapshot_date: new Date().toISOString()
+        },
       });
     }
 
-    if (action === "delete") {
-      const id: string | undefined = body?.id;
-      if (!id) return jsonResponse({ error: "Missing id" }, { status: 400 });
+    // DELETE /api/competitors/:id - Delete competitor
+    if (req.method === "DELETE") {
+      const competitorId = pathSegments[pathSegments.length - 1];
+      if (!competitorId) {
+        return jsonResponse({ error: "Missing competitor ID in URL" }, { status: 400 });
+      }
 
-      const { error: delErr } = await supabase.from("competitors").delete().eq("id", id);
+      console.log("Deleting competitor:", competitorId);
+
+      const { error: delErr } = await supabase
+        .from("competitors")
+        .delete()
+        .eq("id", competitorId)
+        .eq("user_id", user.id); // Ensure user owns this competitor
+
       if (delErr) {
         console.error("delete competitor error", delErr);
         return jsonResponse({ error: "Failed to delete competitor" }, { status: 500 });
@@ -211,85 +229,124 @@ serve(async (req) => {
       // Note: We do not decrement usage_metrics.competitor_count due to RLS non-decreasing policy.
       // Deleting a competitor only removes the record; usage metrics reflect historical usage.
 
-
       return jsonResponse({ success: true });
     }
 
-    // action === "list" (default)
-    // Load competitors
-    const { data: competitors, error: listErr } = await supabase
-      .from("competitors")
-      .select("id, domain, notes, created_at")
-      .order("created_at", { ascending: true });
-    if (listErr) {
-      console.error("list competitors error", listErr);
-      return jsonResponse({ error: "Failed to load competitors" }, { status: 500 });
-    }
+    // GET /api/competitors - List competitors
+    if (req.method === "GET") {
+      console.log("Listing competitors for user:", user.id);
 
-    // Load latest snapshots for all
-    const { data: snaps, error: snapListErr } = await supabase
-      .from("competitor_snapshots")
-      .select("competitor_id, ai_findability_score, snapshot_date")
-      .order("snapshot_date", { ascending: false });
-    if (snapListErr) {
-      console.error("list snapshots error", snapListErr);
-      return jsonResponse({ error: "Failed to load snapshots" }, { status: 500 });
-    }
+      // Load competitors
+      const { data: competitors, error: listErr } = await supabase
+        .from("competitors")
+        .select("id, domain, notes, created_at, updated_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      
+      if (listErr) {
+        console.error("list competitors error", listErr);
+        return jsonResponse({ error: "Failed to load competitors" }, { status: 500 });
+      }
 
-    const latestByCompetitor = new Map<string, { score: number | null; snapshot_date: string }>();
-    for (const s of snaps || []) {
-      if (!latestByCompetitor.has(s.competitor_id)) {
-        latestByCompetitor.set(s.competitor_id, {
-          score: s.ai_findability_score ?? null,
-          snapshot_date: s.snapshot_date,
+      if (!competitors || competitors.length === 0) {
+        return jsonResponse({ 
+          success: true,
+          competitors: [],
+          total: 0
         });
       }
-    }
 
-    // Compute user's baseline score (average latest per site)
-    const { data: sites, error: sitesErr } = await supabase
-      .from("sites")
-      .select("id")
-      .eq("user_id", user.id);
-    let userBaseline: number | null = null;
-    if (!sitesErr && sites && sites.length > 0) {
-      const siteIds = sites.map((s: any) => s.id);
-      const { data: scans, error: scansErr } = await supabase
-        .from("scans")
-        .select("site_id, ai_findability_score, scan_date")
-        .in("site_id", siteIds)
-        .order("scan_date", { ascending: false });
-      if (!scansErr && scans) {
-        const firstPerSite = new Map<string, number>();
-        for (const sc of scans) {
-          if (!firstPerSite.has(sc.site_id) && typeof sc.ai_findability_score === "number") {
-            firstPerSite.set(sc.site_id, sc.ai_findability_score);
-          }
-        }
-        const vals = Array.from(firstPerSite.values());
-        if (vals.length > 0) {
-          userBaseline = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+      // Load latest snapshots for user's competitors
+      const competitorIds = competitors.map(c => c.id);
+      const { data: snaps, error: snapListErr } = await supabase
+        .from("competitor_snapshots")
+        .select("competitor_id, ai_findability_score, snapshot_date")
+        .in("competitor_id", competitorIds)
+        .order("snapshot_date", { ascending: false });
+      
+      if (snapListErr) {
+        console.error("list snapshots error", snapListErr);
+        return jsonResponse({ error: "Failed to load snapshots" }, { status: 500 });
+      }
+
+      // Map latest snapshot per competitor
+      const latestByCompetitor = new Map<string, { score: number | null; snapshot_date: string }>();
+      for (const s of snaps || []) {
+        if (!latestByCompetitor.has(s.competitor_id)) {
+          latestByCompetitor.set(s.competitor_id, {
+            score: s.ai_findability_score ?? null,
+            snapshot_date: s.snapshot_date,
+          });
         }
       }
+
+      // Compute user's baseline score (average latest per site)
+      const { data: sites, error: sitesErr } = await supabase
+        .from("sites")
+        .select("id")
+        .eq("user_id", user.id);
+      
+      let userBaseline: number | null = null;
+      if (!sitesErr && sites && sites.length > 0) {
+        const siteIds = sites.map((s: any) => s.id);
+        const { data: scans, error: scansErr } = await supabase
+          .from("scans")
+          .select("site_id, ai_findability_score, scan_date")
+          .in("site_id", siteIds)
+          .order("scan_date", { ascending: false });
+        
+        if (!scansErr && scans) {
+          const firstPerSite = new Map<string, number>();
+          for (const sc of scans) {
+            if (!firstPerSite.has(sc.site_id) && typeof sc.ai_findability_score === "number") {
+              firstPerSite.set(sc.site_id, sc.ai_findability_score);
+            }
+          }
+          const vals = Array.from(firstPerSite.values());
+          if (vals.length > 0) {
+            userBaseline = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+          }
+        }
+      }
+
+      // Build response with competitor data and comparisons
+      const competitorList = competitors.map((c: any) => {
+        const latest = latestByCompetitor.get(c.id) || null;
+        const score = latest?.score ?? null;
+        const delta = userBaseline != null && score != null ? score - userBaseline : null;
+        
+        return {
+          id: c.id,
+          domain: c.domain,
+          notes: c.notes,
+          created_at: c.created_at,
+          updated_at: c.updated_at,
+          latestSnapshot: latest,
+          comparison: { 
+            userBaseline, 
+            delta,
+            performance: delta !== null ? (delta > 0 ? 'better' : delta < 0 ? 'worse' : 'equal') : null
+          },
+        };
+      });
+
+      console.log(`Found ${competitorList.length} competitors`);
+
+      return jsonResponse({ 
+        success: true,
+        competitors: competitorList,
+        total: competitorList.length,
+        userBaseline
+      });
     }
 
-    const items = (competitors || []).map((c: any) => {
-      const latest = latestByCompetitor.get(c.id) || null;
-      const score = latest?.score ?? null;
-      const delta = userBaseline != null && score != null ? score - userBaseline : null;
-      return {
-        id: c.id,
-        domain: c.domain,
-        notes: c.notes,
-        created_at: c.created_at,
-        latestSnapshot: latest,
-        comparison: { userBaseline, delta },
-      };
-    });
+    return jsonResponse({ error: "Method not allowed" }, { status: 405 });
 
-    return jsonResponse({ items });
   } catch (e) {
     console.error("competitors function unhandled", e);
-    return jsonResponse({ error: "Internal server error" }, { status: 500 });
+    return jsonResponse({ 
+      error: "Internal server error",
+      details: e instanceof Error ? e.message : String(e)
+    }, { status: 500 });
   }
 });
