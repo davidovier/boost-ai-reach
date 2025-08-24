@@ -24,6 +24,9 @@ verify_jwt = false
 [functions.dev-auth-me]
 verify_jwt = true
 
+[functions.admin-analytics]
+verify_jwt = true
+
 [functions.admin-users]
 verify_jwt = true
 
