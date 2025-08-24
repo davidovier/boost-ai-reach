@@ -7,7 +7,7 @@ import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton-enhanced';
 import { ActionTooltip } from '@/components/ui/tooltip';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus, Eye, Edit, Trash2 } from 'lucide-react';
@@ -129,26 +129,33 @@ export default function Scans() {
         </header>
 
         {loading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-4 space-y-3">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-6 w-20" />
-                </CardContent>
-              </Card>
+          <div className="stagger-animation space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="enhanced-table-row p-4 border border-border rounded-lg bg-card">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-6 w-12 rounded-full" />
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ) : scans.length === 0 ? (
-          <Card>
+          <Card className="card-reveal">
             <CardContent className="p-8 text-center">
-              <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <div className="interactive-hover inline-block p-4 rounded-full bg-muted/30 mb-4">
+                <Search className="h-12 w-12 text-muted-foreground" />
+              </div>
               <h3 className="text-lg font-semibold mb-2">No scans yet</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-6">
                 Add your first website to start analyzing its AI findability score
               </p>
-              <Button className="btn-focus">
+              <Button className="btn-focus interactive-hover">
                 <Plus className="h-4 w-4 mr-2" />
                 Run Your First Scan
               </Button>
@@ -173,7 +180,7 @@ export default function Scans() {
                     <tr 
                       key={scan.id}
                       onClick={() => handleViewScan(scan.id)}
-                      className="animate-fade-in"
+                      className="enhanced-table-row cursor-pointer"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <td className="website-cell">
@@ -206,10 +213,10 @@ export default function Scans() {
                         </div>
                       </td>
                       <td className="actions-cell">
-                        <div className="action-buttons">
+                        <div className="row-actions action-buttons">
                           <ActionTooltip content="View details">
                             <button 
-                              className="action-btn"
+                              className="action-btn interactive-hover"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleViewScan(scan.id);
@@ -221,7 +228,7 @@ export default function Scans() {
                           </ActionTooltip>
                           <ActionTooltip content="Edit scan">
                             <button 
-                              className="action-btn"
+                              className="action-btn interactive-hover"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditScan(scan.id);
@@ -233,7 +240,7 @@ export default function Scans() {
                           </ActionTooltip>
                           <ActionTooltip content="Delete scan">
                             <button 
-                              className="action-btn"
+                              className="action-btn interactive-hover"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteScan(scan.id);
@@ -252,12 +259,11 @@ export default function Scans() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="scans-cards">
+            <div className="scans-cards stagger-animation">
               {scans.map((scan, index) => (
                 <div 
                   key={scan.id}
-                  className="scan-card animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="scan-card interactive-hover cursor-pointer"
                   onClick={() => handleViewScan(scan.id)}
                 >
                   <div className="card-header">

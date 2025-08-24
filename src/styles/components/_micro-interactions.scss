@@ -1,0 +1,291 @@
+@import '../variables';
+
+// Micro-interactions and animations
+// Success animations, toasts, subtle transitions
+
+// Success animation keyframes
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes success-check {
+  0% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Success state styling
+.success-animation {
+  animation: success-pulse 0.6s ease-out;
+  
+  .success-icon {
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    animation: success-check 0.3s ease-out 0.2s both;
+  }
+}
+
+// Loading states with enhanced animation
+.loading-state {
+  .loading-dots {
+    display: inline-flex;
+    gap: 2px;
+    
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: hsl(var(--muted-foreground));
+      animation: loading-bounce 1.4s infinite ease-in-out both;
+      
+      &:nth-child(1) { animation-delay: -0.32s; }
+      &:nth-child(2) { animation-delay: -0.16s; }
+      &:nth-child(3) { animation-delay: 0s; }
+    }
+  }
+}
+
+@keyframes loading-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Enhanced hover states
+.interactive-hover {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.2) 0%, 
+      transparent 50%,
+      hsl(var(--accent) / 0.2) 100%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+// Form submission animations
+.form-submitting {
+  .submit-button {
+    position: relative;
+    
+    .submit-text {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .submit-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fade-in 0.2s ease;
+    }
+  }
+}
+
+.form-success {
+  animation: slide-up 0.4s ease-out;
+  
+  .success-message {
+    color: hsl(var(--success-foreground, var(--primary)));
+    animation: bounce-in 0.5s ease-out;
+  }
+}
+
+// Table row interactions
+.enhanced-table-row {
+  position: relative;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: linear-gradient(135deg, 
+      hsl(var(--muted) / 0.3) 0%, 
+      hsl(var(--muted) / 0.1) 100%);
+    transform: translateX(4px);
+    
+    .row-actions {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .row-actions {
+    opacity: 0;
+    transform: translateX(8px);
+    transition: all 0.2s ease;
+  }
+}
+
+// Progress bar animations
+.animated-progress {
+  .progress-fill {
+    transform-origin: left;
+    animation: progress-fill 1s ease-out forwards;
+  }
+}
+
+@keyframes progress-fill {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+// Toast enhancements
+.toast-enter {
+  animation: toast-slide-in 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: toast-slide-out 0.2s ease-in;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+// Card reveal animations
+.card-reveal {
+  animation: card-reveal 0.4s ease-out forwards;
+}
+
+@keyframes card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Stagger animations for lists
+.stagger-animation > * {
+  opacity: 0;
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+
+// Mobile optimizations
+@media (max-width: 768px) {
+  .interactive-hover:hover {
+    transform: none;
+  }
+  
+  .enhanced-table-row:hover {
+    transform: none;
+    
+    .row-actions {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+// Reduced motion preferences
+@media (prefers-reduced-motion: reduce) {
+  .success-animation,
+  .interactive-hover,
+  .form-success,
+  .enhanced-table-row,
+  .card-reveal,
+  .stagger-animation > * {
+    animation: none;
+    transition: none;
+  }
+  
+  .interactive-hover:hover {
+    transform: none;
+  }
+}

@@ -8,6 +8,7 @@ import { PromptResults } from "@/components/forms/PromptResults";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getBreadcrumbJsonLd, stringifyJsonLd } from "@/lib/seo";
+import { Skeleton } from "@/components/ui/skeleton-enhanced";
 
 // Mock data - replace with actual API calls
 const mockHistory = [
@@ -83,9 +84,12 @@ export default function AITests() {
       if (error) throw error;
 
       setSelectedResult(result);
+      
+      // Success animation
       toast({
-        title: "AI test completed",
-        description: "Results are ready for review"
+        title: "✨ AI test completed",
+        description: "Results are ready for review",
+        className: "success-animation"
       });
     } catch (error) {
       console.error('Error running prompt:', error);
@@ -122,29 +126,44 @@ export default function AITests() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Input Form */}
-            <div className="space-y-4 sm:space-y-6 animate-fade-in">
-              <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4 sm:space-y-6 card-reveal">
+              <div className="space-y-3 sm:space-y-4 interactive-hover p-6 rounded-lg border border-border bg-card">
                 <h2 className="text-lg sm:text-xl font-semibold text-foreground">Run New Test</h2>
-                <PromptForm onSubmit={handleSubmitPrompt} isLoading={isLoading} />
+                <div className={isLoading ? 'form-submitting' : ''}>
+                  <PromptForm onSubmit={handleSubmitPrompt} isLoading={isLoading} />
+                </div>
                 
                 {subscription && (
-                  <div className="text-xs sm:text-sm text-muted-foreground bg-muted/30 p-3 rounded-md">
-                    Usage: {subscription.usage?.prompt_count || 0} / {subscription.limits?.max_prompts || 1} prompts this month
+                  <div className="text-xs sm:text-sm text-muted-foreground bg-muted/30 p-3 rounded-md animated-progress">
+                    <div className="flex justify-between items-center mb-1">
+                      <span>Usage:</span>
+                      <span>{subscription.usage?.prompt_count || 0} / {subscription.limits?.max_prompts || 1} prompts this month</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-1.5">
+                      <div 
+                        className="progress-fill bg-gradient-to-r from-primary to-primary-glow h-1.5 rounded-full"
+                        style={{ 
+                          width: `${Math.min(100, ((subscription.usage?.prompt_count || 0) / (subscription.limits?.max_prompts || 1)) * 100)}%` 
+                        }}
+                      ></div>
+                    </div>
                   </div>
                 )}
               </div>
 
-              <PromptHistory 
-                history={mockHistory}
-                onSelectPrompt={setSelectedResult}
-                onRerunPrompt={(prompt) => handleSubmitPrompt({ prompt })}
-              />
+              <div className="stagger-animation">
+                <PromptHistory 
+                  history={mockHistory}
+                  onSelectPrompt={setSelectedResult}
+                  onRerunPrompt={(prompt) => handleSubmitPrompt({ prompt })}
+                />
+              </div>
             </div>
 
             {/* Results Panel */}
-            <div className="space-y-4 sm:space-y-6" key={selectedResult?.id || 'empty'}>
+            <div className="space-y-4 sm:space-y-6 card-reveal" style={{ animationDelay: '0.2s' }} key={selectedResult?.id || 'empty'}>
               <h2 className="text-lg sm:text-xl font-semibold text-foreground">Results</h2>
-              <div className="animate-fade-in">
+              <div className={selectedResult ? 'form-success' : ''}>
                 <PromptResults result={selectedResult} />
               </div>
             </div>

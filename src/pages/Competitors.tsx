@@ -9,6 +9,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { CompetitorComparisonChart } from '@/components/CompetitorComparisonChart';
 import { stringifyJsonLd } from '@/lib/seo';
+import { Skeleton, SkeletonTable } from '@/components/ui/skeleton-enhanced';
 
 interface CompetitorItem {
   id: string;
@@ -55,7 +56,12 @@ export default function Competitors() {
         body: { action: 'add', domain },
       });
       if (error) throw error;
-      toast({ title: 'Added', description: `${domain} added and snapshot queued` });
+      
+      toast({ 
+        title: '✨ Added successfully', 
+        description: `${domain} added and snapshot queued`,
+        className: 'success-animation'
+      });
       setDomain('');
       await fetchList();
     } catch (e: any) {
@@ -123,103 +129,144 @@ export default function Competitors() {
       )}
 
       <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Competitors</h1>
-        <p className="text-muted-foreground">Track and compare your competitors' AI findability scores</p>
-      </div>
+        <div className="card-reveal">
+          <h1 className="text-3xl font-bold text-foreground">Competitors</h1>
+          <p className="text-muted-foreground">Track and compare your competitors' AI findability scores</p>
+        </div>
 
-      <Card className="p-4">
-        <form onSubmit={handleAdd} className="flex items-center gap-3">
-          <Input
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            placeholder="competitor.com or https://competitor.com"
-            aria-label="Competitor domain"
-          />
-          <Button type="submit" disabled={adding}>
-            {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            Add
-          </Button>
-        </form>
-        {baseline != null && (
-          <p className="mt-2 text-sm text-muted-foreground">Your baseline score: {baseline}</p>
-        )}
-      </Card>
+        <Card className="p-4 interactive-hover">
+          <form onSubmit={handleAdd} className={`flex items-center gap-3 ${adding ? 'form-submitting' : ''}`}>
+            <Input
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="competitor.com or https://competitor.com"
+              aria-label="Competitor domain"
+              className="interactive-hover"
+            />
+            <Button type="submit" disabled={adding} className="submit-button interactive-hover">
+              <span className="submit-text">
+                <Plus className="mr-2 h-4 w-4" />
+                Add
+              </span>
+              {adding && (
+                <div className="submit-loader">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              )}
+            </Button>
+          </form>
+          {baseline != null && (
+            <p className="mt-2 text-sm text-muted-foreground animated-progress">
+              Your baseline score: <span className="font-medium text-primary">{baseline}</span>
+            </p>
+          )}
+        </Card>
 
-      {/* Comparison Chart */}
-      {items.length > 0 && (
-        <CompetitorComparisonChart 
-          userBaseline={baseline}
-          competitors={items.map(item => ({
-            id: item.id,
-            domain: item.domain,
-            score: item.latestSnapshot?.score ?? null,
-          }))}
-        />
-      )}
-
-      <ResponsiveTable
-        data={items}
-        loading={loading}
-        columns={[
-          {
-            key: 'domain',
-            label: 'Domain',
-            render: (domain) => <span className="font-medium">{domain}</span>
-          },
-          {
-            key: 'latestSnapshot',
-            label: 'Score',
-            render: (snapshot) => snapshot?.score ?? '—'
-          },
-          {
-            key: 'comparison',
-            label: 'vs Baseline',
-            render: (comparison) => {
-              const delta = comparison?.delta;
-              if (delta == null) return '—';
-              return (
-                <span className={delta >= 0 ? 'text-success' : 'text-destructive'}>
-                  {delta >= 0 ? '+' : ''}{delta}
-                </span>
-              );
-            },
-            hideOnMobile: true
-          },
-          {
-            key: 'latestSnapshot',
-            label: 'Last Snapshot',
-            render: (snapshot) => {
-              if (!snapshot?.snapshot_date) return '—';
-              return <TableDate date={snapshot.snapshot_date} />;
-            },
-            hideOnMobile: true
-          },
-          {
-            key: 'actions',
-            label: '',
-            render: (_, item) => (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                aria-label={`Delete ${item.domain}`}
-                onClick={() => handleDelete(item.id)}
-                className="btn-focus min-h-[44px] min-w-[44px]"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            ),
-            className: 'text-right w-[80px]'
-          }
-        ]}
-        emptyState={
-          <Card className="p-8 text-center">
-            <div className="text-muted-foreground">No competitors yet</div>
+        {/* Comparison Chart */}
+        {loading ? (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-64 w-full" />
+            </div>
           </Card>
-        }
-        className="padding-mobile"
-      />
-    </div>
+        ) : items.length > 0 && (
+          <div className="card-reveal" style={{ animationDelay: '0.2s' }}>
+            <CompetitorComparisonChart 
+              userBaseline={baseline}
+              competitors={items.map(item => ({
+                id: item.id,
+                domain: item.domain,
+                score: item.latestSnapshot?.score ?? null,
+              }))}
+            />
+          </div>
+        )}
+
+        <div className="card-reveal" style={{ animationDelay: '0.3s' }}>
+          {loading ? (
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+                <SkeletonTable rows={4} cols={4} />
+              </div>
+            </Card>
+          ) : (
+            <ResponsiveTable
+              data={items}
+              loading={loading}
+              columns={[
+                {
+                  key: 'domain',
+                  label: 'Domain',
+                  render: (domain) => <span className="font-medium">{domain}</span>
+                },
+                {
+                  key: 'latestSnapshot',
+                  label: 'Score',
+                  render: (snapshot) => snapshot?.score ?? '—'
+                },
+                {
+                  key: 'comparison',
+                  label: 'vs Baseline',
+                  render: (comparison) => {
+                    const delta = comparison?.delta;
+                    if (delta == null) return '—';
+                    return (
+                      <span className={delta >= 0 ? 'text-success' : 'text-destructive'}>
+                        {delta >= 0 ? '+' : ''}{delta}
+                      </span>
+                    );
+                  },
+                  hideOnMobile: true
+                },
+                {
+                  key: 'latestSnapshot',
+                  label: 'Last Snapshot',
+                  render: (snapshot) => {
+                    if (!snapshot?.snapshot_date) return '—';
+                    return <TableDate date={snapshot.snapshot_date} />;
+                  },
+                  hideOnMobile: true
+                },
+                {
+                  key: 'actions',
+                  label: '',
+                  render: (_, item) => (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      aria-label={`Delete ${item.domain}`}
+                      onClick={() => handleDelete(item.id)}
+                      className="btn-focus min-h-[44px] min-w-[44px] interactive-hover"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  ),
+                  className: 'text-right w-[80px]'
+                }
+              ]}
+              emptyState={
+                <Card className="p-8 text-center interactive-hover">
+                  <div className="text-muted-foreground">
+                    <div className="mb-4">
+                      <div className="w-16 h-16 mx-auto bg-muted/30 rounded-full flex items-center justify-center mb-3">
+                        <Plus className="w-8 h-8" />
+                      </div>
+                      <h3 className="font-medium text-foreground mb-1">No competitors yet</h3>
+                      <p className="text-sm">Add your first competitor to start tracking their AI findability scores</p>
+                    </div>
+                  </div>
+                </Card>
+              }
+              className="padding-mobile stagger-animation"
+            />
+          )}
+        </div>
+      </div>
     </>
   );
 }
