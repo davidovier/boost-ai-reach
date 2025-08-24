@@ -24,6 +24,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 // App pages - code split
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Sites = lazy(() => import("./pages/Sites"));
 const Scans = lazy(() => import("./pages/Scans"));
 const ScanDetail = lazy(() => import("./pages/ScanDetail"));
 const AITests = lazy(() => import("./pages/AITests"));
@@ -143,6 +144,11 @@ const App = () => (
                 <Route path="/account" element={
                   <Suspense fallback={<PageLoader />}>
                     <Account />
+                  </Suspense>
+                } />
+                <Route path="/sites" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <Sites />
                   </Suspense>
                 } />
                 <Route path="/admin" element={

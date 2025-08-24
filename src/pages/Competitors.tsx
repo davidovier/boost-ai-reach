@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ResponsiveTable, TableBadge, TableDate } from '@/components/ui/responsive-table';
 import { useToast } from '@/hooks/use-toast';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
+import { UpgradeModal } from '@/components/ui/upgrade-modal';
 import { Suspense } from 'react';
 import { LazyCompetitorComparisonChart, CompetitorChartLoader } from '@/components/lazy/LazyCompetitorChart';
 import { stringifyJsonLd } from '@/lib/seo';
@@ -26,12 +29,14 @@ interface CompetitorItem {
 
 export default function Competitors() {
   const { toast } = useToast();
+  const { getReachedLimits, getNearLimitWarnings, hasNearLimitWarnings, refresh } = useUsageLimits();
   const [items, setItems] = useState<CompetitorItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [domain, setDomain] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item?: CompetitorItem }>({ open: false });
   const [deleting, setDeleting] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     fetchList();
@@ -70,14 +75,19 @@ export default function Competitors() {
       });
       setDomain('');
       await fetchList();
+      refresh(); // Refresh usage data
     } catch (e: any) {
       const msg = e?.message || '';
       const quota = msg.includes('quota_exceeded') || msg.includes('402');
-      toast({
-        title: quota ? 'Limit reached' : 'Error',
-        description: quota ? 'You have used all competitor slots for your plan.' : 'Failed to add competitor',
-        variant: 'destructive',
-      });
+      if (quota) {
+        setShowUpgradeModal(true);
+      } else {
+        toast({
+          title: 'Failed to add competitor',
+          description: 'Could not add competitor. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setAdding(false);
     }
@@ -158,13 +168,20 @@ export default function Competitors() {
         />
       )}
 
-      <div className="space-y-6">
-        <div className="card-reveal">
-          <h1 className="text-3xl font-bold text-foreground">Competitors</h1>
-          <p className="text-muted-foreground">Track and compare your competitors' AI findability scores</p>
-        </div>
+        <div className="space-y-6">
+          <div className="card-reveal">
+            <h1 className="text-3xl font-bold text-foreground">Competitors</h1>
+            <p className="text-muted-foreground">Track and compare your competitors' AI findability scores</p>
+          </div>
 
-        <Card className="p-4 interactive-hover">
+          {/* Usage Limit Warnings */}
+          {hasNearLimitWarnings() && (
+            <UsageLimitBanner 
+              warnings={getNearLimitWarnings().filter(w => w.type === 'competitor')} 
+            />
+          )}
+
+          <Card className="p-4 interactive-hover">
           <form onSubmit={handleAdd} className={`flex items-center gap-3 ${adding ? 'form-submitting' : ''}`}>
             <Input
               value={domain}
@@ -293,6 +310,13 @@ export default function Competitors() {
         variant="destructive"
         onConfirm={confirmDelete}
         loading={deleting}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        reachedLimits={getReachedLimits().filter(l => l.type === 'competitor')}
       />
     </>
   );

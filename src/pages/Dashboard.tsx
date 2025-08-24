@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +12,7 @@ import { Activity, TrendingUp, Zap, Search, Globe } from 'lucide-react';
 import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
+import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 
 interface ActivityItem {
   id: string;
@@ -22,7 +23,7 @@ interface ActivityItem {
 }
 
 export default function Dashboard() {
-  const { data: subscription, loading } = useSubscription();
+  const { hasNearLimitWarnings, getNearLimitWarnings } = useUsageLimits();
   const navigate = useNavigate();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
@@ -104,6 +105,11 @@ export default function Dashboard() {
           </p>
         </header>
 
+        {/* Usage Limit Warnings */}
+        {hasNearLimitWarnings() && (
+          <UsageLimitBanner warnings={getNearLimitWarnings()} />
+        )}
+
         {/* Error Test Section (Development Only) */}
         {process.env.NODE_ENV === 'development' && (
           <ErrorTestTrigger className="mb-6" />
@@ -165,16 +171,16 @@ export default function Dashboard() {
                     <Zap className="h-5 w-5" />
                   </div>
                   <div className="kpi-trend neutral">
-                    {subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}
+                    Loading...
                   </div>
                 </div>
                 <div className="kpi-value">
-                  <AnimatedCounter value={subscription?.usage?.prompt_count || 0} />
+                  <AnimatedCounter value={0} />
                 </div>
                 <div className="kpi-label">AI Tests Run</div>
                 <div className="kpi-chart">
                   <ProgressArc 
-                    percentage={Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)} 
+                    percentage={0} 
                     size={60} 
                   />
                 </div>
@@ -338,37 +344,36 @@ export default function Dashboard() {
                 </div>
 
                 {/* Usage Progress */}
-                <div className="space-y-4 animated-progress">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>AI Tests</span>
-                      <span>{subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}</span>
+                  <div className="space-y-4 animated-progress">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>AI Tests</span>
+                        <span>0 / 1</span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-2">
+                        <div 
+                          className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                          style={{ width: '0%' }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)}%` 
-                        }}
-                      ></div>
+                    
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Sites</span>
+                        <span>0 / 1</span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-2">
+                        <div 
+                          className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
+                          style={{ width: '0%' }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Sites</span>
-                      <span>0 / {subscription?.limits?.max_sites || 1}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
-                        style={{ width: '0%' }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
 
-                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive">
+                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive"
+                        onClick={() => navigate('/pricing')}>
                   Upgrade to Pro
                 </button>
               </div>

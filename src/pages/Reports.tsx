@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { FileText, Download, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { ReportsGridSkeleton } from '@/components/ui/loading-states';
 import { EmptyReports } from '@/components/ui/empty-states';
+import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
+import { UpgradeModal } from '@/components/ui/upgrade-modal';
 
 interface Report {
   id: string;
@@ -22,9 +25,11 @@ interface Report {
 
 export default function Reports() {
   const { toast } = useToast();
+  const { getReachedLimits, getNearLimitWarnings, hasNearLimitWarnings, refresh } = useUsageLimits();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -68,13 +73,21 @@ export default function Reports() {
       });
 
       await fetchReports();
+      refresh(); // Refresh usage data
     } catch (error: any) {
       console.error('Error generating report:', error);
-      toast({
-        title: 'Failed to generate report',
-        description: error.message || 'Could not create report. Please try again.',
-        variant: 'destructive',
-      });
+      const msg = error.message || '';
+      const quota = msg.includes('quota_exceeded') || msg.includes('402');
+      
+      if (quota) {
+        setShowUpgradeModal(true);
+      } else {
+        toast({
+          title: 'Failed to generate report',
+          description: error.message || 'Could not create report. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setGenerating(false);
     }
@@ -131,6 +144,13 @@ export default function Reports() {
             Generate New Report
           </Button>
         </div>
+
+        {/* Usage Limit Warnings */}
+        {hasNearLimitWarnings() && (
+          <UsageLimitBanner 
+            warnings={getNearLimitWarnings().filter(w => w.type === 'report')} 
+          />
+        )}
 
         {loading ? (
           <ReportsGridSkeleton />
@@ -226,6 +246,13 @@ export default function Reports() {
           </div>
         )}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        reachedLimits={getReachedLimits().filter(l => l.type === 'report')}
+      />
     </>
   );
 }

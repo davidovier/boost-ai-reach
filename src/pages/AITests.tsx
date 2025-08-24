@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useUsageLimits } from "@/hooks/useUsageLimits";
 import { SEO } from "@/components/SEO";
 import { PromptForm } from "@/components/forms/PromptForm";
 import { PromptHistory } from "@/components/forms/PromptHistory";
@@ -9,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getBreadcrumbJsonLd, stringifyJsonLd } from "@/lib/seo";
 import { Skeleton } from "@/components/ui/skeleton-enhanced";
+import { UsageLimitBanner } from "@/components/ui/usage-limit-banner";
+import { UpgradeModal } from "@/components/ui/upgrade-modal";
 
 // Mock data - replace with actual API calls
 const mockHistory = [
@@ -41,9 +44,11 @@ const mockHistory = [
 export default function AITests() {
   const { user } = useAuth();
   const { data: subscription } = useSubscription();
+  const { getReachedLimits, getNearLimitWarnings, hasReachedLimits, hasNearLimitWarnings, refresh } = useUsageLimits();
   const { toast } = useToast();
   const [selectedResult, setSelectedResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const breadcrumbs = getBreadcrumbJsonLd([
@@ -66,11 +71,7 @@ export default function AITests() {
     const maxPrompts = subscription?.limits?.max_prompts || 1;
 
     if (currentUsage >= maxPrompts) {
-      toast({
-        title: "Usage limit reached",
-        description: "Upgrade your plan to run more AI tests",
-        variant: "destructive"
-      });
+      setShowUpgradeModal(true);
       return;
     }
 
@@ -85,12 +86,15 @@ export default function AITests() {
 
       setSelectedResult(result);
       
-      // Success animation
+      // Success animation and refresh usage
       toast({
         title: "✨ AI test completed",
         description: "Results are ready for review",
         className: "success-animation"
       });
+      
+      // Refresh usage data
+      refresh();
     } catch (error) {
       console.error('Error running prompt:', error);
       toast({
@@ -124,6 +128,13 @@ export default function AITests() {
               Test how AI models discover and recommend your website with custom prompts
             </p>
           </header>
+
+          {/* Usage Limit Warnings */}
+          {hasNearLimitWarnings() && (
+            <UsageLimitBanner 
+              warnings={getNearLimitWarnings().filter(w => w.type === 'prompt')} 
+            />
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Input Form */}
@@ -179,6 +190,14 @@ export default function AITests() {
             </div>
           </div>
         </div>
+
+        {/* Upgrade Modal */}
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          reachedLimits={getReachedLimits().filter(l => l.type === 'prompt')}
+          currentPlan="free"
+        />
     </>
   );
 }

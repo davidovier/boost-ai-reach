@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +12,8 @@ import { SEO } from '@/components/SEO';
 import { EmptySites } from '@/components/ui/empty-states';
 import { SitesListSkeleton } from '@/components/ui/loading-states';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
+import { UpgradeModal } from '@/components/ui/upgrade-modal';
 import { Plus, Globe, Trash2, Search, BarChart3 } from 'lucide-react';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 
@@ -27,6 +30,7 @@ interface Site {
 export default function Sites() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { hasNearLimitWarnings, getNearLimitWarnings, getReachedLimits, refresh } = useUsageLimits();
   const navigate = useNavigate();
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +38,7 @@ export default function Sites() {
   const [url, setUrl] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; site?: Site }>({ open: false });
   const [deleting, setDeleting] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const breadcrumbs = getBreadcrumbJsonLd([
@@ -119,6 +124,7 @@ export default function Sites() {
       
       setUrl('');
       fetchSites();
+      refresh(); // Refresh usage data
     } catch (error: any) {
       if (error.code === '23505') {
         toast({
@@ -126,6 +132,8 @@ export default function Sites() {
           description: 'This website is already in your dashboard.',
           variant: 'destructive'
         });
+      } else if (error.message?.includes('quota_exceeded') || error.message?.includes('402')) {
+        setShowUpgradeModal(true);
       } else {
         toast({
           title: 'Failed to add website',
@@ -202,17 +210,24 @@ export default function Sites() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
       />
 
-      <div className="space-y-6">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">My Websites</h1>
-            <p className="text-muted-foreground">
-              Manage your websites and track their AI findability scores
-            </p>
-          </div>
-        </header>
+        <div className="space-y-6">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">My Websites</h1>
+              <p className="text-muted-foreground">
+                Manage your websites and track their AI findability scores
+              </p>
+            </div>
+          </header>
 
-        {/* Add Website Form */}
+          {/* Usage Limit Warnings */}
+          {hasNearLimitWarnings() && (
+            <UsageLimitBanner 
+              warnings={getNearLimitWarnings()} 
+            />
+          )}
+
+          {/* Add Website Form */}
         <Card className="p-4 interactive-hover">
           <form onSubmit={handleAdd} className={`flex items-center gap-3 ${adding ? 'form-submitting' : ''}`}>
             <Input
@@ -350,6 +365,14 @@ export default function Sites() {
         variant="destructive"
         onConfirm={confirmDelete}
         loading={deleting}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        reachedLimits={getReachedLimits()}
+        currentPlan="free"
       />
     </>
   );
