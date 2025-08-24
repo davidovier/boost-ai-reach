@@ -1,5 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -31,7 +30,6 @@ import Changelog from "./pages/Changelog";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Cookies from "./pages/Cookies";
-import HealthCheck from "./pages/HealthCheck";
 import AlertTest from "./pages/AlertTest";
 
 const queryClient = new QueryClient();
@@ -42,7 +40,6 @@ const App = () => (
       <AuthProvider>
         <ErrorBoundary>
           <Toaster />
-          <Sonner />
           <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -55,7 +52,6 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookies" element={<Cookies />} />
-            <Route path="/api/health" element={<HealthCheck />} />
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/scans" element={<Scans />} />

@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface Alert {
+  id: string;
+  alert_type: string;
+  type: string;
+  message: string;
+  severity: string;
+  metadata?: { simulated?: boolean };
+  created_at: string;
+}
+
 export default function AlertTest() {
   const [loading, setLoading] = useState(false);
   const [errorType, setErrorType] = useState<string>("");
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const { toast } = useToast();
 
   const simulateError = async () => {
@@ -94,9 +104,9 @@ export default function AlertTest() {
   };
 
   // Load alerts on mount
-  useState(() => {
+  useEffect(() => {
     loadAlerts();
-  });
+  }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-6">

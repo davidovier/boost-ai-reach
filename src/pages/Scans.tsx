@@ -93,12 +93,12 @@ export default function Scans() {
 
   const handleEditScan = (scanId: string) => {
     // Navigate to edit scan or trigger edit modal
-    console.log('Edit scan:', scanId);
+    // TODO: Implement scan editing
   };
 
   const handleDeleteScan = (scanId: string) => {
     // Trigger delete confirmation
-    console.log('Delete scan:', scanId);
+    // TODO: Implement scan deletion
   };
 
   return (

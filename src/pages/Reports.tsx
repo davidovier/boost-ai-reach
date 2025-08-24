@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
-import { FileText, Download, Plus, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { FileText, Download, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { 
   FileText, 
   Download, 
@@ -14,8 +14,7 @@ import {
   TrendingUp, 
   Target, 
   Users,
-  Calendar,
-  AlertCircle
+  Calendar
 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
