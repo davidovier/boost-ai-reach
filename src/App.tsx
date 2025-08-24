@@ -64,136 +64,136 @@ const App = () => (
           <AppErrorBoundary>
             <Toaster />
             <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/r/:code" element={<ReferralRedirect />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/reset-password" element={
-                <Suspense fallback={<PageLoader />}>
-                  <ResetPassword />
-                </Suspense>
-              } />
-              <Route path="/onboarding" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Onboarding />
-                </Suspense>
-              } />
-              <Route path="/pricing" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Pricing />
-                </Suspense>
-              } />
-              <Route path="/changelog" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Changelog />
-                </Suspense>
-              } />
-              <Route path="/privacy" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Privacy />
-                </Suspense>
-              } />
-              <Route path="/terms" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Terms />
-                </Suspense>
-              } />
-              <Route path="/cookies" element={
-                <Suspense fallback={<PageLoader />}>
-                  <Cookies />
-                </Suspense>
-              } />
-              <Route element={<MainLayout />}>
-                <Route path="/dashboard" element={
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/r/:code" element={<ReferralRedirect />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/reset-password" element={
                   <Suspense fallback={<PageLoader />}>
-                    <Dashboard />
+                    <ResetPassword />
                   </Suspense>
                 } />
-                <Route path="/scans" element={
+                <Route path="/onboarding" element={
                   <Suspense fallback={<PageLoader />}>
-                    <Scans />
+                    <Onboarding />
                   </Suspense>
                 } />
-                <Route path="/scans/:id" element={
+                <Route path="/pricing" element={
                   <Suspense fallback={<PageLoader />}>
-                    <ScanDetail />
+                    <Pricing />
                   </Suspense>
                 } />
-                <Route path="/ai-tests" element={
+                <Route path="/changelog" element={
                   <Suspense fallback={<PageLoader />}>
-                    <AITests />
+                    <Changelog />
                   </Suspense>
                 } />
-                <Route path="/prompts" element={
+                <Route path="/privacy" element={
                   <Suspense fallback={<PageLoader />}>
-                    <AITests />
+                    <Privacy />
                   </Suspense>
                 } />
-                <Route path="/competitors" element={
+                <Route path="/terms" element={
                   <Suspense fallback={<PageLoader />}>
-                    <Competitors />
+                    <Terms />
                   </Suspense>
                 } />
-                <Route path="/reports" element={
+                <Route path="/cookies" element={
                   <Suspense fallback={<PageLoader />}>
-                    <Reports />
+                    <Cookies />
                   </Suspense>
                 } />
-                <Route path="/reports/:id" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <ReportDetail />
-                  </Suspense>
-                } />
-                <Route path="/account" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <Account />
-                  </Suspense>
-                } />
-                <Route path="/sites" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <Sites />
-                  </Suspense>
-                } />
-                <Route path="/admin" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <Admin />
-                  </Suspense>
-                } />
-                <Route path="/admin/users" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AdminUsers />
-                  </Suspense>
-                } />
-                <Route path="/admin/usage" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AdminUsage />
-                  </Suspense>
-                } />
-                <Route path="/admin/reports" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AdminReports />
-                  </Suspense>
-                } />
-                <Route path="/admin/dashboard-config" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AdminDashboardConfig />
-                  </Suspense>
-                } />
-                <Route path="/admin/logs" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AdminLogs />
-                  </Suspense>
-                } />
-                <Route path="/admin/alerts" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <AlertTest />
-                  </Suspense>
-                } />
-              </Route>
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route element={<MainLayout />}>
+                  <Route path="/dashboard" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Dashboard />
+                    </Suspense>
+                  } />
+                  <Route path="/scans" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Scans />
+                    </Suspense>
+                  } />
+                  <Route path="/scans/:id" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ScanDetail />
+                    </Suspense>
+                  } />
+                  <Route path="/ai-tests" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AITests />
+                    </Suspense>
+                  } />
+                  <Route path="/prompts" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AITests />
+                    </Suspense>
+                  } />
+                  <Route path="/competitors" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Competitors />
+                    </Suspense>
+                  } />
+                  <Route path="/reports" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Reports />
+                    </Suspense>
+                  } />
+                  <Route path="/reports/:id" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ReportDetail />
+                    </Suspense>
+                  } />
+                  <Route path="/account" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Account />
+                    </Suspense>
+                  } />
+                  <Route path="/sites" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Sites />
+                    </Suspense>
+                  } />
+                  <Route path="/admin" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Admin />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/users" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AdminUsers />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/usage" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AdminUsage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/reports" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AdminReports />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/dashboard-config" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AdminDashboardConfig />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/logs" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AdminLogs />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/alerts" element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AlertTest />
+                    </Suspense>
+                  } />
+                </Route>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </BrowserRouter>
           </AppErrorBoundary>
         </AuthProvider>
