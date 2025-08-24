@@ -7,6 +7,7 @@ import { ReportsTab } from '@/components/admin/ReportsTab';
 import { DashboardConfigTab } from '@/components/admin/DashboardConfigTab';
 import { AuditLogsTab } from '@/components/admin/AuditLogsTab';
 import { BillingTab } from '@/components/admin/BillingTab';
+import { ABTestAnalytics } from '@/components/admin/ABTestAnalytics';
 import { useSearchParams, Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -25,7 +26,8 @@ function AdminPage() {
       reports: 'Reports',
       dashboard: 'Dashboard Config',
       logs: 'Audit Logs',
-      billing: 'Billing'
+      billing: 'Billing',
+      'ab-tests': 'A/B Tests'
     };
     return tabMap[tabKey] || 'Users';
   };
@@ -102,6 +104,7 @@ function AdminPage() {
               {tab === 'dashboard' && <DashboardConfigTab />}
               {tab === 'logs' && <AuditLogsTab />}
               {tab === 'billing' && <BillingTab />}
+              {tab === 'ab-tests' && <ABTestAnalytics />}
             </ComponentErrorBoundary>
           </div>
         </main>

@@ -8,6 +8,7 @@ const tabs = [
   { key: 'dashboard', label: 'Dashboard Config' },
   { key: 'logs', label: 'Audit Logs' },
   { key: 'billing', label: 'Billing' },
+  { key: 'ab-tests', label: 'A/B Tests' },
 ];
 
 export function AdminSubNav() {
