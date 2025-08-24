@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,6 +16,7 @@ import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { InviteFriend } from '@/components/referral/InviteFriend';
+import { format } from 'date-fns';
 
 interface ActivityItem {
   id: string;
@@ -21,13 +24,54 @@ interface ActivityItem {
   title: string;
   timestamp: string;
   status?: 'completed' | 'failed' | 'processing';
+  created_at: string;
+}
+
+interface DashboardMetrics {
+  aiScore: number;
+  totalSites: number;
+  aiTests: number;
+  lastScanStatus: string;
+  lastScanTime: string | null;
+  scoreTrend: number[];
+}
+
+interface UsageData {
+  scanCount: number;
+  promptCount: number;
+  competitorCount: number;
+  reportCount: number;
+  maxScans: number;
+  maxPrompts: number;
+  maxSites: number;
+  maxCompetitors: number;
 }
 
 export default function Dashboard() {
+  const { user, profile } = useAuth();
   const { hasNearLimitWarnings, getNearLimitWarnings } = useUsageLimits();
   const navigate = useNavigate();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
+    aiScore: 0,
+    totalSites: 0,
+    aiTests: 0,
+    lastScanStatus: 'No scans yet',
+    lastScanTime: null,
+    scoreTrend: []
+  });
+  const [usageData, setUsageData] = useState<UsageData>({
+    scanCount: 0,
+    promptCount: 0,
+    competitorCount: 0,
+    reportCount: 0,
+    maxScans: 1,
+    maxPrompts: 1,
+    maxSites: 1,
+    maxCompetitors: 0
+  });
+  const [metricsLoading, setMetricsLoading] = useState(true);
   
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const breadcrumbs = getBreadcrumbJsonLd([
@@ -35,37 +79,173 @@ export default function Dashboard() {
     { name: 'Dashboard', item: `${origin}/dashboard` },
   ]);
 
-  // Mock recent activities - in real app this would come from API
+  // Fetch real user data
   useEffect(() => {
-    const mockActivities: ActivityItem[] = [
-      {
-        id: '1',
-        type: 'scan',
-        title: 'Website scan completed for example.com',
-        timestamp: '2 hours ago',
-        status: 'completed'
-      },
-      {
-        id: '2', 
-        type: 'prompt',
-        title: 'AI test: "Best CRM software"',
-        timestamp: '1 day ago',
-        status: 'completed'
-      },
-      {
-        id: '3',
-        type: 'report',
-        title: 'Monthly report generated',
-        timestamp: '3 days ago', 
-        status: 'completed'
+    if (!user) return;
+    
+    const fetchDashboardData = async () => {
+      try {
+        await Promise.all([
+          fetchRecentActivities(),
+          fetchDashboardMetrics(),
+          fetchUsageData()
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setActivitiesLoading(false);
+        setMetricsLoading(false);
       }
-    ];
+    };
 
-    setTimeout(() => {
-      setActivities(mockActivities);
-      setActivitiesLoading(false);
-    }, 1000);
-  }, []);
+    fetchDashboardData();
+  }, [user]);
+
+  const fetchRecentActivities = async () => {
+    if (!user) return;
+
+    const activities: ActivityItem[] = [];
+
+    // Fetch recent scans
+    const { data: scans } = await supabase
+      .from('scans')
+      .select(`
+        id, scan_date, created_at,
+        sites:site_id (name, url)
+      `)
+      .order('scan_date', { ascending: false })
+      .limit(3);
+
+    scans?.forEach(scan => {
+      activities.push({
+        id: scan.id,
+        type: 'scan',
+        title: `Website scan completed for ${scan.sites?.name || scan.sites?.url || 'unknown site'}`,
+        timestamp: format(new Date(scan.scan_date), 'MMM d, yyyy'),
+        status: 'completed',
+        created_at: scan.created_at
+      });
+    });
+
+    // Fetch recent prompts
+    const { data: prompts } = await supabase
+      .from('prompt_simulations')
+      .select('id, prompt, run_date')
+      .order('run_date', { ascending: false })
+      .limit(3);
+
+    prompts?.forEach(prompt => {
+      activities.push({
+        id: prompt.id,
+        type: 'prompt',
+        title: `AI test: "${prompt.prompt.length > 50 ? prompt.prompt.substring(0, 50) + '...' : prompt.prompt}"`,
+        timestamp: format(new Date(prompt.run_date), 'MMM d, yyyy'),
+        status: 'completed',
+        created_at: prompt.run_date
+      });
+    });
+
+    // Fetch recent reports
+    const { data: reports } = await supabase
+      .from('reports')
+      .select('id, created_at, status')
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    reports?.forEach(report => {
+      activities.push({
+        id: report.id,
+        type: 'report',
+        title: 'Report generated',
+        timestamp: format(new Date(report.created_at), 'MMM d, yyyy'),
+        status: report.status === 'success' ? 'completed' : report.status === 'failed' ? 'failed' : 'processing',
+        created_at: report.created_at
+      });
+    });
+
+    // Sort by created_at and take the 5 most recent
+    activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setActivities(activities.slice(0, 5));
+  };
+
+  const fetchDashboardMetrics = async () => {
+    if (!user) return;
+
+    // Get total sites count
+    const { count: sitesCount } = await supabase
+      .from('sites')
+      .select('*', { count: 'exact', head: true });
+
+    // Get recent scans with scores for trend calculation
+    const { data: recentScans } = await supabase
+      .from('scans')
+      .select('ai_findability_score, scan_date')
+      .order('scan_date', { ascending: false })
+      .limit(7);
+
+    // Get latest scan for last scan status
+    const { data: latestScan } = await supabase
+      .from('scans')
+      .select(`
+        scan_date, ai_findability_score,
+        sites:site_id (name)
+      `)
+      .order('scan_date', { ascending: false })
+      .limit(1)
+      .single();
+
+    // Calculate average AI score from recent scans
+    const validScores = recentScans?.filter(s => s.ai_findability_score !== null) || [];
+    const avgScore = validScores.length > 0 
+      ? Math.round(validScores.reduce((sum, s) => sum + (s.ai_findability_score || 0), 0) / validScores.length)
+      : 0;
+
+    // Create score trend data
+    const scoreTrend = recentScans?.map(s => s.ai_findability_score || 0).reverse() || [];
+
+    // Get AI tests count
+    const { count: promptsCount } = await supabase
+      .from('prompt_simulations')
+      .select('*', { count: 'exact', head: true });
+
+    setMetrics({
+      aiScore: avgScore,
+      totalSites: sitesCount || 0,
+      aiTests: promptsCount || 0,
+      lastScanStatus: latestScan ? 'Active' : 'No scans yet',
+      lastScanTime: latestScan?.scan_date || null,
+      scoreTrend: scoreTrend.length > 0 ? scoreTrend : [0]
+    });
+  };
+
+  const fetchUsageData = async () => {
+    if (!user || !profile) return;
+
+    // Get usage metrics
+    const { data: usage } = await supabase
+      .from('usage_metrics')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    // Get plan limits
+    const { data: planLimits } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('name', profile.plan)
+      .single();
+
+    setUsageData({
+      scanCount: usage?.scan_count || 0,
+      promptCount: usage?.prompt_count || 0,
+      competitorCount: usage?.competitor_count || 0,
+      reportCount: usage?.report_count || 0,
+      maxScans: planLimits?.max_scans || 1,
+      maxPrompts: planLimits?.max_prompts || 1,
+      maxSites: planLimits?.max_sites || 1,
+      maxCompetitors: planLimits?.max_competitors || 0
+    });
+  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -127,21 +307,37 @@ export default function Dashboard() {
                   <div className="kpi-icon">
                     <Search className="h-5 w-5" />
                   </div>
-                  <div className="kpi-trend positive">
-                    <TrendingUp className="h-4 w-4" />
-                    +5%
+                  <div className={`kpi-trend ${metrics.aiScore > 0 ? 'positive' : 'neutral'}`}>
+                    {metricsLoading ? (
+                      <Skeleton className="h-4 w-12" />
+                    ) : metrics.aiScore > 0 ? (
+                      <>
+                        <TrendingUp className="h-4 w-4" />
+                        {metrics.aiScore > 70 ? 'Good' : metrics.aiScore > 40 ? 'Fair' : 'Low'}
+                      </>
+                    ) : (
+                      'Not yet'
+                    )}
                   </div>
                 </div>
                 <div className="kpi-value">
-                  <AnimatedCounter value={87} />
+                  {metricsLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <AnimatedCounter value={metrics.aiScore} />
+                  )}
                 </div>
                 <div className="kpi-label">AI Findability Score</div>
                 <div className="kpi-chart">
-                  <Sparkline 
-                    data={[65, 70, 68, 75, 82, 79, 87]} 
-                    width={120} 
-                    height={40}
-                  />
+                  {metricsLoading ? (
+                    <Skeleton className="h-10 w-30" />
+                  ) : (
+                    <Sparkline 
+                      data={metrics.scoreTrend} 
+                      width={120} 
+                      height={40}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -149,19 +345,35 @@ export default function Dashboard() {
               <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 <div className="kpi-header">
                   <div className="kpi-icon">
-                    <Activity className="h-5 w-5" />
+                    <Globe className="h-5 w-5" />
                   </div>
-                  <div className="kpi-trend positive">
-                    <TrendingUp className="h-4 w-4" />
-                    +12%
+                  <div className="kpi-trend neutral">
+                    {metricsLoading ? (
+                      <Skeleton className="h-4 w-12" />
+                    ) : metrics.totalSites > 0 ? (
+                      `${usageData.maxSites} max`
+                    ) : (
+                      'Get started'
+                    )}
                   </div>
                 </div>
                 <div className="kpi-value">
-                  <AnimatedCounter value={24} />
+                  {metricsLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <AnimatedCounter value={metrics.totalSites} />
+                  )}
                 </div>
-                <div className="kpi-label">Total Sites</div>
+                <div className="kpi-label">Websites Added</div>
                 <div className="kpi-chart">
-                  <ProgressArc percentage={75} size={60} />
+                  {metricsLoading ? (
+                    <Skeleton className="h-15 w-15 rounded-full" />
+                  ) : (
+                    <ProgressArc 
+                      percentage={usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0} 
+                      size={60} 
+                    />
+                  )}
                 </div>
               </div>
 
@@ -172,18 +384,32 @@ export default function Dashboard() {
                     <Zap className="h-5 w-5" />
                   </div>
                   <div className="kpi-trend neutral">
-                    Loading...
+                    {metricsLoading ? (
+                      <Skeleton className="h-4 w-12" />
+                    ) : metrics.aiTests > 0 ? (
+                      `${usageData.maxPrompts} max`
+                    ) : (
+                      'Try now'
+                    )}
                   </div>
                 </div>
                 <div className="kpi-value">
-                  <AnimatedCounter value={0} />
+                  {metricsLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <AnimatedCounter value={metrics.aiTests} />
+                  )}
                 </div>
                 <div className="kpi-label">AI Tests Run</div>
                 <div className="kpi-chart">
-                  <ProgressArc 
-                    percentage={0} 
-                    size={60} 
-                  />
+                  {metricsLoading ? (
+                    <Skeleton className="h-15 w-15 rounded-full" />
+                  ) : (
+                    <ProgressArc 
+                      percentage={usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0} 
+                      size={60} 
+                    />
+                  )}
                 </div>
               </div>
 
@@ -191,22 +417,38 @@ export default function Dashboard() {
               <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <div className="kpi-header">
                   <div className="kpi-icon">
-                    <TrendingUp className="h-5 w-5" />
+                    <Activity className="h-5 w-5" />
                   </div>
-                  <div className="kpi-trend positive">
-                    2hrs ago
+                  <div className="kpi-trend neutral">
+                    {metricsLoading ? (
+                      <Skeleton className="h-4 w-12" />
+                    ) : metrics.lastScanTime ? (
+                      format(new Date(metrics.lastScanTime), 'MMM d')
+                    ) : (
+                      'Never'
+                    )}
                   </div>
                 </div>
                 <div className="kpi-value">
-                  Active
+                  {metricsLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    metrics.lastScanStatus
+                  )}
                 </div>
                 <div className="kpi-label">Last Scan Status</div>
                 <div className="kpi-chart">
-                  <Sparkline 
-                    data={[40, 65, 45, 70, 85, 90, 95]} 
-                    width={120} 
-                    height={40}
-                  />
+                  {metricsLoading ? (
+                    <Skeleton className="h-10 w-30" />
+                  ) : metrics.scoreTrend.length > 1 ? (
+                    <Sparkline 
+                      data={metrics.scoreTrend} 
+                      width={120} 
+                      height={40}
+                    />
+                  ) : (
+                    <div className="text-xs text-muted-foreground">No trend data</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -331,7 +573,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-secondary">
                   <div>
                     <div className="font-semibold text-foreground capitalize">
-                      Free Plan
+                      {profile?.plan || 'Free'} Plan
                     </div>
                     <div className="text-sm text-muted-foreground text-responsive">
                       Your current subscription
@@ -339,7 +581,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-medium text-primary">
-                      Free
+                      {profile?.plan === 'free' ? 'Free' : 'Active'}
                     </div>
                   </div>
                 </div>
@@ -349,12 +591,12 @@ export default function Dashboard() {
                     <div>
                       <div className="flex justify-between text-sm mb-2">
                         <span>AI Tests</span>
-                        <span>0 / 1</span>
+                        <span>{usageData.promptCount} / {usageData.maxPrompts}</span>
                       </div>
                       <div className="w-full bg-secondary rounded-full h-2">
                         <div 
                           className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
-                          style={{ width: '0%' }}
+                          style={{ width: `${usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0}%` }}
                         ></div>
                       </div>
                     </div>
@@ -362,12 +604,25 @@ export default function Dashboard() {
                     <div>
                       <div className="flex justify-between text-sm mb-2">
                         <span>Sites</span>
-                        <span>0 / 1</span>
+                        <span>{metrics.totalSites} / {usageData.maxSites}</span>
                       </div>
                       <div className="w-full bg-secondary rounded-full h-2">
                         <div 
                           className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
-                          style={{ width: '0%' }}
+                          style={{ width: `${usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Scans</span>
+                        <span>{usageData.scanCount} / {usageData.maxScans}</span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-2">
+                        <div 
+                          className="progress-fill bg-gradient-secondary h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${usageData.maxScans > 0 ? (usageData.scanCount / usageData.maxScans) * 100 : 0}%` }}
                         ></div>
                       </div>
                     </div>
