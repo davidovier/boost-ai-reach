@@ -43,7 +43,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
             <img
               src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&crop=center"
-              alt="Technical difficulties - server error illustration"
+              alt="System error illustration - technical difficulties with server infrastructure"
               className="w-full h-full object-cover"
               loading="eager"
             />
