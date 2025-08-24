@@ -107,9 +107,10 @@ export default function Scans() {
   return (
     <PageErrorBoundary context="Website Scans">
       <SEO 
-        title="Website Scans - FindableAI"
-        description="View and manage your website scan results, AI findability scores, and optimization recommendations."
+        title="Website Scans"
+        description="View and manage your website scan results, AI findability scores, and optimization recommendations with detailed analysis."
         url="/scans"
+        keywords="website analysis, AI findability score, SEO optimization, website audit"
       />
       
       <script 

@@ -188,9 +188,10 @@ function AdminLogsPage() {
   return (
     <>
       <SEO
-        title="Audit Logs - Admin Panel"
-        description="View and manage system audit logs"
-        noindex
+        title="Audit Logs"
+        description="View system audit logs, user activities, security events, and compliance monitoring for administrative oversight."
+        url="/admin/logs"
+        noindex={true}
       />
       
       <div className="space-y-6">

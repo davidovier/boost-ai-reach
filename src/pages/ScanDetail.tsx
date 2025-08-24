@@ -226,9 +226,11 @@ export default function ScanDetail() {
   return (
     <>
       <SEO 
-        title={`Scan Details: ${scan.site?.name || 'Website'} - FindableAI`}
-        description={`Detailed AI findability analysis for ${scan.site?.url}. View metadata, schema, performance, and crawlability insights.`}
-        url={`${window.location.origin}/scans/${id}`}
+        title={`Scan Results - ${scan.site?.name || 'Website Analysis'}`}
+        description={`Detailed AI findability scan results for ${scan.site?.url || 'your website'} with optimization recommendations and actionable insights.`}
+        url={`/scans/${id}`}
+        ogType="article"
+        noindex={true}
       />
       
       <script 

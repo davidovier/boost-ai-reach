@@ -141,13 +141,13 @@ export default function ResetPassword() {
   return (
     <>
       <SEO
-        title={mode === 'request' ? 'Reset Password - FindableAI' : 'Set New Password - FindableAI'}
+        title={mode === 'request' ? 'Reset Password' : 'Set New Password'}
         description={mode === 'request' 
-          ? 'Reset your FindableAI account password. Enter your email to receive reset instructions.' 
-          : 'Set a new password for your FindableAI account.'
+          ? 'Reset your FindableAI account password. Enter your email to receive secure reset instructions.' 
+          : 'Create a new secure password for your FindableAI account.'
         }
-        url={pageUrl}
-        noindex
+        url="/reset-password"
+        noindex={true}
       />
       <script
         type="application/ld+json"

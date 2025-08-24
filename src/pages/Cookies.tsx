@@ -12,9 +12,11 @@ export default function Cookies() {
   return (
     <>
       <SEO
-        title="Cookie Policy - FindableAI"
-        description="Learn about FindableAI's use of cookies and similar technologies to improve your experience on our AI-powered SEO platform."
-        url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/cookies'}
+        title="Cookies Policy"
+        description="Learn about FindableAI's use of cookies and similar technologies to improve your experience on our AI-powered platform."
+        url="/cookies"
+        ogType="article"
+        noindex={true}
       />
       <script
         type="application/ld+json"

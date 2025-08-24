@@ -137,10 +137,10 @@ export default function SignUp() {
   return (
     <>
       <SEO
-        title="Sign Up - FindableAI"
+        title="Sign Up"
         description="Create your free FindableAI account to start optimizing your brand for AI discovery with comprehensive scans and actionable insights."
-        url={pageUrl}
-        noindex
+        url="/signup"
+        noindex={true}
       />
       <script
         type="application/ld+json"

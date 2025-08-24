@@ -242,8 +242,8 @@ function AdminDashboardConfigPage() {
   return (
     <>
       <SEO
-        title="Dashboard Configuration - Admin Panel - FindableAI"
-        description="Configure dashboard layouts and feature flags for different user roles and plans."
+        title="Dashboard Configuration"
+        description="Configure dashboard layouts, widgets, and user interface settings for different roles and subscription plans."
         url="/admin/dashboard-config"
         noindex={true}
       />

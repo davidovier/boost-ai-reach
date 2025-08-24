@@ -118,9 +118,10 @@ export default function Competitors() {
   return (
     <>
       <SEO 
-        title="Competitors – AI Findability Comparison | FindableAI"
-        description="Track and compare your competitors' AI findability scores. Monitor how your site performs against competition in AI search results."
+        title="Competitor Analysis"
+        description="Track and compare your competitors' AI findability scores. Monitor performance differences and identify optimization opportunities."
         url="/competitors"
+        keywords="competitor analysis, AI findability comparison, competitive intelligence, brand monitoring"
       />
       
       {competitorListJsonLd && (

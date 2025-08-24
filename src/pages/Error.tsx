@@ -31,8 +31,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <>
       <SEO
-        title="Something went wrong - FindableAI"
-        description="We're experiencing technical difficulties. Please try refreshing the page or contact our support team if the problem persists."
+        title="System Error"
+        description="We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue quickly."
+        url="/error"
         noindex={true}
       />
       

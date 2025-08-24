@@ -39,8 +39,8 @@ function AdminPage() {
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       
       <SEO 
-        title="Admin Panel - FindableAI"
-        description="Administrative panel for managing users, usage, reports, dashboard configuration, audit logs and billing."
+        title="Admin Panel"
+        description="Administrative panel for managing users, usage analytics, reports, dashboard configuration, audit logs and billing."
         url="/admin"
         noindex={true}
       />

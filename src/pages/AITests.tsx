@@ -106,9 +106,10 @@ export default function AITests() {
   return (
     <>
       <SEO 
-        title="AI Findability Tests - FindableAI"
-        description="Test how AI models discover and mention your website with custom prompts and competitive analysis."
-        url="/ai-tests"
+        title="AI Findability Tests"
+        description="Test how AI models discover and mention your website with custom prompts, competitive analysis, and detailed results."
+        url="/ai-tests" 
+        keywords="AI prompts, AI testing, brand discovery, AI visibility"
       />
       
       <script 

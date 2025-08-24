@@ -47,9 +47,10 @@ const Index = () => {
     <>
       <SEO
         title="FindableAI – AI Findability Optimization Platform"
-        description="Run a free AI findability scan, view your score, and get actionable fixes to boost AI visibility."
-        url={pageUrl}
-        ogImage={ogImage}
+        description="Optimize your brand for AI discovery with comprehensive website scans, competitive analysis, and actionable insights. Start your free scan today."
+        url="/"
+        ogImage="/og-home.png"
+        keywords="AI SEO, AI findability, brand optimization, website analysis, competitive analysis"
       />
       <script
         type="application/ld+json"

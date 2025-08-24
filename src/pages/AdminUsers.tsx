@@ -171,8 +171,8 @@ function AdminUsersPage() {
   return (
     <>
       <SEO 
-        title="User Management - Admin Panel - FindableAI"
-        description="Manage user accounts, roles, and permissions in the FindableAI admin panel."
+        title="User Management"
+        description="Manage user accounts, roles, permissions, subscription plans, and access controls across the FindableAI platform."
         url="/admin/users"
         noindex={true}
       />

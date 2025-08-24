@@ -7,8 +7,9 @@ export default function NotFound() {
   return (
     <>
       <SEO
-        title="Page Not Found - FindableAI"
-        description="The page you're looking for doesn't exist. Return to FindableAI's homepage to continue exploring our AI-powered SEO platform."
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist. Return to FindableAI's homepage to continue exploring our AI-powered platform."
+        url="/404"
         noindex={true}
       />
       

@@ -101,10 +101,11 @@ export default function Pricing() {
   return (
     <>
       <SEO
-        title="Pricing – FindableAI Plans for Every Team"
-        description="Start free, or upgrade to Pro or Growth for advanced AI scans, prompts, and competitor analysis. Choose the plan that fits your team."
-        url={pageUrl}
-        ogImage={ogImage}
+        title="Pricing – AI Findability Plans for Every Team"
+        description="Start free, or upgrade to Pro, Growth, or Enterprise for advanced AI scans, prompts, and competitor analysis. Transparent pricing, cancel anytime."
+        url="/pricing"
+        ogImage="/og-pricing.png"
+        keywords="AI SEO pricing, FindableAI plans, AI optimization costs"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }} />
       {productsJson.map((p, i) => (

@@ -179,9 +179,11 @@ export default function Changelog() {
   return (
     <>
       <SEO 
-        title="Changelog – FindableAI Platform Updates"
+        title="Changelog"  
         description="Stay updated with the latest FindableAI features, improvements, bug fixes, and security updates. Complete version history and release notes."
-        url={`${window.location.origin}/changelog`}
+        url="/changelog"
+        ogType="article"
+        keywords="FindableAI updates, product changelog, new features, improvements, release notes"
       />
       
       <script 

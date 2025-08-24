@@ -12,9 +12,11 @@ export default function Terms() {
   return (
     <>
       <SEO
-        title="Terms of Service - FindableAI"
-        description="Read FindableAI's terms of service governing the use of our AI-powered SEO optimization platform and services."
-        url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/terms'}
+        title="Terms of Service"
+        description="Read FindableAI's terms of service governing the use of our AI-powered optimization platform and services."
+        url="/terms"
+        ogType="article"
+        noindex={true}
       />
       <script
         type="application/ld+json"

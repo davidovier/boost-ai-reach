@@ -178,9 +178,10 @@ function AdminUsagePage() {
   return (
     <>
       <SEO
-        title="Usage Analytics - Admin Panel"
-        description="Monitor user usage patterns, track resource consumption, and manage usage limits"
-        noindex
+        title="Usage Analytics"
+        description="Monitor user activity, subscription usage metrics, resource consumption, and platform analytics for insights and optimization."
+        url="/admin/usage"
+        noindex={true}
       />
       
       <script type="application/ld+json">

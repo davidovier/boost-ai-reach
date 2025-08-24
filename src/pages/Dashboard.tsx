@@ -84,8 +84,8 @@ export default function Dashboard() {
   return (
     <PageErrorBoundary context="Dashboard">
       <SEO 
-        title="Dashboard - FindableAI"
-        description="Monitor your AI findability optimization progress with real-time analytics and insights."
+        title="Dashboard"
+        description="Monitor your AI findability optimization progress with real-time analytics, usage metrics, and actionable insights."
         url="/dashboard"
         noindex={true}
       />

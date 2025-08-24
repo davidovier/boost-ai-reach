@@ -12,9 +12,11 @@ export default function Privacy() {
   return (
     <>
       <SEO
-        title="Privacy Policy - FindableAI"
-        description="Learn how FindableAI protects your privacy and handles your personal information. Transparent data practices for our AI-powered SEO platform."
-        url={typeof window !== 'undefined' ? window.location.href : 'https://findable.ai/privacy'}
+        title="Privacy Policy"
+        description="Learn how FindableAI protects your privacy and handles your personal information. Transparent data practices for our AI-powered platform."
+        url="/privacy"
+        ogType="article"
+        noindex={true}
       />
       <script
         type="application/ld+json"

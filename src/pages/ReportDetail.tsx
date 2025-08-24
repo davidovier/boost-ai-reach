@@ -193,9 +193,11 @@ export default function ReportDetail() {
   return (
     <>
       <SEO 
-        title={`Report Detail – ${formatPeriod(report.period_start, report.period_end)} | FindableAI`}
-        description="Detailed AI findability report with scores, optimization tips, and competitor analysis."
+        title={`Report Details - ${formatPeriod(report.period_start, report.period_end)}`}
+        description={`Detailed AI findability report with comprehensive scores, optimization recommendations, and competitive analysis insights.`}
         url={`/reports/${id}`}
+        ogType="article"
+        noindex={true}
       />
       
       <script 

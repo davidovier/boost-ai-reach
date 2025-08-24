@@ -96,9 +96,10 @@ export default function Reports() {
   return (
     <>
       <SEO 
-        title="Reports – AI Findability Analysis | FindableAI"
-        description="Generate and download comprehensive AI findability reports with insights, recommendations, and competitor analysis."
+        title="AI Findability Reports"
+        description="Generate and download comprehensive AI findability reports with insights, recommendations, competitor analysis, and actionable strategies."
         url="/reports"
+        keywords="AI findability reports, competitor analysis, SEO insights, optimization strategy"
       />
       
       <script 

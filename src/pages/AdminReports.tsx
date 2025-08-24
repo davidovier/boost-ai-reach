@@ -198,9 +198,10 @@ function AdminReportsPage() {
   return (
     <>
       <SEO
-        title="Reports Management - Admin Panel"
-        description="Manage user reports, monitor generation status, and perform bulk operations"
-        noindex
+        title="Reports Management"
+        description="Manage, monitor, and download all user-generated AI findability reports and analytics across the platform."
+        url="/admin/reports"
+        noindex={true}
       />
       
       <script type="application/ld+json">

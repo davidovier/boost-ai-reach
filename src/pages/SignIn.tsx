@@ -89,10 +89,10 @@ export default function SignIn() {
   return (
     <>
       <SEO
-        title="Sign In - FindableAI"
-        description="Sign in to your FindableAI account to access your AI findability dashboard, scans, and reports."
-        url={pageUrl}
-        noindex
+        title="Sign In"
+        description="Sign in to your FindableAI account to access your AI findability dashboard, scans, reports, and optimization insights."
+        url="/signin"
+        noindex={true}
       />
       <script
         type="application/ld+json"

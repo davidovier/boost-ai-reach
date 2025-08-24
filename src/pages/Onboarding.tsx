@@ -127,9 +127,10 @@ export default function Onboarding() {
   return (
     <>
       <SEO 
-        title="Get Started – FindableAI Onboarding"
-        description="Complete your onboarding checklist to optimize your website for AI findability and boost your online presence."
-        url={`${window.location.origin}/onboarding`}
+        title="Getting Started"
+        description="Complete your onboarding to optimize your website for AI findability and boost your brand's online presence with actionable insights."
+        url="/onboarding"
+        noindex={true}
       />
       
       <script 
