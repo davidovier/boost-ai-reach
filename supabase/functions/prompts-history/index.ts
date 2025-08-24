@@ -246,4 +246,4 @@ async function fetchPromptHistory(supabase: any, userId: string, fromDate: strin
   }));
 
   return formattedSimulations;
-});
+}
