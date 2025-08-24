@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { lazy, Suspense } from "react";
@@ -55,12 +56,13 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <AppErrorBoundary>
-          <Toaster />
-          <BrowserRouter>
+  <LanguageProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <AppErrorBoundary>
+            <Toaster />
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signin" element={<SignIn />} />
@@ -190,11 +192,12 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </AppErrorBoundary>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </BrowserRouter>
+          </AppErrorBoundary>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </LanguageProvider>
 );
 
 export default App;

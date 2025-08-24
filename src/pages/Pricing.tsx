@@ -1,6 +1,8 @@
 import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
+import { LanguageToggle } from '@/components/ui/language-toggle';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { PLAN_PRICE_IDS } from '@/types/stripe';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
@@ -8,49 +10,19 @@ import { Check, Star } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const plans = [
-  {
-    key: 'free' as const,
-    name: 'Free',
-    price: '$0',
-    priceId: PLAN_PRICE_IDS.free,
-    period: 'forever',
-    cta: 'Start free',
-    features: ['1 site', '1 scan / month', '1 AI prompt', 'Baseline tips'],
-  },
-  {
-    key: 'pro' as const,
-    name: 'Pro',
-    price: '$29',
-    priceId: PLAN_PRICE_IDS.pro,
-    period: 'per month',
-    cta: 'Upgrade',
-    popular: true,
-    features: ['3 sites', '4 scans / month', '10 AI prompts', '1 competitor'],
-  },
-  {
-    key: 'growth' as const,
-    name: 'Growth',
-    price: '$99',
-    priceId: PLAN_PRICE_IDS.growth,
-    period: 'per month',
-    cta: 'Upgrade',
-    features: ['10 sites', 'Daily scans', '50 AI prompts', '5 competitors'],
-  },
-  {
-    key: 'enterprise' as const,
-    name: 'Enterprise',
-    price: 'Custom',
-    priceId: PLAN_PRICE_IDS.enterprise,
-    period: 'contact us',
-    cta: 'Contact sales',
-    features: ['Custom limits', 'API access', 'Branded reports', 'CSM support'],
-  },
-];
+// Plan configuration - keys match translation keys
+const planKeys = ['free', 'pro', 'growth', 'enterprise'] as const;
+const planPriceIds = {
+  free: PLAN_PRICE_IDS.free,
+  pro: PLAN_PRICE_IDS.pro,
+  growth: PLAN_PRICE_IDS.growth,
+  enterprise: PLAN_PRICE_IDS.enterprise,
+};
 
 export default function Pricing() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const pageUrl = `${origin}/pricing`;
   const ogImage = 'https://images.unsplash.com/photo-1551281044-8f785ba67e45?q=80&w=1600&auto=format&fit=crop';
@@ -61,50 +33,56 @@ export default function Pricing() {
   ]), [origin, pageUrl]);
 
   const productsJson = useMemo(() => {
-    return plans.map((p, index) => ({
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      '@id': `${pageUrl}#${p.key}-plan`,
-      name: `FindableAI ${p.name} Plan`,
-      description: `${p.name} plan includes: ${p.features.join(', ')}`,
-      url: pageUrl,
-      category: 'Software as a Service',
-      brand: { 
-        '@type': 'Brand', 
-        name: 'FindableAI',
-        url: origin
-      },
-      offers: {
-        '@type': 'Offer',
-        '@id': `${pageUrl}#offer-${p.key}`,
-        name: `${p.name} Plan Subscription`,
-        priceCurrency: 'USD',
-        price: p.price === 'Custom' ? undefined : p.price.replace('$', ''),
-        priceSpecification: p.price === 'Custom' ? undefined : {
-          '@type': 'UnitPriceSpecification',
-          price: p.price.replace('$', ''),
-          priceCurrency: 'USD',
-          unitText: 'MONTH'
-        },
-        availability: 'https://schema.org/InStock',
+    return planKeys.map((planKey, index) => {
+      const planName = t(`pricing.plans.${planKey}.name`);
+      const planPrice = t(`pricing.plans.${planKey}.price`);
+      const planFeatures = t(`pricing.plans.${planKey}.features`) as unknown as string[];
+      
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        '@id': `${pageUrl}#${planKey}-plan`,
+        name: `FindableAI ${planName} Plan`,
+        description: `${planName} plan includes: ${planFeatures.join(', ')}`,
         url: pageUrl,
-        seller: {
-          '@type': 'Organization',
+        category: 'Software as a Service',
+        brand: { 
+          '@type': 'Brand', 
           name: 'FindableAI',
           url: origin
         },
-        validFrom: new Date().toISOString(),
-        itemCondition: 'https://schema.org/NewCondition'
-      },
-      aggregateRating: index === 1 ? { // Pro plan is most popular
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        reviewCount: '150',
-        bestRating: '5',
-        worstRating: '1'
-      } : undefined
-    }));
-  }, [pageUrl, origin]);
+        offers: {
+          '@type': 'Offer',
+          '@id': `${pageUrl}#offer-${planKey}`,
+          name: `${planName} Plan Subscription`,
+          priceCurrency: 'USD',
+          price: planPrice === 'Custom' ? undefined : planPrice.replace('$', ''),
+          priceSpecification: planPrice === 'Custom' ? undefined : {
+            '@type': 'UnitPriceSpecification',
+            price: planPrice.replace('$', ''),
+            priceCurrency: 'USD',
+            unitText: 'MONTH'
+          },
+          availability: 'https://schema.org/InStock',
+          url: pageUrl,
+          seller: {
+            '@type': 'Organization',
+            name: 'FindableAI',
+            url: origin
+          },
+          validFrom: new Date().toISOString(),
+          itemCondition: 'https://schema.org/NewCondition'
+        },
+        aggregateRating: index === 1 ? { // Pro plan is most popular
+          '@type': 'AggregateRating',
+          ratingValue: '4.8',
+          reviewCount: '150',
+          bestRating: '5',
+          worstRating: '1'
+        } : undefined
+      };
+    });
+  }, [pageUrl, origin, t]);
 
   const handleCheckout = async (priceId: string | null | undefined) => {
     if (!priceId) {
@@ -130,11 +108,11 @@ export default function Pricing() {
   return (
     <>
       <SEO
-        title="Pricing – AI Findability Plans for Every Team"
-        description="Start free, or upgrade to Pro, Growth, or Enterprise for advanced AI scans, prompts, and competitor analysis. Transparent pricing, cancel anytime."
+        title={t('pricing.seo.title')}
+        description={t('pricing.seo.description')}
         url="/pricing"
         ogImage="/og-pricing.png"
-        keywords="AI SEO pricing, FindableAI plans, AI optimization costs"
+        keywords={t('pricing.seo.keywords')}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }} />
       {productsJson.map((p, i) => (
@@ -142,51 +120,63 @@ export default function Pricing() {
       ))}
 
       <main className="min-h-screen bg-background">
+        <div className="absolute top-4 right-4 z-10">
+          <LanguageToggle />
+        </div>
         <section className="mx-auto max-w-6xl px-6 pt-20 pb-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Simple, transparent pricing</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">{t('pricing.heading')}</h1>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-            Start free and scale as you grow. Cancel anytime.
+            {t('pricing.description')}
           </p>
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-20">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {plans.map((plan) => (
-              <article key={plan.key} className="plan-card rounded-xl border bg-card p-6 text-card-foreground shadow-sm relative">
-                {plan.popular && (
-                  <span className="absolute -top-3 right-4 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground shadow">
-                    <Star className="h-3.5 w-3.5" /> Most popular
-                  </span>
-                )}
-                <h2 className="text-xl font-semibold">{plan.name}</h2>
-                <p className="mt-2 text-3xl font-bold">{plan.price}
-                  <span className="ml-2 align-middle text-sm font-normal text-muted-foreground">{plan.period}</span>
-                </p>
-                <ul className="mt-6 space-y-2 text-sm">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-primary mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  {plan.key === 'free' ? (
-                    <Button size="lg" className="w-full btn-cta" onClick={() => navigate('/onboarding')}>
-                      {plan.cta}
-                    </Button>
-                  ) : plan.key === 'enterprise' ? (
-                    <Button size="lg" variant="secondary" className="w-full" onClick={() => navigate('/account')}>
-                      {plan.cta}
-                    </Button>
-                  ) : (
-                    <Button size="lg" className="w-full btn-cta" onClick={() => handleCheckout(plan.priceId)}>
-                      {plan.cta}
-                    </Button>
+            {planKeys.map((planKey) => {
+              const planName = t(`pricing.plans.${planKey}.name`);
+              const planPrice = t(`pricing.plans.${planKey}.price`);
+              const planPeriod = t(`pricing.plans.${planKey}.period`);
+              const planCta = t(`pricing.plans.${planKey}.cta`);
+              const planFeatures = t(`pricing.plans.${planKey}.features`) as unknown as string[];
+              const planPopular = planKey === 'pro' ? t(`pricing.plans.${planKey}.popular`) : '';
+              
+              return (
+                <article key={planKey} className="plan-card rounded-xl border bg-card p-6 text-card-foreground shadow-sm relative">
+                  {planKey === 'pro' && (
+                    <span className="absolute -top-3 right-4 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground shadow">
+                      <Star className="h-3.5 w-3.5" /> {planPopular}
+                    </span>
                   )}
-                </div>
-              </article>
-            ))}
+                  <h2 className="text-xl font-semibold">{planName}</h2>
+                  <p className="mt-2 text-3xl font-bold">{planPrice}
+                    <span className="ml-2 align-middle text-sm font-normal text-muted-foreground">{planPeriod}</span>
+                  </p>
+                  <ul className="mt-6 space-y-2 text-sm">
+                    {planFeatures.map((feature: string) => (
+                      <li key={feature} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-primary mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    {planKey === 'free' ? (
+                      <Button size="lg" className="w-full btn-cta" onClick={() => navigate('/onboarding')}>
+                        {planCta}
+                      </Button>
+                    ) : planKey === 'enterprise' ? (
+                      <Button size="lg" variant="secondary" className="w-full" onClick={() => navigate('/account')}>
+                        {planCta}
+                      </Button>
+                    ) : (
+                      <Button size="lg" className="w-full btn-cta" onClick={() => handleCheckout(planPriceIds[planKey])}>
+                        {planCta}
+                      </Button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       </main>
