@@ -70,10 +70,10 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url}
                       aria-label={`Navigate to ${item.title}`}
-                      className={({ isActive }) => `
+                      className={(navData) => `
                         flex items-center gap-3 px-3 py-3 rounded-md transition-colors
                         btn-focus
-                        ${isActive 
+                        ${navData?.isActive 
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
                           : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                         }
@@ -94,16 +94,16 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="min-h-[44px] w-full">
                     <NavLink 
-                      to="/admin"
-                      aria-label="Navigate to Admin panel"
-                      className={({ isActive }) => `
-                        flex items-center gap-3 px-3 py-3 rounded-md transition-colors
-                        btn-focus
-                        ${isActive 
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
-                          : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                        }
-                      `}
+                       to="/admin"
+                       aria-label="Navigate to Admin panel"
+                       className={(navData) => `
+                         flex items-center gap-3 px-3 py-3 rounded-md transition-colors
+                         btn-focus
+                         ${navData?.isActive 
+                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
+                           : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                         }
+                       `}
                     >
                       <Shield 
                         className="h-5 w-5 flex-shrink-0" 
