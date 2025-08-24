@@ -116,10 +116,10 @@ export default function AITests() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
       />
 
-        <div className="space-y-6 sm:space-y-8">
-          <header>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">AI Findability Tests</h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2">
+        <div className="space-y-6 sm:space-y-8 form-mobile">
+          <header className="text-mobile">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground heading-responsive">AI Findability Tests</h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-responsive">
               Test how AI models discover and recommend your website with custom prompts
             </p>
           </header>

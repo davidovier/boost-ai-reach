@@ -114,15 +114,15 @@ export default function Scans() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
       />
 
-      <div className="space-y-6 sm:space-y-8">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="space-y-6 sm:space-y-8 table-mobile">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-mobile">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Website Scans</h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground heading-responsive">Website Scans</h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-responsive">
               Monitor your website's AI findability scores and optimization progress
             </p>
           </div>
-          <Button className="w-full sm:w-auto min-h-[44px] btn-focus">
+          <Button className="w-full sm:w-auto min-h-[44px] btn-focus touch-target interactive btn-responsive">
             <Plus className="h-4 w-4 mr-2" />
             New Scan
           </Button>
@@ -259,22 +259,22 @@ export default function Scans() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="scans-cards stagger-animation">
+            <div className="mobile-cards">
               {scans.map((scan, index) => (
                 <div 
                   key={scan.id}
-                  className="scan-card interactive-hover cursor-pointer"
+                  className="scan-card interactive-hover cursor-pointer card-mobile"
                   onClick={() => handleViewScan(scan.id)}
                 >
                   <div className="card-header">
                     <div className="website-info">
-                      <div className="website-name">{scan.site?.name || 'Unnamed Site'}</div>
-                      <div className="website-url">{scan.site?.url}</div>
+                      <div className="title">{scan.site?.name || 'Unnamed Site'}</div>
+                      <div className="text-xs text-muted-foreground">{scan.site?.url}</div>
                     </div>
-                    <div className="card-actions">
+                    <div className="actions">
                       <ActionTooltip content="View details">
                         <button 
-                          className="action-btn"
+                          className="action-btn touch-target"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleViewScan(scan.id);
@@ -286,7 +286,7 @@ export default function Scans() {
                       </ActionTooltip>
                       <ActionTooltip content="Edit scan">
                         <button 
-                          className="action-btn"
+                          className="action-btn touch-target"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEditScan(scan.id);
@@ -298,7 +298,7 @@ export default function Scans() {
                       </ActionTooltip>
                       <ActionTooltip content="Delete scan">
                         <button 
-                          className="action-btn"
+                          className="action-btn touch-target"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteScan(scan.id);
@@ -311,18 +311,18 @@ export default function Scans() {
                     </div>
                   </div>
                   <div className="card-content">
-                    <div className="metrics-grid">
+                    <div className="metrics">
                       <div className="metric">
-                        <div className="metric-label">AI Score</div>
-                        <div className="metric-value">
+                        <div className="label">AI Score</div>
+                        <div className="value">
                           <div className={`score-badge ${getScoreColor(scan.ai_findability_score)}`}>
                             {scan.ai_findability_score || 'N/A'}
                           </div>
                         </div>
                       </div>
                       <div className="metric">
-                        <div className="metric-label">Issues</div>
-                        <div className="metric-value">
+                        <div className="label">Issues</div>
+                        <div className="value">
                           {getIssueCount(scan) > 0 ? (
                             <div className="issues-count">
                               <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -337,7 +337,7 @@ export default function Scans() {
                         </div>
                       </div>
                     </div>
-                    <div className="scan-date">
+                    <div className="timestamp">
                       Scanned on {format(new Date(scan.scan_date), 'MMM d, yyyy')}
                     </div>
                   </div>

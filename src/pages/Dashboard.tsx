@@ -91,16 +91,16 @@ export default function Dashboard() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }}
       />
       
-      <div className="space-y-6 sm:space-y-8">
-        <header>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1 sm:mt-2">
+      <div className="space-y-6 sm:space-y-8 dashboard-mobile">
+        <header className="text-mobile">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground heading-responsive">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2 text-responsive">
             Overview of your AI findability optimization
           </p>
         </header>
 
         {/* KPI Cards */}
-        <section aria-labelledby="kpi-heading">
+        <section aria-labelledby="kpi-heading" className="card-mobile">
           <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {/* AI Findability Score */}
@@ -252,40 +252,40 @@ export default function Dashboard() {
         </section>
 
         {/* Additional Actions */}
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 spacing-mobile">
           {/* Quick Actions */}
-          <div className="card-dashboard animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.5s' }}>
             <div className="card-header">
-              <h3>Quick Actions</h3>
-              <p>Start optimizing your AI findability</p>
+              <h3 className="heading-responsive">Quick Actions</h3>
+              <p className="text-responsive">Start optimizing your AI findability</p>
             </div>
             <div className="card-content">
-              <div className="grid grid-cols-1 gap-3">
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+              <div className="grid grid-cols-1 gap-3 btn-mobile">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
                     <Search className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-medium text-foreground">Run New Scan</div>
-                    <div className="text-sm text-muted-foreground">Analyze your website's AI findability</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Analyze your website's AI findability</div>
                   </div>
                 </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground mr-4 group-hover:scale-105 transition-transform">
                     <Zap className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-medium text-foreground">Test AI Prompt</div>
-                    <div className="text-sm text-muted-foreground">See how AI models respond to queries</div>
+                    <div className="text-sm text-muted-foreground text-responsive">See how AI models respond to queries</div>
                   </div>
                 </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
                     <TrendingUp className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-medium text-foreground">View Reports</div>
-                    <div className="text-sm text-muted-foreground">Download detailed optimization reports</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Download detailed optimization reports</div>
                   </div>
                 </button>
               </div>
@@ -293,10 +293,10 @@ export default function Dashboard() {
           </div>
 
           {/* Subscription Status */}
-          <div className="card-dashboard animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.6s' }}>
             <div className="card-header">
-              <h3>Plan Status</h3>
-              <p>Current usage and limits</p>
+              <h3 className="heading-responsive">Plan Status</h3>
+              <p className="text-responsive">Current usage and limits</p>
             </div>
             <div className="card-content">
               <div className="space-y-6">
@@ -305,7 +305,7 @@ export default function Dashboard() {
                     <div className="font-semibold text-foreground capitalize">
                       Free Plan
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground text-responsive">
                       Your current subscription
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Usage Progress */}
-                <div className="space-y-4">
+                <div className="space-y-4 animated-progress">
                   <div>
                     <div className="flex justify-between text-sm mb-2">
                       <span>AI Tests</span>
@@ -325,7 +325,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div 
-                        className="bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                        className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
                         style={{ 
                           width: `${Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)}%` 
                         }}
@@ -340,14 +340,14 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div 
-                        className="bg-gradient-accent h-2 rounded-full transition-all duration-500"
+                        className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
                         style={{ width: '0%' }}
                       ></div>
                     </div>
                   </div>
                 </div>
 
-                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive">
                   Upgrade to Pro
                 </button>
               </div>

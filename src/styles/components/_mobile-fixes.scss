@@ -1,0 +1,424 @@
+@import '../variables';
+
+// Mobile QA fixes for 375px viewport and above
+
+// Base mobile optimizations
+@media (max-width: 480px) {
+  // Ensure proper padding and margins
+  .container, .max-w-7xl, .max-w-6xl, .max-w-5xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  // Prevent horizontal overflow
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  // Mobile-first spacing
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  .space-y-8 > * + * {
+    margin-top: 2rem;
+  }
+}
+
+// Dashboard mobile fixes
+.dashboard-mobile {
+  @media (max-width: 480px) {
+    .kpi-card {
+      padding: 1rem;
+      min-height: auto;
+      
+      .kpi-value {
+        font-size: 1.5rem;
+        line-height: 1.2;
+      }
+      
+      .kpi-label {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+    }
+    
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .card-dashboard {
+      padding: 1rem;
+      
+      .card-header h3 {
+        font-size: 1.125rem;
+      }
+    }
+  }
+}
+
+// Form mobile optimizations
+.form-mobile {
+  @media (max-width: 480px) {
+    input, textarea, select {
+      font-size: 16px; // Prevents zoom on iOS
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Table mobile responsive fixes
+.table-mobile {
+  @media (max-width: 768px) {
+    .enhanced-table {
+      display: none; // Hide table on mobile
+    }
+    
+    .mobile-cards {
+      display: block;
+    }
+    
+    .scan-card, .report-card, .admin-card {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      
+      .card-header {
+        display: flex;
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        
+        .title {
+          font-weight: 600;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+        }
+        
+        .actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+      }
+      
+      .card-content {
+        .metrics {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          
+          .metric {
+            .label {
+              font-size: 0.75rem;
+              color: hsl(var(--muted-foreground));
+              margin-bottom: 0.25rem;
+            }
+            
+            .value {
+              font-weight: 600;
+              font-size: 0.875rem;
+            }
+          }
+        }
+        
+        .timestamp {
+          font-size: 0.75rem;
+          color: hsl(var(--muted-foreground));
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+// Button mobile fixes
+.btn-mobile {
+  @media (max-width: 480px) {
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    .btn-responsive {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+    }
+    
+    // Floating action button for mobile
+    .fab {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      border: none;
+      box-shadow: var(--shadow-lg);
+      z-index: 50;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+// Navigation mobile fixes
+.nav-mobile {
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      
+      &.open {
+        transform: translateX(0);
+      }
+    }
+    
+    .mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: hsl(var(--card));
+      border-top: 1px solid hsl(var(--border));
+      padding: 0.5rem;
+      z-index: 50;
+      
+      .nav-items {
+        display: flex;
+        justify-content: space-around;
+        
+        .nav-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0.5rem;
+          text-decoration: none;
+          color: hsl(var(--muted-foreground));
+          font-size: 0.75rem;
+          
+          &.active {
+            color: hsl(var(--primary));
+          }
+          
+          .icon {
+            margin-bottom: 0.25rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal mobile fixes
+.modal-mobile {
+  @media (max-width: 480px) {
+    .modal-content {
+      margin: 1rem;
+      width: calc(100% - 2rem);
+      max-height: calc(100% - 2rem);
+      border-radius: 0.75rem;
+    }
+    
+    .modal-header {
+      padding: 1rem;
+      border-bottom: 1px solid hsl(var(--border));
+      
+      .title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+    }
+    
+    .modal-body {
+      padding: 1rem;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .modal-actions {
+      padding: 1rem;
+      border-top: 1px solid hsl(var(--border));
+      display: flex;
+      gap: 0.5rem;
+      
+      button {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// Card mobile fixes
+.card-mobile {
+  @media (max-width: 480px) {
+    .card {
+      margin: 0 1rem 1rem 1rem;
+      border-radius: 0.75rem;
+      
+      &.full-width {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+      }
+    }
+    
+    .card-header {
+      padding: 1rem;
+      
+      h1, h2, h3 {
+        font-size: 1.25rem;
+        line-height: 1.3;
+      }
+      
+      p {
+        font-size: 0.875rem;
+        line-height: 1.4;
+        margin-top: 0.5rem;
+      }
+    }
+    
+    .card-content {
+      padding: 1rem;
+    }
+  }
+}
+
+// Text mobile fixes
+.text-mobile {
+  @media (max-width: 480px) {
+    .text-responsive {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    
+    .heading-responsive {
+      font-size: 1.25rem;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+    }
+    
+    .subheading-responsive {
+      font-size: 1rem;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Spacing mobile fixes
+.spacing-mobile {
+  @media (max-width: 480px) {
+    .section-spacing {
+      margin-bottom: 2rem;
+    }
+    
+    .element-spacing {
+      margin-bottom: 1rem;
+    }
+    
+    .tight-spacing {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Chart mobile fixes
+.chart-mobile {
+  @media (max-width: 480px) {
+    .chart-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      
+      .chart {
+        min-width: 300px;
+        height: 200px;
+      }
+    }
+    
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// Admin panel mobile fixes
+.admin-mobile {
+  @media (max-width: 768px) {
+    .admin-tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      
+      .tab-list {
+        display: flex;
+        min-width: max-content;
+        gap: 0.5rem;
+        padding: 0 1rem;
+      }
+    }
+    
+    .filter-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+    
+    .users-filters {
+      padding: 0.75rem;
+      
+      .search-filter {
+        margin-bottom: 0.75rem;
+      }
+      
+      .select-filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+    }
+  }
+}

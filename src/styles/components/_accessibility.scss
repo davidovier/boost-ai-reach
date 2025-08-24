@@ -1,0 +1,272 @@
+@import '../variables';
+
+// Accessibility enhancements for WCAG AA compliance
+
+// Enhanced focus states with high contrast
+.focus-enhanced {
+  &:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: calc(var(--radius) - 2px);
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+    transition: all 0.2s ease;
+  }
+}
+
+// High contrast focus for interactive elements
+button, input, select, textarea, a, [role="button"], [tabindex] {
+  &:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+    transition: all 0.2s ease;
+  }
+}
+
+// Ensure minimum touch target size (44px minimum)
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Mobile touch targets
+@media (max-width: 768px) {
+  button, [role="button"], input[type="submit"], input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  a:not(.inline-link) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 30%;
+    --primary: 242 100% 50%;
+    --muted-foreground: 215 25% 35%;
+  }
+  
+  .dark {
+    --border: 0 0% 70%;
+    --primary: 242 100% 70%;
+    --muted-foreground: 215 20% 75%;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Color-blind friendly improvements
+.status-indicator {
+  &.success {
+    background-color: hsl(120 60% 50%);
+    
+    &::before {
+      content: '✓';
+      color: white;
+      font-weight: bold;
+    }
+  }
+  
+  &.error {
+    background-color: hsl(0 60% 50%);
+    
+    &::before {
+      content: '✗';
+      color: white;
+      font-weight: bold;
+    }
+  }
+  
+  &.warning {
+    background-color: hsl(45 100% 50%);
+    
+    &::before {
+      content: '!';
+      color: black;
+      font-weight: bold;
+    }
+  }
+}
+
+// Screen reader only content
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: var(--radius);
+  z-index: 1000;
+}
+
+// Skip links for keyboard navigation
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px;
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  z-index: 1000;
+  
+  &:focus {
+    top: 6px;
+  }
+}
+
+// Enhanced form labels and error states
+.form-field {
+  label {
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .field-error {
+    color: hsl(var(--destructive));
+    font-size: var(--font-size-sm);
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    
+    &::before {
+      content: '⚠';
+      font-weight: bold;
+    }
+  }
+  
+  .field-success {
+    color: hsl(120 60% 40%);
+    font-size: var(--font-size-sm);
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    
+    &::before {
+      content: '✓';
+      font-weight: bold;
+    }
+  }
+}
+
+// Loading state accessibility
+.loading-spinner[aria-busy="true"] {
+  &::after {
+    content: 'Loading...';
+    position: absolute;
+    left: -9999px;
+  }
+}
+
+// Ensure adequate color contrast
+.text-contrast-aa {
+  color: hsl(var(--foreground));
+  
+  &.on-primary {
+    color: hsl(var(--primary-foreground));
+  }
+  
+  &.on-secondary {
+    color: hsl(var(--secondary-foreground));
+  }
+}
+
+// Interactive element states
+.interactive {
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Table accessibility
+table {
+  caption {
+    font-weight: 600;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--foreground));
+  }
+  
+  th {
+    font-weight: 600;
+    text-align: left;
+  }
+  
+  tbody tr:hover {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+}
+
+// Landmark roles
+[role="main"] {
+  min-height: 200px;
+}
+
+[role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"] {
+  outline: none;
+}
+
+// Keyboard navigation enhancements
+.keyboard-nav {
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+  
+  .focusable {
+    &:focus-visible {
+      outline: 2px solid hsl(var(--primary));
+      outline-offset: 2px;
+    }
+  }
+}
