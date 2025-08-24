@@ -5,6 +5,7 @@ import { enforceLimit } from "../_shared/limits.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 import { validateRequestBody, RunPromptSchema, createValidationErrorResponse } from "../_shared/validation.ts";
+import { createSecureLogger, addCorrelationIdToResponse } from "../_shared/secure-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,6 +101,7 @@ Always return valid JSON. Be concise but helpful.`;
     const aiResponse = data.choices?.[0]?.message?.content;
 
     if (!aiResponse) {
+      logger.error("No response from OpenAI");
       return {
         error: {
           status: 500,
@@ -114,7 +116,7 @@ Always return valid JSON. Be concise but helpful.`;
     try {
       parsedResponse = JSON.parse(aiResponse);
     } catch (parseError) {
-      console.error("Failed to parse AI response as JSON:", aiResponse);
+      logger.warn("Failed to parse AI response as JSON", { parseError, response: aiResponse.substring(0, 200) });
       // Fallback: create a response object
       parsedResponse = {
         response: aiResponse,
@@ -152,6 +154,9 @@ Always return valid JSON. Be concise but helpful.`;
 }
 
 serve(async (req) => {
+  // Create secure logger with correlation ID
+  const logger = createSecureLogger(req);
+  logger.logRequestStart(req.method, req.url);
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -189,8 +194,11 @@ serve(async (req) => {
       RATE_LIMITS.PROMPTS_PER_USER
     );
 
+    logger.logRateLimit(user.id, 'prompts', rateLimitResult.allowed, rateLimitResult.requestCount);
+
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      const response = createRateLimitResponse(rateLimitResult, corsHeaders);
+      return addCorrelationIdToResponse(response, logger.context.correlationId);
     }
 
     // Parse request body
@@ -217,7 +225,13 @@ serve(async (req) => {
 
     const { prompt, includeCompetitors = false } = validation.data;
 
-    console.log("POST /api/prompts invoked by user:", user.id, "prompt length:", prompt.length);
+    // Add user context to logger
+    logger.context.userId = user.id;
+    logger.info("Prompt request initiated", { 
+      userId: user.id, 
+      promptLength: prompt.length,
+      includeCompetitors 
+    });
 
     // Enforce prompt quota using limits helper
     const limitResult = await enforceLimit(user.id, 'prompt', authHeader);

@@ -6,6 +6,7 @@ import { extractMetadata, checkRobotsTxt, checkSitemap, ScanResult } from "../_s
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 import { validateRequestBody, CreateScanSchema, createValidationErrorResponse } from "../_shared/validation.ts";
+import { createSecureLogger, addCorrelationIdToResponse } from "../_shared/secure-logger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,21 +21,29 @@ function jsonResponse(body: any, status = 200) {
 }
 
 serve(async (req) => {
+  // Create secure logger with correlation ID
+  const logger = createSecureLogger(req);
+  logger.logRequestStart(req.method, req.url);
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    const response = new Response(null, { headers: corsHeaders });
+    return addCorrelationIdToResponse(response, logger.context.correlationId);
   }
 
   // Only allow POST requests
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    logger.warn('Method not allowed', { method: req.method });
+    const response = jsonResponse({ error: 'Method not allowed' }, 405);
+    return addCorrelationIdToResponse(response, logger.context.correlationId);
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return jsonResponse({ error: "Missing Supabase environment configuration" }, 500);
+    logger.error('Missing Supabase environment configuration');
+    const response = jsonResponse({ error: "Missing Supabase environment configuration" }, 500);
+    return addCorrelationIdToResponse(response, logger.context.correlationId);
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -46,10 +55,14 @@ serve(async (req) => {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth?.user;
   if (!user) {
-    return jsonResponse({ error: "Unauthorized" }, 401);
+    logger.warn('Unauthorized access attempt');
+    const response = jsonResponse({ error: "Unauthorized" }, 401);
+    return addCorrelationIdToResponse(response, logger.context.correlationId);
   }
 
-  console.log("create-scan invoked by user:", user.id);
+  // Add user context to logger
+  logger.context.userId = user.id;
+  logger.info("Scan request initiated", { userId: user.id });
 
   try {
     // Check rate limit for scans
@@ -59,8 +72,11 @@ serve(async (req) => {
       RATE_LIMITS.SCANS_PER_USER
     );
 
+    logger.logRateLimit(user.id, 'scans', rateLimitResult.allowed, rateLimitResult.requestCount);
+
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      const response = createRateLimitResponse(rateLimitResult, corsHeaders);
+      return addCorrelationIdToResponse(response, logger.context.correlationId);
     }
     // Parse and validate input
     const bodyText = await req.text();
@@ -77,11 +93,13 @@ serve(async (req) => {
 
     const validation = validateRequestBody(CreateScanSchema, body);
     if (!validation.success) {
-      return createValidationErrorResponse(
+      logger.warn('Validation failed', { errors: validation.error });
+      const response = createValidationErrorResponse(
         validation.error,
         corsHeaders,
         validation.details
       );
+      return addCorrelationIdToResponse(response, logger.context.correlationId);
     }
 
     const { siteId, url } = validation.data;
