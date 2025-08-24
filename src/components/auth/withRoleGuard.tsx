@@ -1,6 +1,7 @@
 import { ReactNode, ComponentType } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Role } from '@/utils/rbac';
+import { PermissionDenied, AdminAccessDenied } from '@/components/ui/empty-states';
 
 interface RoleGuardProps {
   allowedRoles: Role[];
@@ -19,7 +20,25 @@ export function RoleGuard({ allowedRoles, children, fallback }: RoleGuardProps) 
   }
 
   if (!profile || !allowedRoles.includes(profile.role)) {
-    return fallback ? <>{fallback}</> : <div className="text-destructive">Access Denied</div>;
+    if (fallback) {
+      return <>{fallback}</>;
+    }
+    
+    // Show specific permission denied screen based on required roles
+    const isAdminRequired = allowedRoles.includes('admin') && allowedRoles.length === 1;
+    const requiredRole = allowedRoles[0];
+    
+    return isAdminRequired ? (
+      <AdminAccessDenied 
+        onContactSupport={() => window.open('https://lovable.dev/support', '_blank')} 
+      />
+    ) : (
+      <PermissionDenied 
+        requiredRole={requiredRole}
+        currentRole={profile?.role}
+        onContactSupport={() => window.open('https://lovable.dev/support', '_blank')}
+      />
+    );
   }
 
   return <>{children}</>;

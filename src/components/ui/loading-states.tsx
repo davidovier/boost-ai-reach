@@ -128,3 +128,27 @@ export function ScansListSkeleton() {
     </div>
   )
 }
+
+export function SitesListSkeleton() {
+  return (
+    <div className="space-y-4" role="status" aria-label="Loading websites">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="border rounded-lg p-4">
+          <div className="flex items-center space-x-4">
+            <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
+            <div className="space-y-2 flex-1">
+              <div className="h-4 bg-muted rounded animate-pulse w-48" />
+              <div className="h-3 bg-muted rounded animate-pulse w-64" />
+            </div>
+            <div className="hidden sm:flex space-x-4">
+              <div className="h-6 w-12 bg-muted rounded animate-pulse" />
+              <div className="h-6 w-16 bg-muted rounded animate-pulse" />
+              <div className="h-8 w-20 bg-muted rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      ))}
+      <span className="sr-only">Loading websites</span>
+    </div>
+  )
+}

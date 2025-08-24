@@ -10,7 +10,14 @@ import {
   Plus,
   Sparkles,
   Activity,
-  TrendingUp
+  TrendingUp,
+  Globe,
+  Shield,
+  ShieldX,
+  Lock,
+  UserX,
+  AlertTriangle,
+  HelpCircle
 } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -155,5 +162,148 @@ export const EmptyUsage = () => (
     icon={<TrendingUp className="w-12 h-12 text-muted-foreground/60" />}
     title="No usage data"
     description="No usage metrics are available at this time."
+  />
+);
+
+export const EmptySites = ({ onAddClick }: { onAddClick: () => void }) => (
+  <EmptyState
+    icon={
+      <div className="relative">
+        <Globe className="w-12 h-12 text-primary/60" />
+        <Plus className="w-6 h-6 text-accent absolute -bottom-1 -right-1 bg-background rounded-full p-1" />
+      </div>
+    }
+    title="No websites added yet"
+    description="Add your first website to start monitoring its AI findability score and track optimization progress."
+    action={{
+      label: "Add Your First Website",
+      onClick: onAddClick,
+      variant: "default"
+    }}
+  />
+);
+
+// Permission Denied States
+export const PermissionDenied = ({ 
+  requiredRole, 
+  currentRole,
+  onContactSupport 
+}: { 
+  requiredRole?: string;
+  currentRole?: string;
+  onContactSupport?: () => void;
+}) => (
+  <EmptyState
+    icon={<Shield className="w-12 h-12 text-destructive/60" />}
+    title="Access Denied"
+    description={
+      requiredRole 
+        ? `This page requires ${requiredRole} access. Your current role (${currentRole || 'user'}) does not have permission to view this content.`
+        : "You don't have permission to access this content. Please contact your administrator if you believe this is an error."
+    }
+    action={onContactSupport ? {
+      label: "Contact Support",
+      onClick: onContactSupport,
+      variant: "outline"
+    } : undefined}
+  />
+);
+
+export const AdminAccessDenied = ({ 
+  onUpgrade,
+  onContactSupport 
+}: { 
+  onUpgrade?: () => void;
+  onContactSupport?: () => void;
+}) => (
+  <EmptyState
+    icon={<ShieldX className="w-12 h-12 text-destructive/60" />}
+    title="Admin Access Required"
+    description="This section is restricted to administrators only. You need admin privileges to access user management, system settings, and advanced features."
+    action={onContactSupport ? {
+      label: "Contact Administrator",
+      onClick: onContactSupport,
+      variant: "outline"
+    } : undefined}
+  />
+);
+
+export const PlanUpgradeRequired = ({ 
+  requiredPlan,
+  currentPlan,
+  onUpgrade 
+}: { 
+  requiredPlan: string;
+  currentPlan?: string;
+  onUpgrade: () => void;
+}) => (
+  <EmptyState
+    icon={<Lock className="w-12 h-12 text-primary/60" />}
+    title="Upgrade Required"
+    description={`This feature requires a ${requiredPlan} plan. Your current plan (${currentPlan || 'Free'}) doesn't include access to this functionality.`}
+    action={{
+      label: `Upgrade to ${requiredPlan}`,
+      onClick: onUpgrade,
+      variant: "default"
+    }}
+  />
+);
+
+export const SessionExpired = ({ onSignIn }: { onSignIn: () => void }) => (
+  <EmptyState
+    icon={<UserX className="w-12 h-12 text-muted-foreground/60" />}
+    title="Session Expired"
+    description="Your session has expired for security reasons. Please sign in again to continue using the application."
+    action={{
+      label: "Sign In Again",
+      onClick: onSignIn,
+      variant: "default"
+    }}
+  />
+);
+
+export const MaintenanceMode = ({ 
+  estimatedReturn,
+  onRefresh 
+}: { 
+  estimatedReturn?: string;
+  onRefresh?: () => void;
+}) => (
+  <EmptyState
+    icon={<AlertTriangle className="w-12 h-12 text-primary/60" />}
+    title="Maintenance Mode"
+    description={
+      estimatedReturn 
+        ? `We're performing scheduled maintenance. Expected return: ${estimatedReturn}. Thank you for your patience.`
+        : "We're performing scheduled maintenance. Please check back shortly. Thank you for your patience."
+    }
+    action={onRefresh ? {
+      label: "Refresh Page",
+      onClick: onRefresh,
+      variant: "outline"
+    } : undefined}
+  />
+);
+
+export const UnexpectedError = ({ 
+  onRetry,
+  onReportIssue 
+}: { 
+  onRetry?: () => void;
+  onReportIssue?: () => void;
+}) => (
+  <EmptyState
+    icon={<HelpCircle className="w-12 h-12 text-destructive/60" />}
+    title="Something went wrong"
+    description="An unexpected error occurred. Our team has been notified. Please try again or contact support if the problem persists."
+    action={onRetry ? {
+      label: "Try Again",
+      onClick: onRetry,
+      variant: "default"
+    } : onReportIssue ? {
+      label: "Report Issue",
+      onClick: onReportIssue,
+      variant: "outline"
+    } : undefined}
   />
 );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,7 @@ import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Sparkline, ProgressArc } from '@/components/ui/sparkline';
-import { Activity, TrendingUp, Zap, Search } from 'lucide-react';
+import { Activity, TrendingUp, Zap, Search, Globe } from 'lucide-react';
 import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
@@ -22,6 +23,7 @@ interface ActivityItem {
 
 export default function Dashboard() {
   const { data: subscription, loading } = useSubscription();
+  const navigate = useNavigate();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   
@@ -266,8 +268,19 @@ export default function Dashboard() {
               <p className="text-responsive">Start optimizing your AI findability</p>
             </div>
             <div className="card-content">
-              <div className="grid grid-cols-1 gap-3 btn-mobile">
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
+            <div className="flex gap-2">
+              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
+                      onClick={() => navigate('/sites')}>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-medium text-foreground">Add Website</div>
+                  <div className="text-sm text-muted-foreground text-responsive">Start monitoring a new site</div>
+                </div>
+              </button>
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
+                        onClick={() => navigate('/scans')}>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
                     <Search className="h-5 w-5" />
                   </div>
@@ -276,7 +289,8 @@ export default function Dashboard() {
                     <div className="text-sm text-muted-foreground text-responsive">Analyze your website's AI findability</div>
                   </div>
                 </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
+                        onClick={() => navigate('/ai-tests')}>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground mr-4 group-hover:scale-105 transition-transform">
                     <Zap className="h-5 w-5" />
                   </div>
@@ -285,7 +299,8 @@ export default function Dashboard() {
                     <div className="text-sm text-muted-foreground text-responsive">See how AI models respond to queries</div>
                   </div>
                 </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target">
+                <button className="group flex items-start p-4 rounded-lg border border-border hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
+                        onClick={() => navigate('/reports')}>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
                     <TrendingUp className="h-5 w-5" />
                   </div>

@@ -174,8 +174,7 @@ export default function Scans() {
           <ScansListSkeleton />
         ) : scans.length === 0 ? (
           <EmptyScans onAddClick={() => {
-            // TODO: Navigate to add site or trigger scan modal
-            console.log('Navigate to add site');
+            navigate('/onboarding');
           }} />
         ) : (
           <ComponentErrorBoundary context="Scans Table">
