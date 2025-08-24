@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.database-backup]
 verify_jwt = false
+
+[functions.alerting]
+verify_jwt = false
