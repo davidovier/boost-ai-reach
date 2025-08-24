@@ -2,14 +2,13 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 // String sanitization utilities
 const sanitizeString = (str: string) => str.trim().replace(/[<>]/g, '');
-const SanitizedStringSchema = z.string().transform(sanitizeString);
 
 // Common base schemas
 export const UUIDSchema = z.string().uuid("Invalid UUID format");
 export const EmailSchema = z.string().email("Invalid email format");
 export const URLSchema = z.string().url("Invalid URL format");
-export const NonEmptyStringSchema = SanitizedStringSchema.min(1, "Field cannot be empty");
-export const SafeStringSchema = SanitizedStringSchema.max(10000, "String too long");
+export const NonEmptyStringSchema = z.string().min(1, "Field cannot be empty").transform(sanitizeString);
+export const SafeStringSchema = z.string().max(10000, "String too long").transform(sanitizeString);
 
 // Numeric validation schemas
 export const PositiveIntegerSchema = z.coerce.number().int().min(0);
@@ -46,7 +45,7 @@ export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH',
 // Site management schemas
 export const CreateSiteSchema = z.object({
   url: URLSchema,
-  name: NonEmptyStringSchema.max(255).optional()
+  name: z.string().min(1).max(255).transform(sanitizeString).optional()
 });
 
 export const SiteIdSchema = z.object({
@@ -71,7 +70,7 @@ export const ScanQuerySchema = z.object({
 
 // Prompt schemas
 export const RunPromptSchema = z.object({
-  prompt: NonEmptyStringSchema.max(1000, "Prompt must be 1000 characters or less"),
+  prompt: z.string().min(1).max(1000, "Prompt must be 1000 characters or less").transform(sanitizeString),
   includeCompetitors: z.boolean().optional().default(false)
 });
 
@@ -88,7 +87,7 @@ export const AddCompetitorSchema = z.object({
     .min(1, "Domain cannot be empty")
     .max(255, "Domain must be 255 characters or less")
     .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format"),
-  notes: SafeStringSchema.max(1000, "Notes must be 1000 characters or less").optional()
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").transform(sanitizeString).optional()
 });
 
 export const CompetitorIdSchema = z.object({
@@ -153,7 +152,7 @@ export const OverrideUsageSchema = z.object({
 export const AdminUsersQuerySchema = z.object({
   role: RoleSchema.optional(),
   plan: PlanSchema.optional(),
-  search: SafeStringSchema.optional(),
+  search: z.string().max(10000, "String too long").transform(sanitizeString).optional(),
   limit: LimitSchema,
   page: PageSchema
 });
@@ -161,7 +160,7 @@ export const AdminUsersQuerySchema = z.object({
 export const AuditLogsQuerySchema = z.object({
   page: PageSchema,
   limit: z.coerce.number().min(1).max(100).optional().default(50),
-  action: SafeStringSchema.optional(),
+  action: z.string().max(10000, "String too long").transform(sanitizeString).optional(),
   userId: UUIDSchema.optional(),
   from: DateStringSchema.optional(),
   to: DateStringSchema.optional()
@@ -179,7 +178,7 @@ export const FeatureConfigUpdateSchema = z.object({
 
 // Billing schemas  
 export const CreateCheckoutSchema = z.object({
-  priceId: NonEmptyStringSchema.max(100, "Price ID too long"),
+  priceId: z.string().min(1).max(100, "Price ID too long").transform(sanitizeString),
   successUrl: URLSchema,
   cancelUrl: URLSchema,
   quantity: PositiveIntegerSchema.optional().default(1)
@@ -193,7 +192,7 @@ export const StripeWebhookSchema = z.object({
 
 // Profile update schemas
 export const UpdateProfileSchema = z.object({
-  name: SafeStringSchema.max(255, "Name must be 255 characters or less").optional(),
+  name: z.string().max(255, "Name must be 255 characters or less").transform(sanitizeString).optional(),
   email: EmailSchema.optional()
 });
 
@@ -205,7 +204,7 @@ export const PaginationQuerySchema = z.object({
 
 // Database backup schemas
 export const BackupQuerySchema = z.object({
-  table: SafeStringSchema.optional(),
+  table: z.string().max(10000, "String too long").transform(sanitizeString).optional(),
   format: z.enum(['json', 'csv']).optional().default('json'),
   compress: z.boolean().optional().default(false)
 });
@@ -220,8 +219,8 @@ export const JsonSchema = z.record(z.any());
 
 // File upload schemas
 export const FileUploadSchema = z.object({
-  filename: NonEmptyStringSchema.max(255),
-  contentType: NonEmptyStringSchema.max(100),
+  filename: z.string().min(1).max(255).transform(sanitizeString),
+  contentType: z.string().min(1).max(100).transform(sanitizeString),
   size: PositiveIntegerSchema.max(10 * 1024 * 1024) // 10MB max
 });
 
