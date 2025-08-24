@@ -87,14 +87,16 @@ export default function Pricing() {
     return planKeys.map((planKey, index) => {
       const planName = t(`pricing.plans.${planKey}.name`);
       const planPrice = t(`pricing.plans.${planKey}.price`);
-      const planFeatures = (t(`pricing.plans.${planKey}.features`) as unknown as string[]) || [];
+      const planFeatures = Array.isArray(t(`pricing.plans.${planKey}.features`)) 
+        ? (t(`pricing.plans.${planKey}.features`) as unknown as string[])
+        : [];
       
       return {
         '@context': 'https://schema.org',
         '@type': 'Product',
         '@id': `${pageUrl}#${planKey}-plan`,
         name: `FindableAI ${planName} Plan`,
-        description: `${planName} plan includes: ${planFeatures.join(', ')}`,
+        description: `${planName} plan includes: ${Array.isArray(planFeatures) ? planFeatures.join(', ') : 'Various features'}`,
         url: pageUrl,
         category: 'Software as a Service',
         brand: { 
@@ -203,7 +205,9 @@ export default function Pricing() {
               const planPrice = t(`pricing.plans.${planKey}.price`);
               const planPeriod = t(`pricing.plans.${planKey}.period`);
               const planCta = t(`pricing.plans.${planKey}.cta`);
-              const planFeatures = (t(`pricing.plans.${planKey}.features`) as unknown as string[]) || [];
+              const planFeatures = Array.isArray(t(`pricing.plans.${planKey}.features`)) 
+                ? (t(`pricing.plans.${planKey}.features`) as unknown as string[])
+                : [];
               const planPopular = planKey === 'pro' ? t(`pricing.plans.${planKey}.popular`) : '';
               
               return (
