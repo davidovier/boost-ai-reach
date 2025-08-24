@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle, Circle, Sparkles, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChecklistItem {
   id: string;
@@ -24,46 +25,97 @@ export function OnboardingChecklist({ onComplete, className = '' }: OnboardingCh
   const navigate = useNavigate();
   const [items, setItems] = useState<ChecklistItem[]>([]);
 
-  useEffect(() => {
-    const onboardingItems: ChecklistItem[] = [
-      {
-        id: 'welcome',
-        title: 'Welcome to FindableAI',
-        description: 'Get started with AI findability optimization',
-        completed: true
-      },
-      {
-        id: 'add_site',
-        title: 'Add Your Website',
-        description: 'Enter your website URL for analysis',
-        completed: false,
-        actionPath: '/sites'
-      },
-      {
-        id: 'run_scan',
-        title: 'Run Comprehensive Scan',
-        description: 'Deep analysis of metadata, schema, and structure',
-        completed: false,
-        actionPath: '/scans'
-      },
-      {
-        id: 'test_prompts',
-        title: 'Test AI Prompts',
-        description: 'See how AI responds to queries about your industry',
-        completed: false,
-        actionPath: '/ai-tests'
-      },
-      {
-        id: 'review_tips',
-        title: 'Review Optimization Tips',
-        description: 'Get actionable recommendations for improvement',
-        completed: false,
-        actionPath: '/scans'
-      }
-    ];
+  const checkProgress = async () => {
+    if (!user) return;
 
-    setItems(onboardingItems);
+    try {
+      // Check if user has sites
+      const { data: sites } = await supabase
+        .from('sites')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      // Check if user has scans
+      const { data: scans } = await supabase
+        .from('scans')
+        .select('id')
+        .eq('site_id', sites?.[0]?.id)
+        .limit(1);
+
+      // Check if user has prompt simulations
+      const { data: prompts } = await supabase
+        .from('prompt_simulations')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      const onboardingItems: ChecklistItem[] = [
+        {
+          id: 'welcome',
+          title: 'Welcome to FindableAI',
+          description: 'Get started with AI findability optimization',
+          completed: true
+        },
+        {
+          id: 'add_site',
+          title: 'Add Your Website',
+          description: 'Enter your website URL for analysis',
+          completed: (sites?.length || 0) > 0,
+          actionPath: '/sites'
+        },
+        {
+          id: 'run_scan',
+          title: 'Run Comprehensive Scan',
+          description: 'Deep analysis of metadata, schema, and structure',
+          completed: (scans?.length || 0) > 0,
+          actionPath: sites?.length ? `/scans?siteId=${sites[0].id}` : '/sites'
+        },
+        {
+          id: 'test_prompts',
+          title: 'Test AI Prompts',
+          description: 'See how AI responds to queries about your industry',
+          completed: (prompts?.length || 0) > 0,
+          actionPath: '/ai-tests'
+        },
+        {
+          id: 'review_tips',
+          title: 'Review Optimization Tips',
+          description: 'Get actionable recommendations for improvement',
+          completed: (scans?.length || 0) > 0,
+          actionPath: '/scans'
+        }
+      ];
+
+      setItems(onboardingItems);
+    } catch (error) {
+      console.error('Error checking onboarding progress:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkProgress();
+  }, [user]);
+
+  // Refresh progress when navigating back to onboarding page
+  useEffect(() => {
+    const handleFocus = () => checkProgress();
+    const handleOnboardingRefresh = () => checkProgress();
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('onboarding-refresh', handleOnboardingRefresh);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('onboarding-refresh', handleOnboardingRefresh);
+    };
   }, []);
+
+  // Add a method to refresh progress that can be called externally
+  useEffect(() => {
+    const interval = setInterval(checkProgress, 5000); // Check every 5 seconds
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleItemClick = async (item: ChecklistItem) => {
     // If item has an action path and isn't completed, navigate to it

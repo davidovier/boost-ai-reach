@@ -125,6 +125,9 @@ export default function Sites() {
       setUrl('');
       fetchSites();
       refresh(); // Refresh usage data
+
+      // Trigger onboarding refresh by dispatching custom event
+      window.dispatchEvent(new CustomEvent('onboarding-refresh'));
     } catch (error: any) {
       if (error.code === '23505') {
         toast({

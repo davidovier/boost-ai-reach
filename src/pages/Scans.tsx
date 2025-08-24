@@ -48,6 +48,13 @@ export default function Scans() {
   useEffect(() => {
     if (user) {
       fetchScans();
+      
+      // Check for siteId query parameter to auto-start scan
+      const urlParams = new URLSearchParams(window.location.search);
+      const siteId = urlParams.get('siteId');
+      if (siteId) {
+        handleCreateScan(siteId);
+      }
     }
   }, [user]);
 
@@ -113,6 +120,41 @@ export default function Scans() {
     setDeleting(false);
   };
 
+  const handleCreateScan = async (siteId?: string) => {
+    if (!user) return;
+    
+    try {
+      if (!siteId) {
+        // If no siteId provided, navigate to sites to select one
+        navigate('/sites');
+        return;
+      }
+
+      // Create a new scan
+      const response = await supabase.functions.invoke('create-scan', {
+        body: { siteId }
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: '✅ Scan started',
+        description: 'Your website scan is now in progress',
+        className: 'success-animation'
+      });
+
+      // Refresh scans list
+      fetchScans();
+    } catch (error) {
+      console.error('Error creating scan:', error);
+      toast({
+        title: 'Failed to start scan',
+        description: 'Could not start the scan. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const confirmDeleteScan = async () => {
     if (!deleteDialog.scan) return;
     
@@ -164,7 +206,10 @@ export default function Scans() {
               Monitor your website's AI findability scores and optimization progress
             </p>
           </div>
-          <Button className="w-full sm:w-auto min-h-[44px] btn-focus touch-target interactive btn-responsive">
+          <Button 
+            onClick={() => handleCreateScan()}
+            className="w-full sm:w-auto min-h-[44px] btn-focus touch-target interactive btn-responsive"
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Scan
           </Button>
@@ -174,7 +219,7 @@ export default function Scans() {
           <ScansListSkeleton />
         ) : scans.length === 0 ? (
           <EmptyScans onAddClick={() => {
-            navigate('/onboarding');
+            navigate('/sites');
           }} />
         ) : (
           <ComponentErrorBoundary context="Scans Table">
