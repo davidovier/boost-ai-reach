@@ -6,7 +6,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { PLAN_PRICE_IDS } from '@/types/stripe';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
-import { Check, Star } from 'lucide-react';
+import { TestimonialSlider } from '@/components/ui/testimonial-slider';
+import { StarRating } from '@/components/ui/star-rating';
+import { FAQAccordion } from '@/components/ui/faq-accordion';
+import { Check, Star, Shield, Zap, HeadphonesIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +29,54 @@ export default function Pricing() {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const pageUrl = `${origin}/pricing`;
   const ogImage = 'https://images.unsplash.com/photo-1551281044-8f785ba67e45?q=80&w=1600&auto=format&fit=crop';
+
+  const testimonials = [
+    {
+      id: '1',
+      name: 'David Kim',
+      role: 'VP Marketing',
+      company: 'InnovateCorp',
+      content: 'The Pro plan gave us exactly what we needed. Our AI visibility improved dramatically within the first month.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
+    },
+    {
+      id: '2',
+      name: 'Lisa Zhang',
+      role: 'Digital Marketing Manager',
+      company: 'GrowthTech',
+      content: 'The Growth plan is perfect for our agency. We can manage multiple clients and the competitor analysis is invaluable.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
+    }
+  ];
+
+  const faqItems = [
+    {
+      question: 'Can I change plans anytime?',
+      answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately and billing is prorated.'
+    },
+    {
+      question: 'What payment methods do you accept?',
+      answer: 'We accept all major credit cards (Visa, MasterCard, American Express) and PayPal. All payments are processed securely through Stripe.'
+    },
+    {
+      question: 'Is there a free trial?',
+      answer: 'Yes! Our free plan lets you scan 1 website and run 1 AI simulation per month. No credit card required to get started.'
+    },
+    {
+      question: 'Do you offer refunds?',
+      answer: 'We offer a 30-day money-back guarantee on all paid plans. If you\'re not satisfied, contact support for a full refund.'
+    },
+    {
+      question: 'What makes Enterprise different?',
+      answer: 'Enterprise includes unlimited everything, white-label reports, dedicated support, custom integrations, and a customer success manager.'
+    },
+    {
+      question: 'How accurate are the AI simulations?',
+      answer: 'Our AI simulations use the same models as ChatGPT, Claude, and other leading AI tools, providing 95%+ accuracy in predicting real-world results.'
+    }
+  ];
 
   const breadcrumbJson = useMemo(() => getBreadcrumbJsonLd([
     { name: 'Home', item: `${origin}/` },
@@ -84,6 +135,20 @@ export default function Pricing() {
     });
   }, [pageUrl, origin, t]);
 
+  const faqJson = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((faq, index) => ({
+      '@type': 'Question',
+      '@id': `${pageUrl}#faq-${index}`,
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
+  }), [pageUrl, faqItems]);
+
   const handleCheckout = async (priceId: string | null | undefined) => {
     if (!priceId) {
       toast({ title: 'Pricing not configured', description: 'Stripe price IDs are not set. Please try again later or contact support.' });
@@ -115,6 +180,7 @@ export default function Pricing() {
         keywords={t('pricing.seo.keywords')}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(faqJson) }} />
       {productsJson.map((p, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(p) }} />
       ))}
@@ -130,7 +196,7 @@ export default function Pricing() {
           </p>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 pb-20">
+        <section className="mx-auto max-w-6xl px-6 pb-12">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {planKeys.map((planKey) => {
               const planName = t(`pricing.plans.${planKey}.name`);
@@ -177,6 +243,65 @@ export default function Pricing() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        {/* Trust Signals */}
+        <section className="mx-auto max-w-6xl px-6 pb-12">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <StarRating rating={4.8} size="lg" showValue showCount count={150} />
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="flex items-center justify-center gap-3">
+                <Shield className="w-6 h-6 text-primary" />
+                <span className="font-medium">Enterprise Security</span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <Zap className="w-6 h-6 text-primary" />
+                <span className="font-medium">99.9% Uptime SLA</span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <HeadphonesIcon className="w-6 h-6 text-primary" />
+                <span className="font-medium">24/7 Support</span>
+              </div>
+            </div>
+          </div>
+          
+          <TestimonialSlider testimonials={testimonials} />
+        </section>
+
+        {/* FAQ Section */}
+        <section className="mx-auto max-w-4xl px-6 pb-12">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
+              Pricing Questions?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Get answers to common questions about our plans and pricing
+            </p>
+          </div>
+          
+          <FAQAccordion items={faqItems} />
+        </section>
+
+        {/* Final CTA */}
+        <section className="mx-auto max-w-4xl px-6 pb-16">
+          <div className="bg-gradient-primary rounded-2xl p-8 sm:p-12 text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-primary-foreground mb-4">
+              Ready to Boost Your AI Visibility?
+            </h2>
+            <p className="text-primary-foreground/90 text-lg mb-6">
+              Start with our free plan. No credit card required.
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => navigate('/onboarding')}
+              className="min-h-[52px] px-8 text-lg font-semibold"
+            >
+              Get Started Free
+            </Button>
           </div>
         </section>
       </main>

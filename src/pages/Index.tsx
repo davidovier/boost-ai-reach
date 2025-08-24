@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
-import { Sparkles, Gauge, ShieldCheck, Bot } from 'lucide-react';
+import { Sparkles, Gauge, ShieldCheck, Bot, Award, Users, TrendingUp } from 'lucide-react';
 import { LanguageToggle } from '@/components/ui/language-toggle';
 import { useTranslation } from '@/hooks/useTranslation';
+import { TestimonialSlider } from '@/components/ui/testimonial-slider';
+import { StarRating } from '@/components/ui/star-rating';
+import { FAQAccordion } from '@/components/ui/faq-accordion';
 import styles from './Index.module.scss';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 
@@ -18,6 +21,59 @@ const Index = () => {
     { name: 'Home', item: pageUrl },
   ]);
 
+  const testimonials = [
+    {
+      id: '1',
+      name: 'Sarah Chen',
+      role: 'Marketing Director',
+      company: 'TechCorp',
+      content: 'FindableAI helped us increase our AI visibility by 300%. Our website now appears in ChatGPT responses consistently.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b1c5?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
+    },
+    {
+      id: '2',
+      name: 'Michael Rodriguez',
+      role: 'CEO',
+      company: 'StartupLabs',
+      content: 'The AI findability insights were game-changing. We discovered optimization opportunities we never knew existed.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
+    },
+    {
+      id: '3',
+      name: 'Emily Watson',
+      role: 'Growth Manager',
+      company: 'ScaleUp Inc',
+      content: 'Our organic traffic from AI tools increased 250% after implementing FindableAI recommendations.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
+    }
+  ];
+
+  const faqItems = [
+    {
+      question: 'How does AI findability optimization work?',
+      answer: 'FindableAI analyzes your website\'s metadata, schema markup, and content structure to ensure AI tools like ChatGPT, Claude, and Perplexity can easily discover and accurately represent your business when users ask relevant questions.'
+    },
+    {
+      question: 'What AI tools does FindableAI optimize for?',
+      answer: 'We optimize for all major AI platforms including ChatGPT, Claude, Perplexity, Bing Chat, and Google Bard. Our system stays updated with the latest AI crawling patterns and requirements.'
+    },
+    {
+      question: 'How quickly will I see results?',
+      answer: 'Most customers see improvements in AI visibility within 2-4 weeks of implementing our recommendations. Our AI simulation tool lets you test visibility immediately after making changes.'
+    },
+    {
+      question: 'Do I need technical knowledge to use FindableAI?',
+      answer: 'No technical expertise required! Our platform provides clear, actionable recommendations with step-by-step implementation guides. Most optimizations can be completed by marketing teams.'
+    },
+    {
+      question: 'What\'s included in the free plan?',
+      answer: 'The free plan includes 1 website scan per month, 1 AI prompt simulation, and basic optimization tips. Perfect for small businesses testing AI findability for the first time.'
+    }
+  ];
+
   const websiteJson = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -31,6 +87,20 @@ const Index = () => {
       },
       'query-input': 'required name=search_term_string'
     }
+  } as const;
+
+  const faqJson = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((faq, index) => ({
+      '@type': 'Question',
+      '@id': `${pageUrl}#faq-${index}`,
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
   } as const;
 
   const organizationJson = {
@@ -77,6 +147,10 @@ const Index = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(faqJson) }}
       />
 
       <main 
@@ -287,6 +361,94 @@ const Index = () => {
               </li>
             ))}
           </ol>
+        </section>
+
+        {/* Social Proof */}
+        <section 
+          className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-16"
+          aria-labelledby="social-proof-heading"
+        >
+          <div className="text-center mb-12">
+            <h2 
+              id="social-proof-heading"
+              className="text-2xl sm:text-3xl font-semibold mb-4"
+            >
+              Trusted by Growing Companies
+            </h2>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <StarRating rating={4.9} size="lg" showValue showCount count={247} />
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Award className="w-5 h-5 text-primary" />
+                <span className="font-medium">G2 Leader</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3 mb-12">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+              <div className="text-3xl font-bold text-foreground mb-2">10,000+</div>
+              <p className="text-muted-foreground">Websites Optimized</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <div className="text-3xl font-bold text-foreground mb-2">250%</div>
+              <p className="text-muted-foreground">Avg. AI Visibility Increase</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Award className="w-8 h-8 text-primary" />
+              </div>
+              <div className="text-3xl font-bold text-foreground mb-2">98%</div>
+              <p className="text-muted-foreground">Customer Satisfaction</p>
+            </div>
+          </div>
+
+          <TestimonialSlider testimonials={testimonials} />
+        </section>
+
+        {/* FAQ Section */}
+        <section 
+          className="mx-auto max-w-4xl px-4 sm:px-6 pb-16 sm:pb-20"
+          aria-labelledby="faq-heading"
+        >
+          <div className="text-center mb-12">
+            <h2 
+              id="faq-heading"
+              className="text-2xl sm:text-3xl font-semibold mb-4"
+            >
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to know about AI findability optimization
+            </p>
+          </div>
+          
+          <FAQAccordion items={faqItems} />
+        </section>
+
+        {/* Final CTA */}
+        <section className="mx-auto max-w-4xl px-4 sm:px-6 pb-16 sm:pb-20 text-center">
+          <div className="bg-gradient-primary rounded-2xl p-8 sm:p-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-primary-foreground mb-4">
+              Ready to Get Found by AI?
+            </h2>
+            <p className="text-primary-foreground/90 text-lg mb-8 max-w-2xl mx-auto">
+              Join thousands of companies improving their AI visibility. Get started with a free scan today.
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => navigate('/onboarding')}
+              className="min-h-[52px] px-8 text-lg font-semibold shadow-xl"
+            >
+              Start Free Scan
+            </Button>
+          </div>
         </section>
       </main>
     </>

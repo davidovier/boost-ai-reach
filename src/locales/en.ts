@@ -7,13 +7,13 @@ export default {
       keywords: "AI SEO, AI findability, brand optimization, website analysis, competitive analysis"
     },
     hero: {
-      announcement: "New: AI Findability Score 2.0",
-      heading: "Optimize your brand for",
-      headingHighlight: "AI discovery",
-      description: "Run a free scan, simulate AI prompts, and get step-by-step fixes that improve how models and agents surface your content.",
-      ctaPrimary: "Run a free scan",
-      ctaSecondary: "Sign in",
-      trustBar: "Trusted by teams at leading companies"
+      announcement: "🚀 New: AI Prompt Simulation",
+      heading: "Make Your Website",
+      headingHighlight: "AI Discoverable",
+      description: "Optimize your website for AI tools like ChatGPT, Claude, and Perplexity. Get discovered when users ask AI about your industry.",
+      ctaPrimary: "Start Free Scan",
+      ctaSecondary: "Sign In",
+      trustBar: "Trusted by innovative companies worldwide"
     },
     features: {
       heading: "What you get",
