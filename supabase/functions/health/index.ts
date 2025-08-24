@@ -28,8 +28,17 @@ serve(async (req) => {
     const requiredEnvs = [
       'SUPABASE_URL',
       'SUPABASE_ANON_KEY', 
-      'SUPABASE_SERVICE_ROLE_KEY'
+      'SUPABASE_SERVICE_ROLE_KEY',
+      'SUPABASE_DB_URL'
     ];
+
+    // Optional but recommended environment variables
+    const optionalEnvs = [
+      'STRIPE_SECRET_KEY',
+      'OPENAI_API_KEY'
+    ];
+
+    const missingOptional = optionalEnvs.filter(env => !Deno.env.get(env));
 
     const missingEnvs = requiredEnvs.filter(env => !Deno.env.get(env));
     
@@ -49,11 +58,22 @@ serve(async (req) => {
       );
     }
 
+    // Log warnings for missing optional env vars (don't fail)
+    if (missingOptional.length > 0) {
+      console.warn(`Missing optional environment variables: ${missingOptional.join(', ')}`);
+    }
+
     // Health check response
     const response = {
       status: 'ok',
       time: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
+      services: {
+        database: true,
+        stripe: !!Deno.env.get('STRIPE_SECRET_KEY'),
+        openai: !!Deno.env.get('OPENAI_API_KEY')
+      },
+      warnings: missingOptional.length > 0 ? `Missing optional: ${missingOptional.join(', ')}` : null
     };
 
     return new Response(
