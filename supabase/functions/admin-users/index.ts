@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/role-middleware.ts";
+import { checkRateLimit, createRateLimitResponse, getClientIP, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,6 +39,22 @@ serve(async (req) => {
 
     // Use service role key for admin operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Apply IP-based rate limiting for admin routes
+    const clientIP = getClientIP(req);
+    const isHeavyOperation = req.url.includes('/analytics') || req.url.includes('/audit-logs');
+    const rateLimitConfig = isHeavyOperation ? RATE_LIMITS.ADMIN_HEAVY_PER_IP : RATE_LIMITS.ADMIN_PER_IP;
+    
+    const rateLimitResult = await checkRateLimit(
+      supabase,
+      `ip:${clientIP}`,
+      rateLimitConfig
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
     const url = new URL(req.url);
     const pathSegments = url.pathname.split('/').filter(Boolean);
 

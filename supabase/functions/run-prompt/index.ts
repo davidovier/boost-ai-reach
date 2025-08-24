@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -180,6 +181,17 @@ serve(async (req) => {
   }
 
   try {
+    // Check rate limit for prompts
+    const rateLimitResult = await checkRateLimit(
+      supabase,
+      user.id,
+      RATE_LIMITS.PROMPTS_PER_USER
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
     // Parse request body
     const body = await req.json().catch(() => null);
     const prompt: string | undefined = body?.prompt;

@@ -4,6 +4,7 @@ import { enforceLimit } from "../_shared/limits.ts";
 import { validateUrl, getBaseDomain } from "../_shared/url-validator.ts";
 import { extractMetadata, checkRobotsTxt, checkSitemap, ScanResult } from "../_shared/metadata-extractor.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,6 +51,16 @@ serve(async (req) => {
   console.log("create-scan invoked by user:", user.id);
 
   try {
+    // Check rate limit for scans
+    const rateLimitResult = await checkRateLimit(
+      supabase,
+      user.id,
+      RATE_LIMITS.SCANS_PER_USER
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
     // Parse and validate input
     const body = await req.json();
     const { siteId, url } = body;

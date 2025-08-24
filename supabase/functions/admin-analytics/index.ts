@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireRole } from "../_shared/role-middleware.ts";
+import { checkRateLimit, createRateLimitResponse, getClientIP, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,16 +28,30 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase client first for rate limiting
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Apply IP-based rate limiting (analytics is a heavy operation)
+    const clientIP = getClientIP(req);
+    const rateLimitResult = await checkRateLimit(
+      supabase,
+      `ip:${clientIP}`,
+      RATE_LIMITS.ADMIN_HEAVY_PER_IP
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
     // Check admin role
     const roleCheck = await requireRole(req, ['admin']);
     if (!roleCheck.success) {
       return roleCheck.response;
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Supabase client already initialized above for rate limiting
 
     // Parse query parameters
     const url = new URL(req.url);
