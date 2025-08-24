@@ -262,29 +262,41 @@ export type Database = {
       reports: {
         Row: {
           created_at: string
+          error_message: string | null
           id: string
+          last_attempted_at: string | null
           pdf_url: string | null
           period_end: string | null
           period_start: string | null
+          retry_count: number
           site_id: string | null
+          status: Database["public"]["Enums"]["report_status"]
           user_id: string
         }
         Insert: {
           created_at?: string
+          error_message?: string | null
           id?: string
+          last_attempted_at?: string | null
           pdf_url?: string | null
           period_end?: string | null
           period_start?: string | null
+          retry_count?: number
           site_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
           user_id: string
         }
         Update: {
           created_at?: string
+          error_message?: string | null
           id?: string
+          last_attempted_at?: string | null
           pdf_url?: string | null
           period_end?: string | null
           period_start?: string | null
+          retry_count?: number
           site_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
           user_id?: string
         }
         Relationships: [
@@ -571,6 +583,7 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "manager" | "admin"
+      report_status: "queued" | "running" | "success" | "failed"
       subscription_plan: "free" | "pro" | "growth" | "enterprise"
       subscription_status:
         | "active"
@@ -708,6 +721,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "manager", "admin"],
+      report_status: ["queued", "running", "success", "failed"],
       subscription_plan: ["free", "pro", "growth", "enterprise"],
       subscription_status: [
         "active",

@@ -239,25 +239,53 @@ async function processReportGeneration(
   try {
     console.log(`Processing report generation: ${reportId} for user ${userId}`);
     
+    // Update status to running
+    await adminClient
+      .from("reports")
+      .update({ 
+        status: 'running',
+        last_attempted_at: new Date().toISOString()
+      })
+      .eq("id", reportId);
+    
     // Use admin client to bypass RLS for data fetching
     const result = await buildReportForUserSite(adminClient, reportId, userId, siteId);
     
     if ('error' in result) {
       console.error(`Report generation failed: ${result.error}`, result.details);
+      
       // Update report status to failed
       await adminClient
         .from("reports")
-        .update({ pdf_url: null })
+        .update({ 
+          status: 'failed',
+          error_message: result.details || result.error,
+          pdf_url: null
+        })
         .eq("id", reportId);
     } else {
       console.log(`Report generated successfully: ${reportId}`);
+      
+      // Update status to success
+      await adminClient
+        .from("reports")
+        .update({ 
+          status: 'success',
+          error_message: null
+        })
+        .eq("id", reportId);
     }
   } catch (error) {
     console.error(`Report generation error: ${reportId}`, error);
+    
     // Update report status to failed
     await adminClient
       .from("reports")
-      .update({ pdf_url: null })
+      .update({ 
+        status: 'failed',
+        error_message: error instanceof Error ? error.message : String(error),
+        pdf_url: null
+      })
       .eq("id", reportId);
   }
 }
@@ -413,7 +441,7 @@ serve(async (req) => {
       // Get report metadata
       const { data: report, error: reportErr } = await userClient
         .from("reports")
-        .select("id, user_id, site_id, period_start, period_end, pdf_url, created_at")
+        .select("id, user_id, site_id, period_start, period_end, pdf_url, status, error_message, retry_count, created_at")
         .eq("id", reportId)
         .maybeSingle();
 
@@ -428,7 +456,7 @@ serve(async (req) => {
 
       // Generate signed URL if report has file
       let downloadUrl = null;
-      if (report.pdf_url) {
+      if (report.pdf_url && report.status === 'success') {
         const { data: signedUrl, error: signedErr } = await adminClient.storage
           .from("reports")
           .createSignedUrl(report.pdf_url, 3600); // 1 hour expiry
@@ -448,8 +476,94 @@ serve(async (req) => {
           period_start: report.period_start,
           period_end: report.period_end,
           created_at: report.created_at,
-          status: report.pdf_url ? 'completed' : 'processing',
+          status: report.status,
+          error_message: report.error_message,
+          retry_count: report.retry_count,
           download_url: downloadUrl
+        }
+      });
+    }
+
+    // POST /api/reports/retry/:id - Retry failed report (admin only)
+    if (req.method === "POST" && pathSegments.includes('retry')) {
+      const reportId = pathSegments[pathSegments.length - 1];
+      if (!reportId) {
+        return jsonResponse({ error: "Missing report ID in URL" }, { status: 400 });
+      }
+
+      const { data: { user }, error: userErr } = await userClient.auth.getUser();
+      if (userErr || !user) {
+        return jsonResponse({ error: "Not authenticated" }, { status: 401 });
+      }
+
+      // Check if user is admin
+      const { data: profile, error: profileErr } = await userClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profileErr || profile?.role !== 'admin') {
+        return jsonResponse({ error: "Admin access required" }, { status: 403 });
+      }
+
+      console.log(`POST /api/reports/retry/${reportId} by admin ${user.id}`);
+
+      // Get report to check current status and ownership
+      const { data: report, error: reportErr } = await adminClient
+        .from("reports")
+        .select("id, user_id, site_id, status, retry_count")
+        .eq("id", reportId)
+        .maybeSingle();
+
+      if (reportErr) {
+        console.error("Error fetching report for retry:", reportErr);
+        return jsonResponse({ error: "Failed to load report" }, { status: 500 });
+      }
+
+      if (!report) {
+        return jsonResponse({ error: "Report not found" }, { status: 404 });
+      }
+
+      if (report.status !== 'failed') {
+        return jsonResponse({ 
+          error: "Only failed reports can be retried",
+          current_status: report.status 
+        }, { status: 400 });
+      }
+
+      // Update report status to queued and increment retry count
+      const { error: updateErr } = await adminClient
+        .from("reports")
+        .update({ 
+          status: 'queued',
+          retry_count: (report.retry_count || 0) + 1,
+          error_message: null,
+          pdf_url: null
+        })
+        .eq("id", reportId);
+
+      if (updateErr) {
+        console.error("Error updating report for retry:", updateErr);
+        return jsonResponse({ error: "Failed to queue retry" }, { status: 500 });
+      }
+
+      // Queue background job for PDF generation retry
+      const reportGenerationPromise = processReportGeneration(adminClient, reportId, report.user_id, report.site_id);
+      
+      reportGenerationPromise.catch(error => {
+        console.error(`Background report retry failed for ${reportId}:`, error);
+      });
+
+      console.log(`Report retry queued: ${reportId} (attempt ${(report.retry_count || 0) + 1})`);
+
+      return jsonResponse({
+        success: true,
+        report: {
+          id: reportId,
+          status: 'queued',
+          retry_count: (report.retry_count || 0) + 1,
+          message: 'Report retry has been queued. Check back in a few minutes.'
         }
       });
     }
@@ -484,6 +598,7 @@ serve(async (req) => {
           site_id: siteId || null, 
           period_start, 
           period_end, 
+          status: 'queued',
           pdf_url: null // Will be updated when generation completes
         })
         .select("id")
@@ -509,7 +624,7 @@ serve(async (req) => {
         success: true,
         report: {
           id: reportRecord.id,
-          status: 'processing',
+          status: 'queued',
           message: 'Report generation has been queued. Check back in a few minutes.'
         }
       });
