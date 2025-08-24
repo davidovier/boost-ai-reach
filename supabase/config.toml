@@ -29,3 +29,6 @@ verify_jwt = true
 
 [functions.billing-checkout]
 verify_jwt = true
+
+[functions.limits-demo]
+verify_jwt = false
