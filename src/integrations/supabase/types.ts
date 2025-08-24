@@ -344,6 +344,30 @@ export type Database = {
           },
         ]
       }
+      security_config_status: {
+        Row: {
+          configuration_item: string
+          id: number
+          required_action: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          configuration_item: string
+          id?: number
+          required_action: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          configuration_item?: string
+          id?: number
+          required_action?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           created_at: string
