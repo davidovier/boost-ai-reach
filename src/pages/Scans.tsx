@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton-enhanced';
 import { ActionTooltip } from '@/components/ui/tooltip';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Scan {
   id: string;
@@ -102,7 +103,7 @@ export default function Scans() {
   };
 
   return (
-    <>
+    <PageErrorBoundary context="Website Scans">
       <SEO 
         title="Website Scans - FindableAI"
         description="View and manage your website scan results, AI findability scores, and optimization recommendations."
@@ -162,7 +163,7 @@ export default function Scans() {
             </CardContent>
           </Card>
         ) : (
-          <>
+          <ComponentErrorBoundary context="Scans Table">
             {/* Desktop Table View */}
             <div className="overflow-x-auto">
               <table className="enhanced-table" role="table" aria-label="Website scans data">
@@ -344,9 +345,9 @@ export default function Scans() {
                 </div>
               ))}
             </div>
-          </>
+          </ComponentErrorBoundary>
         )}
       </div>
-    </>
+    </PageErrorBoundary>
   );
 }

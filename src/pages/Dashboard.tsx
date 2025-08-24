@@ -8,6 +8,8 @@ import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Sparkline, ProgressArc } from '@/components/ui/sparkline';
 import { Activity, TrendingUp, Zap, Search } from 'lucide-react';
+import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
+import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 
 interface ActivityItem {
   id: string;
@@ -79,7 +81,7 @@ export default function Dashboard() {
   };
 
   return (
-    <>
+    <PageErrorBoundary context="Dashboard">
       <SEO 
         title="Dashboard - FindableAI"
         description="Monitor your AI findability optimization progress with real-time analytics and insights."
@@ -99,157 +101,166 @@ export default function Dashboard() {
           </p>
         </header>
 
+        {/* Error Test Section (Development Only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <ErrorTestTrigger className="mb-6" />
+        )}
+
         {/* KPI Cards */}
-        <section aria-labelledby="kpi-heading" className="card-mobile">
-          <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {/* AI Findability Score */}
-            <div className="kpi-card animate-fade-in">
-              <div className="kpi-header">
-                <div className="kpi-icon">
-                  <Search className="h-5 w-5" />
+        <ComponentErrorBoundary context="KPI Cards">
+          <section aria-labelledby="kpi-heading" className="card-mobile">
+            <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {/* AI Findability Score */}
+              <div className="kpi-card animate-fade-in">
+                <div className="kpi-header">
+                  <div className="kpi-icon">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <div className="kpi-trend positive">
+                    <TrendingUp className="h-4 w-4" />
+                    +5%
+                  </div>
                 </div>
-                <div className="kpi-trend positive">
-                  <TrendingUp className="h-4 w-4" />
-                  +5%
+                <div className="kpi-value">
+                  <AnimatedCounter value={87} />
+                </div>
+                <div className="kpi-label">AI Findability Score</div>
+                <div className="kpi-chart">
+                  <Sparkline 
+                    data={[65, 70, 68, 75, 82, 79, 87]} 
+                    width={120} 
+                    height={40}
+                  />
                 </div>
               </div>
-              <div className="kpi-value">
-                <AnimatedCounter value={87} />
-              </div>
-              <div className="kpi-label">AI Findability Score</div>
-              <div className="kpi-chart">
-                <Sparkline 
-                  data={[65, 70, 68, 75, 82, 79, 87]} 
-                  width={120} 
-                  height={40}
-                />
-              </div>
-            </div>
 
-            {/* Total Sites */}
-            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="kpi-header">
-                <div className="kpi-icon">
-                  <Activity className="h-5 w-5" />
+              {/* Total Sites */}
+              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <div className="kpi-header">
+                  <div className="kpi-icon">
+                    <Activity className="h-5 w-5" />
+                  </div>
+                  <div className="kpi-trend positive">
+                    <TrendingUp className="h-4 w-4" />
+                    +12%
+                  </div>
                 </div>
-                <div className="kpi-trend positive">
-                  <TrendingUp className="h-4 w-4" />
-                  +12%
+                <div className="kpi-value">
+                  <AnimatedCounter value={24} />
+                </div>
+                <div className="kpi-label">Total Sites</div>
+                <div className="kpi-chart">
+                  <ProgressArc percentage={75} size={60} />
                 </div>
               </div>
-              <div className="kpi-value">
-                <AnimatedCounter value={24} />
-              </div>
-              <div className="kpi-label">Total Sites</div>
-              <div className="kpi-chart">
-                <ProgressArc percentage={75} size={60} />
-              </div>
-            </div>
 
-            {/* AI Tests */}
-            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="kpi-header">
-                <div className="kpi-icon">
-                  <Zap className="h-5 w-5" />
+              {/* AI Tests */}
+              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <div className="kpi-header">
+                  <div className="kpi-icon">
+                    <Zap className="h-5 w-5" />
+                  </div>
+                  <div className="kpi-trend neutral">
+                    {subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}
+                  </div>
                 </div>
-                <div className="kpi-trend neutral">
-                  {subscription?.usage?.prompt_count || 0} / {subscription?.limits?.max_prompts || 1}
+                <div className="kpi-value">
+                  <AnimatedCounter value={subscription?.usage?.prompt_count || 0} />
+                </div>
+                <div className="kpi-label">AI Tests Run</div>
+                <div className="kpi-chart">
+                  <ProgressArc 
+                    percentage={Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)} 
+                    size={60} 
+                  />
                 </div>
               </div>
-              <div className="kpi-value">
-                <AnimatedCounter value={subscription?.usage?.prompt_count || 0} />
-              </div>
-              <div className="kpi-label">AI Tests Run</div>
-              <div className="kpi-chart">
-                <ProgressArc 
-                  percentage={Math.min(100, ((subscription?.usage?.prompt_count || 0) / (subscription?.limits?.max_prompts || 1)) * 100)} 
-                  size={60} 
-                />
-              </div>
-            </div>
 
-            {/* Last Scan Status */}
-            <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div className="kpi-header">
-                <div className="kpi-icon">
-                  <TrendingUp className="h-5 w-5" />
+              {/* Last Scan Status */}
+              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <div className="kpi-header">
+                  <div className="kpi-icon">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <div className="kpi-trend positive">
+                    2hrs ago
+                  </div>
                 </div>
-                <div className="kpi-trend positive">
-                  2hrs ago
+                <div className="kpi-value">
+                  Active
                 </div>
-              </div>
-              <div className="kpi-value">
-                Active
-              </div>
-              <div className="kpi-label">Last Scan Status</div>
-              <div className="kpi-chart">
-                <Sparkline 
-                  data={[40, 65, 45, 70, 85, 90, 95]} 
-                  width={120} 
-                  height={40}
-                />
+                <div className="kpi-label">Last Scan Status</div>
+                <div className="kpi-chart">
+                  <Sparkline 
+                    data={[40, 65, 45, 70, 85, 90, 95]} 
+                    width={120} 
+                    height={40}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ComponentErrorBoundary>
 
         {/* Recent Activity */}
-        <section aria-labelledby="activity-heading" className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <div className="card-dashboard">
-            <div className="card-header">
-              <h3 id="activity-heading">Recent Activity</h3>
-              <p>Your latest scans, tests, and reports</p>
-            </div>
-            <div className="card-content">
-              {activitiesLoading ? (
-                <div className="space-y-3 sm:space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-3 sm:space-x-4">
-                      <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-full" />
-                      <div className="space-y-2 flex-1">
-                        <Skeleton className="h-3 sm:h-4 w-3/4" />
-                        <Skeleton className="h-2 sm:h-3 w-1/2" />
+        <ComponentErrorBoundary context="Recent Activity">
+          <section aria-labelledby="activity-heading" className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="card-dashboard">
+              <div className="card-header">
+                <h3 id="activity-heading">Recent Activity</h3>
+                <p>Your latest scans, tests, and reports</p>
+              </div>
+              <div className="card-content">
+                {activitiesLoading ? (
+                  <div className="space-y-3 sm:space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center space-x-3 sm:space-x-4">
+                        <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-full" />
+                        <div className="space-y-2 flex-1">
+                          <Skeleton className="h-3 sm:h-4 w-3/4" />
+                          <Skeleton className="h-2 sm:h-3 w-1/2" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : activities.length > 0 ? (
-                <ul className="space-y-4" role="list">
-                  {activities.map((activity, index) => (
-                    <li 
-                      key={activity.id} 
-                      className="flex items-center space-x-4 p-3 rounded-lg hover:bg-secondary/50 transition-colors animate-fade-in"
-                      style={{ animationDelay: `${0.5 + index * 0.1}s` }}
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary shadow-sm text-primary-foreground">
-                        {getActivityIcon(activity.type)}
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {activity.title}
-                        </p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          {activity.timestamp} • {getStatusBadge(activity.status)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="text-center py-8 sm:py-12">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-secondary mx-auto mb-4">
-                    <Activity className="h-8 w-8 text-muted-foreground" />
+                    ))}
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No activity yet</h3>
-                  <p className="text-muted-foreground">
-                    Start by scanning your first website or running an AI test.
-                  </p>
-                </div>
-              )}
+                ) : activities.length > 0 ? (
+                  <ul className="space-y-4" role="list">
+                    {activities.map((activity, index) => (
+                      <li 
+                        key={activity.id} 
+                        className="flex items-center space-x-4 p-3 rounded-lg hover:bg-secondary/50 transition-colors animate-fade-in"
+                        style={{ animationDelay: `${0.5 + index * 0.1}s` }}
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary shadow-sm text-primary-foreground">
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {activity.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                            {activity.timestamp} • {getStatusBadge(activity.status)}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-center py-8 sm:py-12">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-secondary mx-auto mb-4">
+                      <Activity className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No activity yet</h3>
+                    <p className="text-muted-foreground">
+                      Start by scanning your first website or running an AI test.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ComponentErrorBoundary>
 
         {/* Additional Actions */}
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 spacing-mobile">
@@ -355,6 +366,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </>
+    </PageErrorBoundary>
   );
 }

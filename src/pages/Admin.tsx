@@ -12,6 +12,7 @@ import { SEO } from '@/components/SEO';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home, Settings } from 'lucide-react';
 import { SkipLink } from '@/components/ui/skip-link';
+import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 
 function AdminPage() {
   const [params] = useSearchParams();
@@ -34,7 +35,7 @@ function AdminPage() {
   }, []);
 
   return (
-    <>
+    <PageErrorBoundary context="Admin Panel">
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       
       <SEO 
@@ -94,16 +95,18 @@ function AdminPage() {
         {/* Main content with premium card styling */}
         <main id="main-content" className="admin-main" role="main">
           <div className="admin-content-card">
-            {tab === 'users' && <UsersTab />}
-            {tab === 'usage' && <UsageTab />}
-            {tab === 'reports' && <ReportsTab />}
-            {tab === 'dashboard' && <DashboardConfigTab />}
-            {tab === 'logs' && <AuditLogsTab />}
-            {tab === 'billing' && <BillingTab />}
+            <ComponentErrorBoundary context={`Admin ${getTabDisplayName(tab)} Tab`}>
+              {tab === 'users' && <UsersTab />}
+              {tab === 'usage' && <UsageTab />}
+              {tab === 'reports' && <ReportsTab />}
+              {tab === 'dashboard' && <DashboardConfigTab />}
+              {tab === 'logs' && <AuditLogsTab />}
+              {tab === 'billing' && <BillingTab />}
+            </ComponentErrorBoundary>
           </div>
         </main>
       </div>
-    </>
+    </PageErrorBoundary>
   );
 }
 
