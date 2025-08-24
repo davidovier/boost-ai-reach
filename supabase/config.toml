@@ -44,3 +44,6 @@ verify_jwt = true
 
 [functions.user-signup-logger]
 verify_jwt = false
+
+[functions.database-backup]
+verify_jwt = false
