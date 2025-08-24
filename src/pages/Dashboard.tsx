@@ -16,6 +16,7 @@ import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { InviteFriend } from '@/components/referral/InviteFriend';
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { format } from 'date-fns';
 
 interface ActivityItem {
@@ -291,15 +292,22 @@ export default function Dashboard() {
           <UsageLimitBanner warnings={getNearLimitWarnings()} />
         )}
 
-        {/* Error Test Section (Development Only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <ErrorTestTrigger className="mb-6" />
+        {/* Onboarding Guide for New Users */}
+        {metrics.totalSites === 0 && !metricsLoading && (
+          <div className="animate-fade-in">
+            <OnboardingChecklist className="mb-6" />
+          </div>
         )}
 
-        {/* KPI Cards */}
-        <ComponentErrorBoundary context="KPI Cards">
+        {/* Performance Overview */}
+        <ComponentErrorBoundary context="Performance Overview">
           <section aria-labelledby="kpi-heading" className="card-mobile">
-            <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
+            <div className="mb-6">
+              <h2 id="kpi-heading" className="text-lg font-semibold text-foreground mb-2">Performance Overview</h2>
+              <p className="text-sm text-muted-foreground">
+                Track your website's AI findability and optimization progress. These metrics show how well AI tools can discover and understand your content.
+              </p>
+            </div>
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
               {/* AI Findability Score */}
               <div className="kpi-card animate-fade-in">
@@ -328,6 +336,9 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="kpi-label">AI Findability Score</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  How well AI can find and understand your content
+                </div>
                 <div className="kpi-chart">
                   {metricsLoading ? (
                     <Skeleton className="h-10 w-30" />
@@ -365,6 +376,9 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="kpi-label">Websites Added</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Number of websites you're monitoring
+                </div>
                 <div className="kpi-chart">
                   {metricsLoading ? (
                     <Skeleton className="h-15 w-15 rounded-full" />
@@ -401,6 +415,9 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="kpi-label">AI Tests Run</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Queries tested to see if AI mentions your site
+                </div>
                 <div className="kpi-chart">
                   {metricsLoading ? (
                     <Skeleton className="h-15 w-15 rounded-full" />
@@ -437,6 +454,9 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="kpi-label">Last Scan Status</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  When your website was last analyzed
+                </div>
                 <div className="kpi-chart">
                   {metricsLoading ? (
                     <Skeleton className="h-10 w-30" />
@@ -461,7 +481,7 @@ export default function Dashboard() {
             <div className="card-dashboard">
               <div className="card-header">
                 <h3 id="activity-heading">Recent Activity</h3>
-                <p>Your latest scans, tests, and reports</p>
+                <p>Your latest scans, AI tests, and generated reports - stay updated on your optimization progress</p>
               </div>
               <div className="card-content">
                 {activitiesLoading ? (
@@ -514,7 +534,7 @@ export default function Dashboard() {
           <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.5s' }}>
             <div className="card-header">
               <h3 className="heading-responsive">Quick Actions</h3>
-              <p className="text-responsive">Start optimizing your AI findability</p>
+              <p className="text-responsive">Essential steps to improve how AI discovers and recommends your website</p>
             </div>
             <div className="card-content">
             <div className="flex gap-2">
@@ -523,10 +543,10 @@ export default function Dashboard() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
                   <Globe className="h-5 w-5" />
                 </div>
-                <div>
-                  <div className="font-medium text-foreground">Add Website</div>
-                  <div className="text-sm text-muted-foreground text-responsive">Start monitoring a new site</div>
-                </div>
+                  <div>
+                    <div className="font-medium text-foreground">Add Website</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Connect your website to start analyzing its AI findability</div>
+                  </div>
               </button>
                 <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
                         onClick={() => navigate('/scans')}>
@@ -535,7 +555,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">Run New Scan</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Analyze your website's AI findability</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Check metadata, schema, and structure for AI optimization</div>
                   </div>
                 </button>
                 <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
@@ -545,7 +565,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">Test AI Prompt</div>
-                    <div className="text-sm text-muted-foreground text-responsive">See how AI models respond to queries</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Ask AI questions to see if it mentions your website</div>
                   </div>
                 </button>
                 <button className="group flex items-start p-4 rounded-lg border border-border hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
@@ -555,7 +575,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">View Reports</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Download detailed optimization reports</div>
+                    <div className="text-sm text-muted-foreground text-responsive">Get actionable tips to improve your AI visibility</div>
                   </div>
                 </button>
               </div>
@@ -565,8 +585,8 @@ export default function Dashboard() {
           {/* Subscription Status */}
           <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.6s' }}>
             <div className="card-header">
-              <h3 className="heading-responsive">Plan Status</h3>
-              <p className="text-responsive">Current usage and limits</p>
+              <h3 className="heading-responsive">Usage & Plan</h3>
+              <p className="text-responsive">Track your monthly usage limits and upgrade when ready</p>
             </div>
             <div className="card-content">
               <div className="space-y-6">
