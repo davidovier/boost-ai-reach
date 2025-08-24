@@ -4,6 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminStatsSkeleton } from '@/components/ui/loading-states';
+import { EmptyUsage } from '@/components/ui/empty-states';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Row { user_id: string; scan_count: number; prompt_count: number; competitor_count: number; report_count: number; last_reset: string; }
@@ -51,43 +53,47 @@ export function UsageTab() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="stat-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Scans</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{totalScans}</p>}
-          </CardContent>
-        </Card>
-        
-        <Card className="stat-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Prompts</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{totalPrompts}</p>}
-          </CardContent>
-        </Card>
-        
-        <Card className="stat-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Competitors</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{totalCompetitors}</p>}
-          </CardContent>
-        </Card>
-        
-        <Card className="stat-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Reports</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {loading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{totalReports}</p>}
-          </CardContent>
-        </Card>
-      </div>
+      {loading ? (
+        <AdminStatsSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="stat-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Scans</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-2xl font-bold">{totalScans}</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="stat-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Prompts</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-2xl font-bold">{totalPrompts}</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="stat-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Competitors</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-2xl font-bold">{totalCompetitors}</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="stat-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Reports</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-2xl font-bold">{totalReports}</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Table>
         <TableHeader>
@@ -113,7 +119,13 @@ export function UsageTab() {
               </TableRow>
             ))
           ) : rows.length === 0 ? (
-            <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No usage data available</TableCell></TableRow>
+            <TableRow>
+              <TableCell colSpan={6} className="p-0">
+                <div className="py-12">
+                  <EmptyUsage />
+                </div>
+              </TableCell>
+            </TableRow>
           ) : rows.map(r => (
             <TableRow key={r.user_id}>
               <TableCell className="font-mono text-xs">{r.user_id}</TableCell>

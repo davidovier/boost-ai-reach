@@ -10,6 +10,8 @@ import { SEO } from '@/components/SEO';
 import { CompetitorComparisonChart } from '@/components/CompetitorComparisonChart';
 import { stringifyJsonLd } from '@/lib/seo';
 import { Skeleton, SkeletonTable } from '@/components/ui/skeleton-enhanced';
+import { CompetitorsChartSkeleton, CompetitorsTableSkeleton } from '@/components/ui/loading-states';
+import { EmptyCompetitors } from '@/components/ui/empty-states';
 
 interface CompetitorItem {
   id: string;
@@ -164,12 +166,7 @@ export default function Competitors() {
 
         {/* Comparison Chart */}
         {loading ? (
-          <Card className="p-6">
-            <div className="space-y-4">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          </Card>
+          <CompetitorsChartSkeleton />
         ) : items.length > 0 && (
           <div className="card-reveal" style={{ animationDelay: '0.2s' }}>
             <CompetitorComparisonChart 
@@ -185,15 +182,7 @@ export default function Competitors() {
 
         <div className="card-reveal" style={{ animationDelay: '0.3s' }}>
           {loading ? (
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-8 w-16" />
-                </div>
-                <SkeletonTable rows={4} cols={4} />
-              </div>
-            </Card>
+            <CompetitorsTableSkeleton />
           ) : (
             <ResponsiveTable
               data={items}
@@ -250,17 +239,13 @@ export default function Competitors() {
                 }
               ]}
               emptyState={
-                <Card className="p-8 text-center interactive-hover">
-                  <div className="text-muted-foreground">
-                    <div className="mb-4">
-                      <div className="w-16 h-16 mx-auto bg-muted/30 rounded-full flex items-center justify-center mb-3">
-                        <Plus className="w-8 h-8" />
-                      </div>
-                      <h3 className="font-medium text-foreground mb-1">No competitors yet</h3>
-                      <p className="text-sm">Add your first competitor to start tracking their AI findability scores</p>
-                    </div>
-                  </div>
-                </Card>
+                <EmptyCompetitors onAddClick={() => {
+                  const input = document.querySelector('input[placeholder*="competitor"]') as HTMLInputElement;
+                  if (input) {
+                    input.focus();
+                    input.placeholder = "Try: competitor.com";
+                  }
+                }} />
               }
               className="padding-mobile stagger-animation"
             />

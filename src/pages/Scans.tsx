@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton-enhanced';
+import { ScansListSkeleton } from '@/components/ui/loading-states';
+import { EmptyScans } from '@/components/ui/empty-states';
 import { ActionTooltip } from '@/components/ui/tooltip';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus, Eye, Edit, Trash2 } from 'lucide-react';
@@ -130,38 +132,12 @@ export default function Scans() {
         </header>
 
         {loading ? (
-          <div className="stagger-animation space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="enhanced-table-row p-4 border border-border rounded-lg bg-card">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-6 w-12 rounded-full" />
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ScansListSkeleton />
         ) : scans.length === 0 ? (
-          <Card className="card-reveal">
-            <CardContent className="p-8 text-center">
-              <div className="interactive-hover inline-block p-4 rounded-full bg-muted/30 mb-4">
-                <Search className="h-12 w-12 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No scans yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Add your first website to start analyzing its AI findability score
-              </p>
-              <Button className="btn-focus interactive-hover">
-                <Plus className="h-4 w-4 mr-2" />
-                Run Your First Scan
-              </Button>
-            </CardContent>
-          </Card>
+          <EmptyScans onAddClick={() => {
+            // TODO: Navigate to add site or trigger scan modal
+            console.log('Navigate to add site');
+          }} />
         ) : (
           <ComponentErrorBoundary context="Scans Table">
             {/* Desktop Table View */}

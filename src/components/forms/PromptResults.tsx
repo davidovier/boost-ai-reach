@@ -2,6 +2,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, Users, MessageSquare, ExternalLink } from "lucide-react";
+import { PromptResultsSkeleton } from "@/components/ui/loading-states";
+import { EmptyResults } from "@/components/ui/empty-states";
 
 interface PromptResult {
   id: string;
@@ -17,23 +19,16 @@ interface PromptResult {
 
 interface PromptResultsProps {
   result: PromptResult | null;
+  loading?: boolean;
 }
 
-export function PromptResults({ result }: PromptResultsProps) {
+export function PromptResults({ result, loading = false }: PromptResultsProps) {
+  if (loading) {
+    return <PromptResultsSkeleton />;
+  }
+
   if (!result) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold text-card-foreground mb-2">
-            No results yet
-          </h3>
-          <p className="text-muted-foreground">
-            Run an AI test to see detailed results here
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return <EmptyResults />;
   }
 
   return (

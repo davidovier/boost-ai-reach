@@ -10,6 +10,7 @@ import { Sparkline, ProgressArc } from '@/components/ui/sparkline';
 import { Activity, TrendingUp, Zap, Search } from 'lucide-react';
 import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
+import { EmptyActivity } from '@/components/ui/empty-states';
 
 interface ActivityItem {
   id: string;
@@ -248,13 +249,7 @@ export default function Dashboard() {
                   </ul>
                 ) : (
                   <div className="text-center py-8 sm:py-12">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-secondary mx-auto mb-4">
-                      <Activity className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No activity yet</h3>
-                    <p className="text-muted-foreground">
-                      Start by scanning your first website or running an AI test.
-                    </p>
+                    <EmptyActivity />
                   </div>
                 )}
               </div>

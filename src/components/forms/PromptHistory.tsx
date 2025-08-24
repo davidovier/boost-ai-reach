@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, Users, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { PromptHistorySkeleton } from "@/components/ui/loading-states";
+import { EmptyPrompts } from "@/components/ui/empty-states";
 
 interface PromptHistoryItem {
   id: string;
@@ -18,13 +20,27 @@ interface PromptHistoryItem {
 
 interface PromptHistoryProps {
   history: PromptHistoryItem[];
+  loading?: boolean;
   onSelectPrompt?: (item: PromptHistoryItem) => void;
   onRerunPrompt?: (prompt: string) => void;
+  onRunFirstTest?: () => void;
 }
 
-export function PromptHistory({ history, onSelectPrompt, onRerunPrompt }: PromptHistoryProps) {
+export function PromptHistory({ 
+  history, 
+  loading = false, 
+  onSelectPrompt, 
+  onRerunPrompt, 
+  onRunFirstTest 
+}: PromptHistoryProps) {
+  if (loading) {
+    return <PromptHistorySkeleton />;
+  }
+
   if (history.length === 0) {
-    return (
+    return onRunFirstTest ? (
+      <EmptyPrompts onRunClick={onRunFirstTest} />
+    ) : (
       <Card>
         <CardContent className="p-8 text-center">
           <h3 className="text-lg font-semibold text-card-foreground mb-2">

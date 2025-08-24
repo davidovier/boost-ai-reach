@@ -154,8 +154,17 @@ export default function AITests() {
               <div className="stagger-animation">
                 <PromptHistory 
                   history={mockHistory}
+                  loading={false}
                   onSelectPrompt={setSelectedResult}
                   onRerunPrompt={(prompt) => handleSubmitPrompt({ prompt })}
+                  onRunFirstTest={() => {
+                    // Focus on the prompt input
+                    const input = document.querySelector('textarea[placeholder*="prompt"]') as HTMLTextAreaElement;
+                    if (input) {
+                      input.focus();
+                      input.placeholder = "Try: 'Best marketing agencies in London'";
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -164,7 +173,7 @@ export default function AITests() {
             <div className="space-y-4 sm:space-y-6 card-reveal" style={{ animationDelay: '0.2s' }} key={selectedResult?.id || 'empty'}>
               <h2 className="text-lg sm:text-xl font-semibold text-foreground">Results</h2>
               <div className={selectedResult ? 'form-success' : ''}>
-                <PromptResults result={selectedResult} />
+                <PromptResults result={selectedResult} loading={isLoading} />
               </div>
             </div>
           </div>

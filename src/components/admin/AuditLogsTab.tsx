@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyAuditLogs } from '@/components/ui/empty-states';
 
 interface Row { id: string; action: string; table_name: string | null; user_id: string | null; created_at: string; }
 
@@ -45,7 +46,13 @@ export function AuditLogsTab() {
               </TableRow>
             ))
           ) : rows.length === 0 ? (
-            <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No audit logs available</TableCell></TableRow>
+            <TableRow>
+              <TableCell colSpan={4} className="p-0">
+                <div className="py-12">
+                  <EmptyAuditLogs />
+                </div>
+              </TableCell>
+            </TableRow>
           ) : rows.map(r => (
             <TableRow key={r.id}>
               <TableCell>{new Date(r.created_at).toLocaleString()}</TableCell>

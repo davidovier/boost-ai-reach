@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { FileText, Download, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
+import { ReportsGridSkeleton } from '@/components/ui/loading-states';
+import { EmptyReports } from '@/components/ui/empty-states';
 
 interface Report {
   id: string;
@@ -129,50 +131,9 @@ export default function Reports() {
         </div>
 
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="premium-report-card animate-pulse">
-                <div className="report-preview-skeleton">
-                  <div className="h-32 bg-gradient-to-br from-muted to-muted-foreground/20 rounded-lg"></div>
-                </div>
-                <div className="report-card-content">
-                  <div className="h-5 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-1/2 mb-4"></div>
-                  <div className="flex gap-2">
-                    <div className="h-8 bg-muted rounded flex-1"></div>
-                    <div className="h-8 bg-muted rounded flex-1"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ReportsGridSkeleton />
         ) : reports.length === 0 ? (
-          <div className="premium-empty-state">
-            <div className="empty-state-content">
-              <div className="empty-state-icon">
-                <BarChart3 className="w-16 h-16 text-primary/60" />
-                <Sparkles className="w-8 h-8 text-accent absolute -top-2 -right-2" />
-              </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">No reports yet</h2>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Generate your first premium AI findability report with detailed insights, 
-                competitor analysis, and actionable recommendations.
-              </p>
-              <Button 
-                onClick={handleGenerateReport} 
-                disabled={generating}
-                className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary-hover hover:to-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                size="lg"
-              >
-                {generating ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-2 h-4 w-4" />
-                )}
-                Generate Your First Report
-              </Button>
-            </div>
-          </div>
+          <EmptyReports onGenerateClick={handleGenerateReport} />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {reports.map((report) => (

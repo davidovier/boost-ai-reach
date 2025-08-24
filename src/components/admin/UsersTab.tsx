@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRoleModal } from './UserRoleModal';
 import { Search, Filter, Users, X, Edit3 } from 'lucide-react';
+import { EmptyUsers } from '@/components/ui/empty-states';
 
 const roles = ['user','manager','admin'] as const;
 const plans = ['free','pro','growth','enterprise'] as const;
@@ -223,14 +224,15 @@ export function UsersTab() {
                 ))
               ) : filteredRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <Users className="w-8 h-8" />
-                      <p>No users found</p>
+                  <TableCell colSpan={5} className="p-0">
+                    <div className="py-12">
+                      <EmptyUsers />
                       {activeFiltersCount > 0 && (
-                        <Button variant="outline" size="sm" onClick={clearFilters}>
-                          Clear filters
-                        </Button>
+                        <div className="mt-4 flex justify-center">
+                          <Button variant="outline" size="sm" onClick={clearFilters}>
+                            Clear filters
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </TableCell>
