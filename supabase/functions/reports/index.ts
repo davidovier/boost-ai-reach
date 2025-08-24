@@ -3,6 +3,13 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { enforceLimit } from "../_shared/limits.ts";
 import { logEvent, extractRequestMetadata } from "../_shared/event-logger.ts";
+import { 
+  withCache, 
+  createUserCacheKey, 
+  CACHE_TTL, 
+  getCacheHeaders,
+  getNoCacheHeaders
+} from "../_shared/cache.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -463,34 +470,50 @@ serve(async (req) => {
         return jsonResponse({ error: "Report not found" }, { status: 404 });
       }
 
-      // Generate signed URL if report has file
-      let downloadUrl = null;
-      if (report.pdf_url && report.status === 'success') {
-        const { data: signedUrl, error: signedErr } = await adminClient.storage
-          .from("reports")
-          .createSignedUrl(report.pdf_url, 3600); // 1 hour expiry
+        // Generate signed URL if report has file
+        let downloadUrl = null;
+        if (report.pdf_url && report.status === 'success') {
+          // Cache signed URLs for 5 minutes to reduce storage API calls
+          const signedUrlCacheKey = createUserCacheKey(user.id, 'report_signed_url', { reportId });
+          
+          const urlResult = await withCache(
+            signedUrlCacheKey,
+            CACHE_TTL.VERY_SHORT, // 1 minute for signed URLs
+            async () => {
+              const { data: signedUrl, error: signedErr } = await adminClient.storage
+                .from("reports")
+                .createSignedUrl(report.pdf_url, 3600); // 1 hour expiry
 
-        if (signedErr) {
-          console.error("Error creating signed URL:", signedErr);
-        } else {
-          downloadUrl = signedUrl?.signedUrl;
-        }
-      }
+              if (signedErr) {
+                console.error("Error creating signed URL:", signedErr);
+                return null;
+              }
+              
+              return signedUrl?.signedUrl || null;
+            }
+          );
 
-      return jsonResponse({
-        success: true,
-        report: {
-          id: report.id,
-          site_id: report.site_id,
-          period_start: report.period_start,
-          period_end: report.period_end,
-          created_at: report.created_at,
-          status: report.status,
-          error_message: report.error_message,
-          retry_count: report.retry_count,
-          download_url: downloadUrl
+          downloadUrl = urlResult.data;
         }
-      });
+
+        return jsonResponse({
+          success: true,
+          report: {
+            id: report.id,
+            site_id: report.site_id,
+            period_start: report.period_start,
+            period_end: report.period_end,
+            created_at: report.created_at,
+            status: report.status,
+            error_message: report.error_message,
+            retry_count: report.retry_count,
+            download_url: downloadUrl
+          }
+        }, {
+          headers: report.status === 'success' 
+            ? getCacheHeaders(300) // 5 minutes cache for successful reports
+            : getNoCacheHeaders()   // No cache for pending/failed reports
+        });
     }
 
     // POST /api/reports/retry/:id - Retry failed report (admin only)

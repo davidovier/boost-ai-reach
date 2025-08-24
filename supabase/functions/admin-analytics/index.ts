@@ -7,6 +7,12 @@ import {
   AnalyticsQuerySchema,
   createValidationErrorResponse 
 } from "../_shared/validation.ts";
+import { 
+  withCache, 
+  createAdminCacheKey, 
+  CACHE_TTL, 
+  getCacheHeaders 
+} from "../_shared/cache.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,96 +79,111 @@ serve(async (req) => {
 
     const { from: fromDate, to: toDate } = queryValidation.data;
 
-    // Get event totals by type
-    const { data: eventTotals, error: eventError } = await supabase
-      .from('user_events')
-      .select('event_name')
-      .gte('occurred_at', fromDate)
-      .lte('occurred_at', toDate);
+    // Create cache key for analytics query
+    const cacheKey = createAdminCacheKey('analytics', { from: fromDate, to: toDate });
+    
+    // Use cache wrapper for expensive analytics query
+    const result = await withCache(
+      cacheKey,
+      CACHE_TTL.MEDIUM, // 15 minutes for admin analytics
+      async () => {
+        console.log("Fetching fresh analytics data");
+        
+        // Get event totals by type
+        const { data: eventTotals, error: eventError } = await supabase
+          .from('user_events')
+          .select('event_name')
+          .gte('occurred_at', fromDate)
+          .lte('occurred_at', toDate);
 
-    if (eventError) {
-      console.error('Error fetching event totals:', eventError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch event analytics' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        if (eventError) {
+          throw new Error(`Failed to fetch event analytics: ${eventError.message}`);
         }
-      );
-    }
 
-    // Aggregate event counts
-    const eventCounts = eventTotals.reduce((acc: Record<string, number>, event) => {
-      acc[event.event_name] = (acc[event.event_name] || 0) + 1;
-      return acc;
-    }, {});
+        // Aggregate event counts
+        const eventCounts = eventTotals.reduce((acc: Record<string, number>, event) => {
+          acc[event.event_name] = (acc[event.event_name] || 0) + 1;
+          return acc;
+        }, {});
 
-    // Get top users by activity
-    const { data: userActivity, error: userError } = await supabase
-      .from('user_events')
-      .select(`
-        user_id,
-        profiles!inner(email, name)
-      `)
-      .gte('occurred_at', fromDate)
-      .lte('occurred_at', toDate);
+        // Get top users by activity
+        const { data: userActivity, error: userError } = await supabase
+          .from('user_events')
+          .select(`
+            user_id,
+            profiles!inner(email, name)
+          `)
+          .gte('occurred_at', fromDate)
+          .lte('occurred_at', toDate);
 
-    if (userError) {
-      console.error('Error fetching user activity:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch user analytics' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        if (userError) {
+          throw new Error(`Failed to fetch user analytics: ${userError.message}`);
         }
-      );
-    }
 
-    // Aggregate user activity counts
-    const userCounts = userActivity.reduce((acc: Record<string, any>, event) => {
-      const userId = event.user_id;
-      if (!acc[userId]) {
-        acc[userId] = {
-          user_id: userId,
-          email: event.profiles?.email || 'Unknown',
-          name: event.profiles?.name || 'Unknown',
-          event_count: 0
+        // Aggregate user activity counts
+        const userCounts = userActivity.reduce((acc: Record<string, any>, event) => {
+          const userId = event.user_id;
+          if (!acc[userId]) {
+            acc[userId] = {
+              user_id: userId,
+              email: event.profiles?.email || 'Unknown',
+              name: event.profiles?.name || 'Unknown',
+              event_count: 0
+            };
+          }
+          acc[userId].event_count += 1;
+          return acc;
+        }, {});
+
+        // Sort users by activity and get top 10
+        const topUsers = Object.values(userCounts)
+          .sort((a: any, b: any) => b.event_count - a.event_count)
+          .slice(0, 10);
+
+        // Calculate summary metrics
+        const totalEvents = eventTotals.length;
+        const uniqueUsers = Object.keys(userCounts).length;
+        const dateRange = {
+          from: fromDate,
+          to: toDate
+        };
+
+        return {
+          summary: {
+            total_events: totalEvents,
+            unique_users: uniqueUsers,
+            date_range: dateRange
+          },
+          event_totals: eventCounts,
+          top_users: topUsers
         };
       }
-      acc[userId].event_count += 1;
-      return acc;
-    }, {});
+    );
 
-    // Sort users by activity and get top 10
-    const topUsers = Object.values(userCounts)
-      .sort((a: any, b: any) => b.event_count - a.event_count)
-      .slice(0, 10);
+    if (result.cached) {
+      console.log("Returning cached analytics data");
+    }
 
-    // Calculate summary metrics
-    const totalEvents = eventTotals.length;
-    const uniqueUsers = Object.keys(userCounts).length;
-    const dateRange = {
-      from: fromDate,
-      to: toDate
+    console.log(`Analytics query completed: ${result.data.summary.total_events} events, ${result.data.summary.unique_users} users (cached: ${result.cached})`);
+
+    // Add cache headers for client-side caching
+    const responseHeaders = {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+      ...getCacheHeaders(300) // 5 minutes client cache
     };
-
-    const analytics = {
-      summary: {
-        total_events: totalEvents,
-        unique_users: uniqueUsers,
-        date_range: dateRange
-      },
-      event_totals: eventCounts,
-      top_users: topUsers
-    };
-
-    console.log(`Analytics query completed: ${totalEvents} events, ${uniqueUsers} users`);
 
     return new Response(
-      JSON.stringify(analytics),
+      JSON.stringify({
+        ...result.data,
+        meta: {
+          cached: result.cached,
+          cache_timestamp: result.cacheTimestamp
+        }
+      }),
       { 
         status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: responseHeaders
       }
     );
 
