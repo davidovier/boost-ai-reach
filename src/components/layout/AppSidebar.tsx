@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, 
   Scan, 
@@ -6,7 +6,8 @@ import {
   Users, 
   FileText, 
   Settings, 
-  Shield 
+  Shield,
+  LogOut
 } from 'lucide-react';
 import {
   Sidebar,
@@ -20,6 +21,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { usePermission } from '@/hooks/usePermission';
+import { useAuth } from '@/hooks/useAuth';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
@@ -33,11 +35,22 @@ const navigationItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const canAccessAdmin = usePermission('accessAdminPanel');
   
   const isCollapsed = state === 'collapsed';
   
   const isActive = (path: string) => location.pathname === path;
+  
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/signin');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
   
   const getNavClassName = (active: boolean) => 
     active 
@@ -115,6 +128,29 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        {/* Logout Section at bottom */}
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={handleLogout}
+                  className="min-h-[44px] w-full hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <div className="flex items-center gap-3 px-3 py-3 rounded-md transition-colors">
+                    <LogOut 
+                      className="h-5 w-5 flex-shrink-0" 
+                      aria-hidden="true"
+                    />
+                    {!isCollapsed && <span className="flex-1 text-left">Log Out</span>}
+                    {isCollapsed && <span className="sr-only">Log Out</span>}
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
