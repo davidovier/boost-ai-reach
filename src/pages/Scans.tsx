@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,12 +9,21 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton-enhanced';
-import { ScansListSkeleton } from '@/components/ui/loading-states';
-import { EmptyScans } from '@/components/ui/empty-states';
-import { ActionTooltip } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
-import { Search, TrendingUp, AlertTriangle, CheckCircle, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle, 
+  Plus, 
+  Eye, 
+  Trash2,
+  Globe,
+  Calendar,
+  BarChart3,
+  AlertCircle,
+  Search
+} from 'lucide-react';
 import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Scan {
@@ -30,6 +39,95 @@ interface Scan {
   metadata: any;
 }
 
+function ScansGridSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+            <Skeleton className="h-4 w-24" />
+            <div className="grid grid-cols-3 gap-2">
+              <Skeleton className="h-8" />
+              <Skeleton className="h-8" />
+              <Skeleton className="h-8" />
+            </div>
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function EmptyScansState({ onAddClick }: { onAddClick: () => void }) {
+  return (
+    <Card className="text-center py-12">
+      <CardContent>
+        <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
+          <Search className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold mb-2">No scans yet</h3>
+        <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+          Start analyzing your website's AI findability by running your first scan.
+        </p>
+        <Button onClick={onAddClick} className="inline-flex items-center">
+          <Plus className="h-4 w-4 mr-2" />
+          Run First Scan
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ScoreDisplay({ score, size = 'default' }: { score: number | null; size?: 'default' | 'large' }) {
+  const getScoreVariant = (score: number | null): 'destructive' | 'secondary' | 'default' => {
+    if (!score) return 'secondary';
+    if (score >= 70) return 'default';
+    if (score >= 40) return 'secondary';
+    return 'destructive';
+  };
+
+  const sizeClasses = size === 'large' ? 'text-lg px-3 py-1' : 'text-sm px-2 py-1';
+
+  return (
+    <Badge variant={getScoreVariant(score)} className={sizeClasses}>
+      {score ? score : 'N/A'}
+    </Badge>
+  );
+}
+
+function IssuesDisplay({ scan }: { scan: Scan }) {
+  const getIssueCount = (scan: Scan): number => {
+    let issues = 0;
+    if ((scan.ai_findability_score || 0) < 70) issues++;
+    if ((scan.crawlability_score || 0) < 70) issues++;
+    if ((scan.summarizability_score || 0) < 70) issues++;
+    return issues;
+  };
+
+  const issueCount = getIssueCount(scan);
+
+  if (issueCount === 0) {
+    return (
+      <div className="flex items-center gap-2 text-green-600">
+        <CheckCircle className="h-4 w-4" />
+        <span className="text-sm font-medium">No issues</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-amber-600">
+      <AlertTriangle className="h-4 w-4" />
+      <span className="text-sm font-medium">{issueCount} issue{issueCount > 1 ? 's' : ''}</span>
+    </div>
+  );
+}
+
 export default function Scans() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -42,7 +140,7 @@ export default function Scans() {
 
   const breadcrumbs = getBreadcrumbJsonLd([
     { name: 'Home', item: origin },
-    { name: 'Scans', item: `${origin}/scans` },
+    { name: 'Website Scans', item: `${origin}/scans` },
   ]);
 
   useEffect(() => {
@@ -70,7 +168,7 @@ export default function Scans() {
           sites:site_id (name, url)
         `)
         .order('scan_date', { ascending: false })
-        .limit(10);
+        .limit(12);
 
       if (error) throw error;
       
@@ -82,42 +180,14 @@ export default function Scans() {
       setScans(formattedScans);
     } catch (error) {
       console.error('Error fetching scans:', error);
+      toast({
+        title: 'Error loading scans',
+        description: 'Failed to load scan data. Please refresh the page.',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  const getScoreColor = (score: number | null): 'high' | 'medium' | 'low' => {
-    if (!score) return 'low';
-    if (score >= 70) return 'high';
-    if (score >= 40) return 'medium';
-    return 'low';
-  };
-
-  const getIssueCount = (scan: Scan): number => {
-    let issues = 0;
-    if ((scan.ai_findability_score || 0) < 70) issues++;
-    if ((scan.crawlability_score || 0) < 70) issues++;
-    if ((scan.summarizability_score || 0) < 70) issues++;
-    return issues;
-  };
-
-  const handleViewScan = (scanId: string) => {
-    navigate(`/scans/${scanId}`);
-  };
-
-  const handleEditScan = (scanId: string) => {
-    // Navigate to edit scan or trigger edit modal
-    // TODO: Implement scan editing
-  };
-
-  const openDeleteDialog = (scan: Scan) => {
-    setDeleteDialog({ open: true, scan });
-  };
-
-  const closeDeleteDialog = () => {
-    setDeleteDialog({ open: false });
-    setDeleting(false);
   };
 
   const handleCreateScan = async (siteId?: string) => {
@@ -125,12 +195,10 @@ export default function Scans() {
     
     try {
       if (!siteId) {
-        // If no siteId provided, navigate to sites to select one
         navigate('/sites');
         return;
       }
 
-      // Create a new scan
       const response = await supabase.functions.invoke('create-scan', {
         body: { siteId }
       });
@@ -138,12 +206,10 @@ export default function Scans() {
       if (response.error) throw response.error;
 
       toast({
-        title: '✅ Scan started',
-        description: 'Your website scan is now in progress',
-        className: 'success-animation'
+        title: 'Scan started successfully',
+        description: 'Your website scan is now in progress. Results will appear here soon.',
       });
 
-      // Refresh scans list
       fetchScans();
     } catch (error) {
       console.error('Error creating scan:', error);
@@ -153,6 +219,15 @@ export default function Scans() {
         variant: 'destructive'
       });
     }
+  };
+
+  const openDeleteDialog = (scan: Scan) => {
+    setDeleteDialog({ open: true, scan });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false });
+    setDeleting(false);
   };
 
   const confirmDeleteScan = async () => {
@@ -168,16 +243,17 @@ export default function Scans() {
       if (error) throw error;
       
       toast({ 
-        title: '✅ Scan deleted', 
-        description: `Scan for ${deleteDialog.scan.site?.name || 'site'} has been removed`,
-        className: 'success-animation'
+        title: 'Scan deleted successfully',
+        description: `Scan for ${deleteDialog.scan.site?.name || 'site'} has been removed.`,
       });
+      
       setScans(prev => prev.filter(s => s.id !== deleteDialog.scan?.id));
       closeDeleteDialog();
-    } catch (e) {
+    } catch (error) {
+      console.error('Error deleting scan:', error);
       toast({ 
-        title: 'Failed to delete', 
-        description: 'Could not remove scan. Please try again.', 
+        title: 'Failed to delete scan',
+        description: 'Could not remove scan. Please try again.',
         variant: 'destructive' 
       });
       setDeleting(false);
@@ -187,10 +263,10 @@ export default function Scans() {
   return (
     <PageErrorBoundary context="Website Scans">
       <SEO 
-        title="Website Scans"
-        description="View and manage your website scan results, AI findability scores, and optimization recommendations with detailed analysis."
+        title="Website Scans - AI Findability Analysis"
+        description="View and manage your website scan results. Monitor AI findability scores, crawlability metrics, and get actionable optimization recommendations."
         url="/scans"
-        keywords="website analysis, AI findability score, SEO optimization, website audit"
+        keywords="website scans, AI findability, SEO analysis, website audit, optimization recommendations"
       />
       
       <script 
@@ -198,222 +274,148 @@ export default function Scans() {
         dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbs) }} 
       />
 
-      <div className="space-y-6 sm:space-y-8 table-mobile">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-mobile">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground heading-responsive">Website Scans</h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-responsive">
-              Monitor your website's AI findability scores and optimization progress
-            </p>
+      <main className="container mx-auto px-4 py-6 space-y-8">
+        {/* Header Section */}
+        <header className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Website Scans
+              </h1>
+              <p className="text-muted-foreground max-w-2xl">
+                Monitor your website's AI findability scores and track optimization progress over time.
+              </p>
+            </div>
+            <Button 
+              onClick={() => handleCreateScan()}
+              className="w-full sm:w-auto"
+              size="lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Scan
+            </Button>
           </div>
-          <Button 
-            onClick={() => handleCreateScan()}
-            className="w-full sm:w-auto min-h-[44px] btn-focus touch-target interactive btn-responsive"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Scan
-          </Button>
         </header>
 
-        {loading ? (
-          <ScansListSkeleton />
-        ) : scans.length === 0 ? (
-          <EmptyScans onAddClick={() => {
-            navigate('/sites');
-          }} />
-        ) : (
-          <ComponentErrorBoundary context="Scans Table">
-            {/* Desktop Table View */}
-            <div className="overflow-x-auto">
-              <table className="enhanced-table" role="table" aria-label="Website scans data">
-                <thead>
-                  <tr>
-                    <th scope="col">Website</th>
-                    <th scope="col">Scan Date</th>
-                    <th scope="col">AI Score</th>
-                    <th scope="col">Issues</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {scans.map((scan, index) => (
-                    <tr 
-                      key={scan.id}
-                      onClick={() => handleViewScan(scan.id)}
-                      className="enhanced-table-row cursor-pointer"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <td className="website-cell">
-                        <div className="website-name">{scan.site?.name || 'Unnamed Site'}</div>
-                        <div className="website-url">{scan.site?.url}</div>
-                      </td>
-                      <td>
-                        <time dateTime={scan.scan_date}>
+        {/* Content Section */}
+        <ComponentErrorBoundary context="Scans Content">
+          {loading ? (
+            <ScansGridSkeleton />
+          ) : scans.length === 0 ? (
+            <EmptyScansState onAddClick={() => navigate('/sites')} />
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {scans.map((scan) => (
+                <Card 
+                  key={scan.id} 
+                  className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20"
+                  onClick={() => navigate(`/scans/${scan.id}`)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="text-lg leading-snug truncate">
+                          {scan.site?.name || 'Unnamed Site'}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground truncate mt-1">
+                          {scan.site?.url}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <ScoreDisplay score={scan.ai_findability_score} size="large" />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    {/* Score Metrics */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center p-2 rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <BarChart3 className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <div className="text-xs text-muted-foreground">AI Score</div>
+                        <div className="text-sm font-semibold">
+                          {scan.ai_findability_score || 'N/A'}
+                        </div>
+                      </div>
+                      <div className="text-center p-2 rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <Globe className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <div className="text-xs text-muted-foreground">Crawl</div>
+                        <div className="text-sm font-semibold">
+                          {scan.crawlability_score || 'N/A'}
+                        </div>
+                      </div>
+                      <div className="text-center p-2 rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <div className="text-xs text-muted-foreground">Summary</div>
+                        <div className="text-sm font-semibold">
+                          {scan.summarizability_score || 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Issues Display */}
+                    <IssuesDisplay scan={scan} />
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        <time 
+                          dateTime={scan.scan_date}
+                          className="text-xs"
+                        >
                           {format(new Date(scan.scan_date), 'MMM d, yyyy')}
                         </time>
-                      </td>
-                      <td className="score-cell">
-                        <div className={`score-badge ${getScoreColor(scan.ai_findability_score)}`}>
-                          <span>{scan.ai_findability_score || 'N/A'}</span>
-                        </div>
-                      </td>
-                      <td className="issues-cell">
-                        <div className="issues-count">
-                          {getIssueCount(scan) > 0 ? (
-                            <>
-                              <AlertTriangle className="h-4 w-4 text-destructive" />
-                              <span className="count-badge">{getIssueCount(scan)}</span>
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                              <span>None</span>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                      <td className="actions-cell">
-                        <div className="row-actions action-buttons">
-                          <ActionTooltip content="View details">
-                            <button 
-                              className="action-btn interactive-hover"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewScan(scan.id);
-                              }}
-                              aria-label="View scan details"
-                            >
-                              <Eye />
-                            </button>
-                          </ActionTooltip>
-                          <ActionTooltip content="Edit scan">
-                            <button 
-                              className="action-btn interactive-hover"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditScan(scan.id);
-                              }}
-                              aria-label="Edit scan"
-                            >
-                              <Edit />
-                            </button>
-                          </ActionTooltip>
-                          <ActionTooltip content="Delete scan">
-                            <button 
-                              className="action-btn interactive-hover"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openDeleteDialog(scan);
-                              }}
-                              aria-label="Delete scan"
-                            >
-                              <Trash2 />
-                            </button>
-                          </ActionTooltip>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="mobile-cards">
-              {scans.map((scan, index) => (
-                <div 
-                  key={scan.id}
-                  className="scan-card interactive-hover cursor-pointer card-mobile"
-                  onClick={() => handleViewScan(scan.id)}
-                >
-                  <div className="card-header">
-                    <div className="website-info">
-                      <div className="title">{scan.site?.name || 'Unnamed Site'}</div>
-                      <div className="text-xs text-muted-foreground">{scan.site?.url}</div>
-                    </div>
-                    <div className="actions">
-                      <ActionTooltip content="View details">
-                        <button 
-                          className="action-btn touch-target"
+                      </div>
+                      
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleViewScan(scan.id);
+                            navigate(`/scans/${scan.id}`);
                           }}
-                          aria-label="View scan details"
+                          className="h-8 w-8 p-0"
                         >
-                          <Eye />
-                        </button>
-                      </ActionTooltip>
-                      <ActionTooltip content="Edit scan">
-                        <button 
-                          className="action-btn touch-target"
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View scan details</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditScan(scan.id);
+                            openDeleteDialog(scan);
                           }}
-                          aria-label="Edit scan"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
-                          <Edit />
-                        </button>
-                      </ActionTooltip>
-                      <ActionTooltip content="Delete scan">
-                        <button 
-                          className="action-btn touch-target"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openDeleteDialog(scan);
-                            }}
-                          aria-label="Delete scan"
-                        >
-                          <Trash2 />
-                        </button>
-                      </ActionTooltip>
-                    </div>
-                  </div>
-                  <div className="card-content">
-                    <div className="metrics">
-                      <div className="metric">
-                        <div className="label">AI Score</div>
-                        <div className="value">
-                          <div className={`score-badge ${getScoreColor(scan.ai_findability_score)}`}>
-                            {scan.ai_findability_score || 'N/A'}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="metric">
-                        <div className="label">Issues</div>
-                        <div className="value">
-                          {getIssueCount(scan) > 0 ? (
-                            <div className="issues-count">
-                              <AlertTriangle className="h-4 w-4 text-destructive" />
-                              <span className="count-badge">{getIssueCount(scan)}</span>
-                            </div>
-                          ) : (
-                            <div className="issues-count">
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                              <span>None</span>
-                            </div>
-                          )}
-                        </div>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete scan</span>
+                        </Button>
                       </div>
                     </div>
-                    <div className="timestamp">
-                      Scanned on {format(new Date(scan.scan_date), 'MMM d, yyyy')}
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </ComponentErrorBoundary>
-        )}
-      </div>
+          )}
+        </ComponentErrorBoundary>
+      </main>
 
+      {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
         open={deleteDialog.open}
         onOpenChange={(open) => !open && closeDeleteDialog()}
         title="Delete Scan"
         description={`Are you sure you want to delete the scan for "${deleteDialog.scan?.site?.name || 'this site'}"? This action cannot be undone and will permanently remove all scan data and results.`}
-        confirmText="Delete"
+        confirmText="Delete Scan"
         cancelText="Cancel"
         variant="destructive"
         onConfirm={confirmDeleteScan}
