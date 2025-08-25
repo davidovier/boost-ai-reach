@@ -568,48 +568,36 @@ export default function Dashboard() {
             </div>
             <div className="card-content">
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
                       onClick={() => navigate('/sites')}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary mr-4 group-hover:scale-105 transition-transform">
                   <Globe className="h-5 w-5" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Add Website</div>
-                  <div className="text-sm text-muted-foreground">Connect your website to start analyzing its AI findability</div>
-                </div>
+                <div className="font-medium text-foreground">Add Website</div>
               </button>
               
-              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
                       onClick={() => navigate('/scans')}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent mr-4 group-hover:scale-105 transition-transform">
                   <Search className="h-5 w-5" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Run New Scan</div>
-                  <div className="text-sm text-muted-foreground">Check metadata, schema, and structure for AI optimization</div>
-                </div>
+                <div className="font-medium text-foreground">Run New Scan</div>
               </button>
               
-              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
                       onClick={() => navigate('/ai-tests')}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-secondary-foreground mr-4 group-hover:scale-105 transition-transform">
                   <Zap className="h-5 w-5" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Test AI Prompt</div>
-                  <div className="text-sm text-muted-foreground">Ask AI questions to see if it mentions your website</div>
-                </div>
+                <div className="font-medium text-foreground">Test AI Prompt</div>
               </button>
               
-              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
                       onClick={() => navigate('/reports')}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/10 text-muted-foreground mr-4 group-hover:scale-105 transition-transform">
                   <TrendingUp className="h-5 w-5" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">View Reports</div>
-                  <div className="text-sm text-muted-foreground">Get actionable tips to improve your AI visibility</div>
-                </div>
+                <div className="font-medium text-foreground">View Reports</div>
               </button>
             </div>
             </div>
