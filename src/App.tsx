@@ -15,6 +15,9 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import ReferralRedirect from "./pages/ReferralRedirect";
 
+// Public demo pages
+const DemoScan = lazy(() => import("./pages/DemoScan"));
+
 // Public pages - code split
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Changelog = lazy(() => import("./pages/Changelog"));
@@ -69,6 +72,11 @@ const App = () => (
                 <Route path="/r/:code" element={<ReferralRedirect />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/demo-scan" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <DemoScan />
+                  </Suspense>
+                } />
                 <Route path="/reset-password" element={
                   <Suspense fallback={<PageLoader />}>
                     <ResetPassword />
