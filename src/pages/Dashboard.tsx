@@ -314,169 +314,193 @@ export default function Dashboard() {
                 Track your website's AI findability and optimization progress. These metrics show how well AI tools can discover and understand your content.
               </p>
             </div>
-            <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
               {/* AI Findability Score */}
-              <div className="kpi-card animate-fade-in">
-                <div className="kpi-header">
-                  <div className="kpi-icon">
-                    <Search className="h-5 w-5" />
+              <Card className="animate-fade-in hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                      <Search className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {metricsLoading ? (
+                        <Skeleton className="h-3 w-12" />
+                      ) : metrics.aiScore > 0 ? (
+                        <div className="flex items-center space-x-1">
+                          <TrendingUp className="h-3 w-3" />
+                          <span>{metrics.aiScore > 70 ? 'Good' : metrics.aiScore > 40 ? 'Fair' : 'Low'}</span>
+                        </div>
+                      ) : (
+                        'Not yet'
+                      )}
+                    </div>
                   </div>
-                  <div className={`kpi-trend ${metrics.aiScore > 0 ? 'positive' : 'neutral'}`}>
-                    {metricsLoading ? (
-                      <Skeleton className="h-4 w-12" />
-                    ) : metrics.aiScore > 0 ? (
-                      <>
-                        <TrendingUp className="h-4 w-4" />
-                        {metrics.aiScore > 70 ? 'Good' : metrics.aiScore > 40 ? 'Fair' : 'Low'}
-                      </>
-                    ) : (
-                      'Not yet'
-                    )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-2xl sm:text-3xl font-bold">
+                      {metricsLoading ? (
+                        <Skeleton className="h-8 w-16" />
+                      ) : (
+                        <AnimatedCounter value={metrics.aiScore} />
+                      )}
+                    </div>
+                    <div className="text-sm font-medium">AI Findability Score</div>
+                    <div className="text-xs text-muted-foreground">
+                      How well AI can find and understand your content
+                    </div>
+                    <div className="flex justify-center pt-2">
+                      {metricsLoading ? (
+                        <Skeleton className="h-10 w-24" />
+                      ) : (
+                        <Sparkline 
+                          data={metrics.scoreTrend} 
+                          width={96} 
+                          height={32}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="kpi-value">
-                  {metricsLoading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    <AnimatedCounter value={metrics.aiScore} />
-                  )}
-                </div>
-                <div className="kpi-label">AI Findability Score</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  How well AI can find and understand your content
-                </div>
-                <div className="kpi-chart">
-                  {metricsLoading ? (
-                    <Skeleton className="h-10 w-30" />
-                  ) : (
-                    <Sparkline 
-                      data={metrics.scoreTrend} 
-                      width={120} 
-                      height={40}
-                    />
-                  )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Total Sites */}
-              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                <div className="kpi-header">
-                  <div className="kpi-icon">
-                    <Globe className="h-5 w-5" />
+              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.1s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
+                      <Globe className="h-4 w-4 text-accent" />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {metricsLoading ? (
+                        <Skeleton className="h-3 w-12" />
+                      ) : metrics.totalSites > 0 ? (
+                        `${usageData.maxSites} max`
+                      ) : (
+                        'Get started'
+                      )}
+                    </div>
                   </div>
-                  <div className="kpi-trend neutral">
-                    {metricsLoading ? (
-                      <Skeleton className="h-4 w-12" />
-                    ) : metrics.totalSites > 0 ? (
-                      `${usageData.maxSites} max`
-                    ) : (
-                      'Get started'
-                    )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-2xl sm:text-3xl font-bold">
+                      {metricsLoading ? (
+                        <Skeleton className="h-8 w-16" />
+                      ) : (
+                        <AnimatedCounter value={metrics.totalSites} />
+                      )}
+                    </div>
+                    <div className="text-sm font-medium">Websites Added</div>
+                    <div className="text-xs text-muted-foreground">
+                      Number of websites you're monitoring
+                    </div>
+                    <div className="flex justify-center pt-2">
+                      {metricsLoading ? (
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                      ) : (
+                        <ProgressArc 
+                          percentage={usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0} 
+                          size={48} 
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="kpi-value">
-                  {metricsLoading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    <AnimatedCounter value={metrics.totalSites} />
-                  )}
-                </div>
-                <div className="kpi-label">Websites Added</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Number of websites you're monitoring
-                </div>
-                <div className="kpi-chart">
-                  {metricsLoading ? (
-                    <Skeleton className="h-15 w-15 rounded-full" />
-                  ) : (
-                    <ProgressArc 
-                      percentage={usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0} 
-                      size={60} 
-                    />
-                  )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* AI Tests */}
-              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <div className="kpi-header">
-                  <div className="kpi-icon">
-                    <Zap className="h-5 w-5" />
+              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.2s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/10">
+                      <Zap className="h-4 w-4 text-secondary-foreground" />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {metricsLoading ? (
+                        <Skeleton className="h-3 w-12" />
+                      ) : metrics.aiTests > 0 ? (
+                        `${usageData.maxPrompts} max`
+                      ) : (
+                        'Try now'
+                      )}
+                    </div>
                   </div>
-                  <div className="kpi-trend neutral">
-                    {metricsLoading ? (
-                      <Skeleton className="h-4 w-12" />
-                    ) : metrics.aiTests > 0 ? (
-                      `${usageData.maxPrompts} max`
-                    ) : (
-                      'Try now'
-                    )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-2xl sm:text-3xl font-bold">
+                      {metricsLoading ? (
+                        <Skeleton className="h-8 w-16" />
+                      ) : (
+                        <AnimatedCounter value={metrics.aiTests} />
+                      )}
+                    </div>
+                    <div className="text-sm font-medium">AI Tests Run</div>
+                    <div className="text-xs text-muted-foreground">
+                      Queries tested to see if AI mentions your site
+                    </div>
+                    <div className="flex justify-center pt-2">
+                      {metricsLoading ? (
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                      ) : (
+                        <ProgressArc 
+                          percentage={usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0} 
+                          size={48} 
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="kpi-value">
-                  {metricsLoading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    <AnimatedCounter value={metrics.aiTests} />
-                  )}
-                </div>
-                <div className="kpi-label">AI Tests Run</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Queries tested to see if AI mentions your site
-                </div>
-                <div className="kpi-chart">
-                  {metricsLoading ? (
-                    <Skeleton className="h-15 w-15 rounded-full" />
-                  ) : (
-                    <ProgressArc 
-                      percentage={usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0} 
-                      size={60} 
-                    />
-                  )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Last Scan Status */}
-              <div className="kpi-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                <div className="kpi-header">
-                  <div className="kpi-icon">
-                    <Activity className="h-5 w-5" />
+              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.3s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/10">
+                      <Activity className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {metricsLoading ? (
+                        <Skeleton className="h-3 w-12" />
+                      ) : metrics.lastScanTime ? (
+                        format(new Date(metrics.lastScanTime), 'MMM d')
+                      ) : (
+                        'Never'
+                      )}
+                    </div>
                   </div>
-                  <div className="kpi-trend neutral">
-                    {metricsLoading ? (
-                      <Skeleton className="h-4 w-12" />
-                    ) : metrics.lastScanTime ? (
-                      format(new Date(metrics.lastScanTime), 'MMM d')
-                    ) : (
-                      'Never'
-                    )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-base sm:text-lg font-semibold">
+                      {metricsLoading ? (
+                        <Skeleton className="h-6 w-20" />
+                      ) : (
+                        metrics.lastScanStatus
+                      )}
+                    </div>
+                    <div className="text-sm font-medium">Last Scan Status</div>
+                    <div className="text-xs text-muted-foreground">
+                      When your website was last analyzed
+                    </div>
+                    <div className="flex justify-center pt-2">
+                      {metricsLoading ? (
+                        <Skeleton className="h-8 w-24" />
+                      ) : metrics.scoreTrend.length > 1 ? (
+                        <Sparkline 
+                          data={metrics.scoreTrend} 
+                          width={96} 
+                          height={32}
+                        />
+                      ) : (
+                        <div className="text-xs text-muted-foreground">No trend data</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="kpi-value">
-                  {metricsLoading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    metrics.lastScanStatus
-                  )}
-                </div>
-                <div className="kpi-label">Last Scan Status</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  When your website was last analyzed
-                </div>
-                <div className="kpi-chart">
-                  {metricsLoading ? (
-                    <Skeleton className="h-10 w-30" />
-                  ) : metrics.scoreTrend.length > 1 ? (
-                    <Sparkline 
-                      data={metrics.scoreTrend} 
-                      width={120} 
-                      height={40}
-                    />
-                  ) : (
-                    <div className="text-xs text-muted-foreground">No trend data</div>
-                  )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </section>
         </ComponentErrorBoundary>
@@ -543,48 +567,51 @@ export default function Dashboard() {
               <p className="text-responsive">Essential steps to improve how AI discovers and recommends your website</p>
             </div>
             <div className="card-content">
-            <div className="flex gap-2">
-              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
                       onClick={() => navigate('/sites')}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary mr-4 group-hover:scale-105 transition-transform">
                   <Globe className="h-5 w-5" />
                 </div>
-                  <div>
-                    <div className="font-medium text-foreground">Add Website</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Connect your website to start analyzing its AI findability</div>
-                  </div>
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Add Website</div>
+                  <div className="text-sm text-muted-foreground">Connect your website to start analyzing its AI findability</div>
+                </div>
               </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
-                        onClick={() => navigate('/scans')}>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
-                    <Search className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">Run New Scan</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Check metadata, schema, and structure for AI optimization</div>
-                  </div>
-                </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary bg-gradient-card hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
-                        onClick={() => navigate('/ai-tests')}>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground mr-4 group-hover:scale-105 transition-transform">
-                    <Zap className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">Test AI Prompt</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Ask AI questions to see if it mentions your website</div>
-                  </div>
-                </button>
-                <button className="group flex items-start p-4 rounded-lg border border-border hover:bg-gradient-secondary transition-all duration-200 text-left interactive touch-target"
-                        onClick={() => navigate('/reports')}>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent text-accent-foreground mr-4 group-hover:scale-105 transition-transform">
-                    <TrendingUp className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">View Reports</div>
-                    <div className="text-sm text-muted-foreground text-responsive">Get actionable tips to improve your AI visibility</div>
-                  </div>
-                </button>
-              </div>
+              
+              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+                      onClick={() => navigate('/scans')}>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent mr-4 group-hover:scale-105 transition-transform">
+                  <Search className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Run New Scan</div>
+                  <div className="text-sm text-muted-foreground">Check metadata, schema, and structure for AI optimization</div>
+                </div>
+              </button>
+              
+              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+                      onClick={() => navigate('/ai-tests')}>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-secondary-foreground mr-4 group-hover:scale-105 transition-transform">
+                  <Zap className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Test AI Prompt</div>
+                  <div className="text-sm text-muted-foreground">Ask AI questions to see if it mentions your website</div>
+                </div>
+              </button>
+              
+              <button className="group flex items-start p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
+                      onClick={() => navigate('/reports')}>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/10 text-muted-foreground mr-4 group-hover:scale-105 transition-transform">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">View Reports</div>
+                  <div className="text-sm text-muted-foreground">Get actionable tips to improve your AI visibility</div>
+                </div>
+              </button>
+            </div>
             </div>
           </div>
 
