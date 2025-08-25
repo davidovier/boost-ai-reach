@@ -6,13 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
-import { FileText, Download, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3 } from 'lucide-react';
+import { FileText, Download, Calendar, Loader2, Eye, Share2, Sparkles, BarChart3, Trash2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { ReportsGridSkeleton } from '@/components/ui/loading-states';
 import { EmptyReports } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { UpgradeModal } from '@/components/ui/upgrade-modal';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface Report {
   id: string;
@@ -30,6 +31,8 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; report?: Report }>({ open: false });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -100,6 +103,47 @@ export default function Reports() {
     const endDate = new Date(end);
     
     return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+  };
+
+  const openDeleteDialog = (report: Report) => {
+    setDeleteDialog({ open: true, report });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false });
+    setDeleting(false);
+  };
+
+  const confirmDeleteReport = async () => {
+    if (!deleteDialog.report) return;
+    
+    try {
+      setDeleting(true);
+      const { error } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', deleteDialog.report.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: '✅ Report deleted',
+        description: 'Report has been successfully removed.',
+        className: 'success-animation'
+      });
+      
+      setReports(prev => prev.filter(r => r.id !== deleteDialog.report?.id));
+      closeDeleteDialog();
+      refresh(); // Refresh usage data
+    } catch (error: any) {
+      console.error('Error deleting report:', error);
+      toast({
+        title: 'Failed to delete report',
+        description: 'Could not remove report. Please try again.',
+        variant: 'destructive'
+      });
+      setDeleting(false);
+    }
   };
 
   const breadcrumbs = getBreadcrumbJsonLd([
@@ -192,6 +236,17 @@ export default function Reports() {
                           <Button size="sm" variant="secondary" className="backdrop-blur-sm">
                             <Share2 className="w-4 h-4" />
                           </Button>
+                          <Button 
+                            size="sm" 
+                            variant="secondary" 
+                            className="backdrop-blur-sm text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteDialog(report);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </>
                       )}
                     </div>
@@ -232,13 +287,26 @@ export default function Reports() {
                     </Button>
                     
                     {report.pdf_url && (
-                      <Button asChild size="sm" className="flex-1 bg-gradient-to-r from-primary to-primary-glow hover:from-primary-hover hover:to-primary">
+                      <Button asChild size="sm" className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary-hover hover:to-primary">
                         <a href={report.pdf_url} download target="_blank" rel="noopener noreferrer">
                           <Download className="w-3 h-3 mr-1" />
                           PDF
                         </a>
                       </Button>
                     )}
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteDialog(report);
+                      }}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -246,6 +314,19 @@ export default function Reports() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !open && closeDeleteDialog()}
+        title="Delete Report"
+        description={`Are you sure you want to delete this report? This action cannot be undone and will permanently remove the report and its data.`}
+        confirmText="Delete Report"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDeleteReport}
+        loading={deleting}
+      />
 
       {/* Upgrade Modal */}
       <UpgradeModal
