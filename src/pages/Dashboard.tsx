@@ -305,13 +305,13 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Performance Overview */}
-        <ComponentErrorBoundary context="Performance Overview">
+        {/* Dashboard Actions */}
+        <ComponentErrorBoundary context="Dashboard Actions">
           <section aria-labelledby="kpi-heading" className="card-mobile">
             <div className="mb-6">
-              <h2 id="kpi-heading" className="text-lg font-semibold text-foreground mb-2">Performance Overview</h2>
+              <h2 id="kpi-heading" className="text-lg font-semibold text-foreground mb-2">Dashboard Actions</h2>
               <p className="text-sm text-muted-foreground">
-                Track your website's AI findability and optimization progress. These metrics show how well AI tools can discover and understand your content.
+                Click on any metric card to access related features - manage websites, run scans, or test AI visibility.
               </p>
             </div>
             <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
@@ -365,7 +365,11 @@ export default function Dashboard() {
               </Card>
 
               {/* Total Sites */}
-              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.1s' }}>
+              <Card 
+                className="animate-fade-in hover:shadow-lg transition-all cursor-pointer hover:scale-105 transform" 
+                style={{ animationDelay: '0.1s' }}
+                onClick={() => navigate('/sites')}
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <div className="flex items-center space-x-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
@@ -393,7 +397,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-sm font-medium">Websites Added</div>
                     <div className="text-xs text-muted-foreground">
-                      Number of websites you're monitoring
+                      Click to manage your websites
                     </div>
                     <div className="flex justify-center pt-2">
                       {metricsLoading ? (
@@ -410,7 +414,11 @@ export default function Dashboard() {
               </Card>
 
               {/* AI Tests */}
-              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.2s' }}>
+              <Card 
+                className="animate-fade-in hover:shadow-lg transition-all cursor-pointer hover:scale-105 transform" 
+                style={{ animationDelay: '0.2s' }}
+                onClick={() => navigate('/ai-tests')}
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <div className="flex items-center space-x-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/10">
@@ -438,7 +446,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-sm font-medium">AI Tests Run</div>
                     <div className="text-xs text-muted-foreground">
-                      Queries tested to see if AI mentions your site
+                      Click to run AI visibility tests
                     </div>
                     <div className="flex justify-center pt-2">
                       {metricsLoading ? (
@@ -455,7 +463,11 @@ export default function Dashboard() {
               </Card>
 
               {/* Last Scan Status */}
-              <Card className="animate-fade-in hover:shadow-md transition-shadow" style={{ animationDelay: '0.3s' }}>
+              <Card 
+                className="animate-fade-in hover:shadow-lg transition-all cursor-pointer hover:scale-105 transform" 
+                style={{ animationDelay: '0.3s' }}
+                onClick={() => navigate('/scans')}
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <div className="flex items-center space-x-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/10">
@@ -481,9 +493,9 @@ export default function Dashboard() {
                         metrics.lastScanStatus
                       )}
                     </div>
-                    <div className="text-sm font-medium">Last Scan Status</div>
+                    <div className="text-sm font-medium">Scans</div>
                     <div className="text-xs text-muted-foreground">
-                      When your website was last analyzed
+                      Click to run website scans
                     </div>
                     <div className="flex justify-center pt-2">
                       {metricsLoading ? (
@@ -558,122 +570,76 @@ export default function Dashboard() {
           </section>
         </ComponentErrorBoundary>
 
-        {/* Additional Actions */}
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 spacing-mobile">
-          {/* Quick Actions */}
-          <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.5s' }}>
-            <div className="card-header">
-              <h3 className="heading-responsive">Quick Actions</h3>
-              <p className="text-responsive">Essential steps to improve how AI discovers and recommends your website</p>
-            </div>
-            <div className="card-content">
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
-                      onClick={() => navigate('/sites')}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary mr-4 group-hover:scale-105 transition-transform">
-                  <Globe className="h-5 w-5" />
-                </div>
-                <div className="font-medium text-foreground">Add Website</div>
-              </button>
-              
-              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
-                      onClick={() => navigate('/scans')}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent mr-4 group-hover:scale-105 transition-transform">
-                  <Search className="h-5 w-5" />
-                </div>
-                <div className="font-medium text-foreground">Run New Scan</div>
-              </button>
-              
-              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
-                      onClick={() => navigate('/ai-tests')}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-secondary-foreground mr-4 group-hover:scale-105 transition-transform">
-                  <Zap className="h-5 w-5" />
-                </div>
-                <div className="font-medium text-foreground">Test AI Prompt</div>
-              </button>
-              
-              <button className="group flex items-center p-4 rounded-lg border border-border hover:border-primary hover:shadow-md bg-card hover:bg-accent/5 transition-all duration-200 text-left"
-                      onClick={() => navigate('/reports')}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/10 text-muted-foreground mr-4 group-hover:scale-105 transition-transform">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-                <div className="font-medium text-foreground">View Reports</div>
-              </button>
-            </div>
-            </div>
+        {/* Subscription Status */}
+        <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.5s' }}>
+          <div className="card-header">
+            <h3 className="heading-responsive">Usage & Plan</h3>
+            <p className="text-responsive">Track your monthly usage limits and upgrade when ready</p>
           </div>
+          <div className="card-content">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-secondary">
+                <div>
+                  <div className="font-semibold text-foreground capitalize">
+                    {profile?.plan || 'Free'} Plan
+                  </div>
+                  <div className="text-sm text-muted-foreground text-responsive">
+                    Your current subscription
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-primary">
+                    {profile?.plan === 'free' ? 'Free' : 'Active'}
+                  </div>
+                </div>
+              </div>
 
-          {/* Subscription Status */}
-          <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.6s' }}>
-            <div className="card-header">
-              <h3 className="heading-responsive">Usage & Plan</h3>
-              <p className="text-responsive">Track your monthly usage limits and upgrade when ready</p>
-            </div>
-            <div className="card-content">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-secondary">
+              {/* Usage Progress */}
+                <div className="space-y-4 animated-progress">
                   <div>
-                    <div className="font-semibold text-foreground capitalize">
-                      {profile?.plan || 'Free'} Plan
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>AI Tests</span>
+                      <span>{usageData.promptCount} / {usageData.maxPrompts}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground text-responsive">
-                      Your current subscription
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0}%` }}
+                      ></div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-primary">
-                      {profile?.plan === 'free' ? 'Free' : 'Active'}
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Sites</span>
+                      <span>{metrics.totalSites} / {usageData.maxSites}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Scans</span>
+                      <span>{usageData.scanCount} / {usageData.maxScans}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="progress-fill bg-gradient-secondary h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${usageData.maxScans > 0 ? (usageData.scanCount / usageData.maxScans) * 100 : 0}%` }}
+                      ></div>
                     </div>
                   </div>
                 </div>
 
-                {/* Usage Progress */}
-                  <div className="space-y-4 animated-progress">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>AI Tests</span>
-                        <span>{usageData.promptCount} / {usageData.maxPrompts}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div 
-                          className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Sites</span>
-                        <span>{metrics.totalSites} / {usageData.maxSites}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div 
-                          className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Scans</span>
-                        <span>{usageData.scanCount} / {usageData.maxScans}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div 
-                          className="progress-fill bg-gradient-secondary h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${usageData.maxScans > 0 ? (usageData.scanCount / usageData.maxScans) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-
-                <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive"
-                        onClick={() => navigate('/pricing')}>
-                  Upgrade to Pro
-                </button>
-              </div>
+              <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive"
+                      onClick={() => navigate('/pricing')}>
+                Upgrade to Pro
+              </button>
             </div>
           </div>
         </div>
