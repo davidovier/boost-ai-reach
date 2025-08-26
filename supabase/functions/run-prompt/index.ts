@@ -101,7 +101,7 @@ Always return valid JSON. Be concise but helpful.`;
     const aiResponse = data.choices?.[0]?.message?.content;
 
     if (!aiResponse) {
-      logger.error("No response from OpenAI");
+      console.error("No response from OpenAI");
       return {
         error: {
           status: 500,
@@ -116,7 +116,7 @@ Always return valid JSON. Be concise but helpful.`;
     try {
       parsedResponse = JSON.parse(aiResponse);
     } catch (parseError) {
-      logger.warn("Failed to parse AI response as JSON", { parseError, response: aiResponse.substring(0, 200) });
+      console.warn("Failed to parse AI response as JSON", { parseError, response: aiResponse.substring(0, 200) });
       // Fallback: create a response object
       parsedResponse = {
         response: aiResponse,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useUsageLimits } from "@/hooks/useUsageLimits";
@@ -13,33 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton-enhanced";
 import { UsageLimitBanner } from "@/components/ui/usage-limit-banner";
 import { UpgradeModal } from "@/components/ui/upgrade-modal";
 
-// Mock data - replace with actual API calls
-const mockHistory = [
-  {
-    id: "1",
-    prompt: "Best marketing agencies in London",
-    run_date: "2024-01-15T10:30:00Z",
-    includes_user_site: true,
-    competitor_mentions: 3,
-    result: {
-      summary: "Found several marketing agencies including top-rated firms specializing in digital marketing and brand strategy.",
-      competitors: ["Agency A", "Agency B", "Agency C"],
-      mentions: ["Your agency was mentioned as a leading provider"]
-    }
-  },
-  {
-    id: "2", 
-    prompt: "CRM software recommendations",
-    run_date: "2024-01-14T14:15:00Z",
-    includes_user_site: false,
-    competitor_mentions: 5,
-    result: {
-      summary: "Multiple CRM solutions were recommended focusing on enterprise and small business needs.",
-      competitors: ["Salesforce", "HubSpot", "Pipedrive", "Zoho", "Monday.com"],
-      mentions: []
-    }
-  }
-];
 
 export default function AITests() {
   const { user } = useAuth();
@@ -49,12 +22,57 @@ export default function AITests() {
   const [selectedResult, setSelectedResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const breadcrumbs = getBreadcrumbJsonLd([
     { name: 'Home', item: origin },
     { name: 'AI Tests', item: `${origin}/ai-tests` },
   ]);
+
+  // Fetch prompt history
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchHistory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('prompt_simulations')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('run_date', { ascending: false })
+          .limit(10);
+
+        if (error) throw error;
+
+        // Transform data to match expected format
+        const transformedHistory = data?.map(item => {
+          const resultData = item.result as any; // Type assertion for JSON data
+          return {
+            id: item.id,
+            prompt: item.prompt,
+            run_date: item.run_date,
+            includes_user_site: item.includes_user_site,
+            competitor_mentions: resultData?.analysis?.competitor_domains?.length || 0,
+            result: {
+              summary: resultData?.response || '',
+              competitors: resultData?.analysis?.competitor_domains || [],
+              mentions: resultData?.analysis?.user_domains_mentioned || []
+            }
+          };
+        }) || [];
+
+        setHistory(transformedHistory);
+      } catch (error) {
+        console.error('Error fetching prompt history:', error);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [user]);
 
   const handleSubmitPrompt = async (data: { prompt: string }) => {
     if (!user) {
@@ -84,22 +102,45 @@ export default function AITests() {
 
       if (error) throw error;
 
-      setSelectedResult(result);
-      
-      // Success animation and refresh usage
-      toast({
-        title: "✨ AI test completed",
-        description: "Results are ready for review",
-        className: "success-animation"
-      });
-      
-      // Refresh usage data
-      refresh();
+      // Handle the response structure from the edge function
+      const simulation = result?.simulation;
+      if (simulation) {
+        // Transform the data to match the expected format
+        const transformedResult = {
+          id: simulation.id,
+          prompt: simulation.prompt,
+          includes_user_site: simulation.mentionedUserSite,
+          run_date: simulation.run_date,
+          result: {
+            summary: simulation.response,
+            competitors: simulation.competitors || [],
+            mentions: simulation.analysis?.user_domains_mentioned || [],
+            analysis: simulation.analysis
+          }
+        };
+        
+        setSelectedResult(transformedResult);
+        
+        // Success animation and refresh usage
+        toast({
+          title: "✨ AI test completed",
+          description: "Results are ready for review",
+          className: "success-animation"
+        });
+        
+        // Refresh usage data and history
+        refresh();
+        
+        // Add the new result to history
+        setHistory(prev => [transformedResult, ...prev.slice(0, 9)]);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
       console.error('Error running prompt:', error);
       toast({
         title: "Error running test",
-        description: "Please try again later",
+        description: error?.message || "Please try again later",
         variant: "destructive"
       });
     } finally {
@@ -165,8 +206,8 @@ export default function AITests() {
 
               <div className="stagger-animation">
                 <PromptHistory 
-                  history={mockHistory}
-                  loading={false}
+                  history={history}
+                  loading={historyLoading}
                   onSelectPrompt={setSelectedResult}
                   onRerunPrompt={(prompt) => handleSubmitPrompt({ prompt })}
                   onRunFirstTest={() => {
