@@ -107,7 +107,7 @@ export default function Dashboard() {
 
     const activities: ActivityItem[] = [];
 
-    // Fetch recent scans
+    // Fetch recent scans (increased limit to capture more activities)
     const { data: scans } = await supabase
       .from('scans')
       .select(`
@@ -115,7 +115,7 @@ export default function Dashboard() {
         sites:site_id (name, url)
       `)
       .order('scan_date', { ascending: false })
-      .limit(3);
+      .limit(10);
 
     scans?.forEach(scan => {
       activities.push({
@@ -128,12 +128,12 @@ export default function Dashboard() {
       });
     });
 
-    // Fetch recent prompts
+    // Fetch recent prompts (increased limit to capture more activities)
     const { data: prompts } = await supabase
       .from('prompt_simulations')
       .select('id, prompt, run_date')
       .order('run_date', { ascending: false })
-      .limit(3);
+      .limit(10);
 
     prompts?.forEach(prompt => {
       activities.push({
@@ -146,12 +146,12 @@ export default function Dashboard() {
       });
     });
 
-    // Fetch recent reports
+    // Fetch recent reports (increased limit to capture more activities)
     const { data: reports } = await supabase
       .from('reports')
       .select('id, created_at, status')
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(10);
 
     reports?.forEach(report => {
       activities.push({
@@ -164,7 +164,7 @@ export default function Dashboard() {
       });
     });
 
-    // Sort by created_at and take the 5 most recent
+    // Sort all activities by created_at to get the truly most recent across all categories
     activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setActivities(activities.slice(0, 5));
   };
