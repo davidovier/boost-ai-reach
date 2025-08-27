@@ -17,6 +17,7 @@ import { EmptyActivity } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { InviteFriend } from '@/components/referral/InviteFriend';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
+import { UsageTracker } from '@/components/dashboard/UsageTracker';
 import { format } from 'date-fns';
 
 interface ActivityItem {
@@ -570,79 +571,69 @@ export default function Dashboard() {
           </section>
         </ComponentErrorBoundary>
 
-        {/* Subscription Status */}
-        <div className="card-dashboard animate-fade-in card-mobile" style={{ animationDelay: '0.5s' }}>
-          <div className="card-header">
-            <h3 className="heading-responsive">Usage & Plan</h3>
-            <p className="text-responsive">Track your monthly usage limits and upgrade when ready</p>
-          </div>
-          <div className="card-content">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-secondary">
-                <div>
-                  <div className="font-semibold text-foreground capitalize">
-                    {profile?.plan || 'Free'} Plan
+        {/* Usage & Plan */}
+        <ComponentErrorBoundary context="Usage Tracker">
+          <section className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="card-dashboard">
+              <div className="card-header">
+                <h3 className="heading-responsive">Usage & Plan</h3>
+                <p className="text-responsive">Track your monthly usage limits and upgrade when ready</p>
+              </div>
+              <div className="card-content">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-secondary border border-border/50">
+                    <div>
+                      <div className="font-semibold text-foreground capitalize">
+                        {profile?.plan || 'Free'} Plan
+                      </div>
+                      <div className="text-sm text-muted-foreground text-responsive">
+                        Your current subscription
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-primary">
+                        {profile?.plan === 'free' ? 'Free' : 'Active'}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground text-responsive">
-                    Your current subscription
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-primary">
-                    {profile?.plan === 'free' ? 'Free' : 'Active'}
-                  </div>
+
+                  <UsageTracker 
+                    items={[
+                      {
+                        label: "AI Tests",
+                        current: usageData.promptCount,
+                        max: usageData.maxPrompts,
+                        icon: "🤖",
+                        gradient: "bg-gradient-primary text-primary-foreground"
+                      },
+                      {
+                        label: "Sites",
+                        current: metrics.totalSites,
+                        max: usageData.maxSites,
+                        icon: "🌐",
+                        gradient: "bg-gradient-accent text-accent-foreground"
+                      },
+                      {
+                        label: "Scans",
+                        current: usageData.scanCount,
+                        max: usageData.maxScans,
+                        icon: "🔍",
+                        gradient: "bg-gradient-secondary text-secondary-foreground"
+                      }
+                    ]}
+                  />
+
+                  <button 
+                    className="w-full p-3 rounded-xl bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] interactive touch-target btn-responsive"
+                    onClick={() => navigate('/pricing')}
+                  >
+                    Upgrade to Pro
+                  </button>
                 </div>
               </div>
-
-              {/* Usage Progress */}
-                <div className="space-y-4 animated-progress">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>AI Tests</span>
-                      <span>{usageData.promptCount} / {usageData.maxPrompts}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="progress-fill bg-gradient-primary h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Sites</span>
-                      <span>{metrics.totalSites} / {usageData.maxSites}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="progress-fill bg-gradient-accent h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Scans</span>
-                      <span>{usageData.scanCount} / {usageData.maxScans}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="progress-fill bg-gradient-secondary h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${usageData.maxScans > 0 ? (usageData.scanCount / usageData.maxScans) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-              <button className="w-full p-3 rounded-lg bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 interactive touch-target btn-responsive"
-                      onClick={() => navigate('/pricing')}>
-                Upgrade to Pro
-              </button>
             </div>
-          </div>
-        </div>
+          </section>
+        </ComponentErrorBoundary>
       </div>
     </PageErrorBoundary>
   );
