@@ -1,29 +1,20 @@
 import { SEO } from '@/components/SEO';
-import { Button } from '@/components/ui/button';
 import { LanguageToggle } from '@/components/ui/language-toggle';
-import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
-import { supabase } from '@/integrations/supabase/client';
-import { PLAN_PRICE_IDS } from '@/types/stripe';
 import { getBreadcrumbJsonLd, stringifyJsonLd } from '@/lib/seo';
 import { TestimonialSlider } from '@/components/ui/testimonial-slider';
 import { StarRating } from '@/components/ui/star-rating';
 import { FAQAccordion } from '@/components/ui/faq-accordion';
-import { Check, Star, Shield, Zap, HeadphonesIcon } from 'lucide-react';
+import { Shield, Zap, HeadphonesIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PlanCard } from '@/components/pricing/PlanCard';
+import { DynamicUpgradeButton } from '@/components/pricing/DynamicUpgradeButton';
 
 // Plan configuration - keys match translation keys
 const planKeys = ['free', 'pro', 'growth', 'enterprise'] as const;
-const planPriceIds = {
-  free: PLAN_PRICE_IDS.free,
-  pro: PLAN_PRICE_IDS.pro,
-  growth: PLAN_PRICE_IDS.growth,
-  enterprise: PLAN_PRICE_IDS.enterprise,
-};
 
 export default function Pricing() {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -152,24 +143,8 @@ export default function Pricing() {
   }), [pageUrl, faqItems]);
 
   const handleCheckout = async (priceId: string | null | undefined) => {
-    if (!priceId) {
-      toast({ title: 'Pricing not configured', description: 'Stripe price IDs are not set. Please try again later or contact support.' });
-      return;
-    }
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId, successUrl: `${origin}/subscription-success`, cancelUrl: pageUrl },
-      });
-      if (error) throw error;
-      const url = (data as any)?.url;
-      if (url) {
-        window.open(url, '_blank');
-      } else {
-        throw new Error('No checkout URL returned');
-      }
-    } catch (e: any) {
-      toast({ title: 'Checkout error', description: e.message ?? 'Could not start checkout', variant: 'destructive' });
-    }
+    // This is now handled by individual plan cards
+    console.log('Checkout handled by plan card component');
   };
 
   return (
@@ -200,53 +175,9 @@ export default function Pricing() {
 
         <section className="mx-auto max-w-6xl px-6 pb-12">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {planKeys.map((planKey) => {
-              const planName = t(`pricing.plans.${planKey}.name`);
-              const planPrice = t(`pricing.plans.${planKey}.price`);
-              const planPeriod = t(`pricing.plans.${planKey}.period`);
-              const planCta = t(`pricing.plans.${planKey}.cta`);
-              const planFeatures = Array.isArray(t(`pricing.plans.${planKey}.features`)) 
-                ? (t(`pricing.plans.${planKey}.features`) as unknown as string[])
-                : [];
-              const planPopular = planKey === 'pro' ? t(`pricing.plans.${planKey}.popular`) : '';
-              
-              return (
-                <article key={planKey} className="plan-card rounded-xl border bg-card p-6 text-card-foreground shadow-sm relative">
-                  {planKey === 'pro' && (
-                    <span className="absolute -top-3 right-4 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground shadow">
-                      <Star className="h-3.5 w-3.5" /> {planPopular}
-                    </span>
-                  )}
-                  <h2 className="text-xl font-semibold">{planName}</h2>
-                  <p className="mt-2 text-3xl font-bold">{planPrice}
-                    <span className="ml-2 align-middle text-sm font-normal text-muted-foreground">{planPeriod}</span>
-                  </p>
-                  <ul className="mt-6 space-y-2 text-sm">
-                    {planFeatures.map((feature: string) => (
-                      <li key={feature} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-primary mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-8">
-                    {planKey === 'free' ? (
-                      <Button size="lg" className="w-full btn-cta" onClick={() => navigate('/onboarding')}>
-                        {planCta}
-                      </Button>
-                    ) : planKey === 'enterprise' ? (
-                      <Button size="lg" variant="secondary" className="w-full" onClick={() => navigate('/account')}>
-                        {planCta}
-                      </Button>
-                    ) : (
-                      <Button size="lg" className="w-full btn-cta" onClick={() => handleCheckout(planPriceIds[planKey])}>
-                        {planCta}
-                      </Button>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+            {planKeys.map((planKey) => (
+              <PlanCard key={planKey} planKey={planKey} />
+            ))}
           </div>
         </section>
 
@@ -298,14 +229,11 @@ export default function Pricing() {
             <p className="text-primary-foreground/90 text-lg mb-6">
               Start with our free plan. No credit card required.
             </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              onClick={() => navigate('/onboarding')}
-              className="min-h-[52px] px-8 text-lg font-semibold"
-            >
-              Get Started Free
-            </Button>
+            <DynamicUpgradeButton
+              variant="button"
+              size="lg"
+              className="min-h-[52px] px-8 text-lg font-semibold bg-white text-primary hover:bg-white/90"
+            />
           </div>
         </section>
       </main>

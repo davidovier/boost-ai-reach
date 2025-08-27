@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { usePlanManagement } from '@/hooks/usePlanManagement';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, TrendingUp, Zap, Users, Search, Sparkles, Crown } from 'lucide-react';
+import { Loader2, TrendingUp, Zap, Users, Search, Sparkles, Crown, ArrowUp } from 'lucide-react';
 
 interface UsageStatus {
   type: 'scan' | 'prompt' | 'competitor' | 'report';
@@ -51,23 +51,6 @@ const getTypeLabel = (type: string) => {
   }
 };
 
-const planTiers = [
-  {
-    name: 'Pro',
-    price: 29,
-    features: ['3 websites', '4 scans/month', '10 AI tests', '1 competitor'],
-    highlighted: true,
-    stripePrice: 'price_pro_monthly' // You'll need to set this up in Stripe
-  },
-  {
-    name: 'Growth',
-    price: 99,
-    features: ['10 websites', 'Daily scans', '50 AI tests', '5 competitors'],
-    highlighted: false,
-    stripePrice: 'price_growth_monthly' // You'll need to set this up in Stripe
-  }
-];
-
 export function UpgradeModal({ 
   open, 
   onOpenChange, 
@@ -77,8 +60,16 @@ export function UpgradeModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  
+  const {
+    getUpgradeOptions,
+    handleUpgrade,
+    currentPlan: actualCurrentPlan
+  } = usePlanManagement();
 
-  const handleUpgrade = async (stripePrice: string, planName: string) => {
+  const upgradeOptions = getUpgradeOptions();
+
+  const handlePlanUpgrade = async (planKey: string) => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -89,33 +80,28 @@ export function UpgradeModal({
     }
 
     try {
-      setUpgrading(stripePrice);
-      const origin = window.location.origin;
+      setUpgrading(planKey);
+      const result = await handleUpgrade(planKey as any);
       
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
-          priceId: stripePrice,
-          successUrl: `${origin}/subscription-success`,
-          cancelUrl: `${origin}/pricing`
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
-        
+      if (result.type === 'checkout' && result.url) {
+        window.open(result.url, '_blank');
+        onOpenChange(false);
         toast({
           title: '🚀 Redirecting to checkout',
-          description: `Upgrading to ${planName} plan...`,
+          description: `Upgrading to ${planKey} plan...`,
           className: 'success-animation'
+        });
+      } else if (result.type === 'contact') {
+        onOpenChange(false);
+        toast({
+          title: 'Enterprise plan',
+          description: 'Please contact our sales team for enterprise pricing',
         });
       }
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('Upgrade error:', error);
       toast({
-        title: 'Failed to start checkout',
+        title: 'Failed to start upgrade',
         description: error.message || 'Please try again or contact support',
         variant: 'destructive'
       });
@@ -124,12 +110,33 @@ export function UpgradeModal({
     }
   };
 
+  if (upgradeOptions.length === 0) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center flex items-center justify-center gap-2">
+              <Crown className="h-5 w-5 text-amber-500" />
+              Already at Maximum Plan
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              You're already on our highest tier! Contact support if you need additional capacity.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => onOpenChange(false)} className="w-full">
+            Continue
+          </Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-amber-500" />
+            <ArrowUp className="h-5 w-5 text-primary" />
             Upgrade Required
           </DialogTitle>
           <DialogDescription>
@@ -168,16 +175,16 @@ export function UpgradeModal({
 
           {/* Plan Options */}
           <div className="grid gap-4 sm:grid-cols-2">
-            {planTiers.map((plan) => (
+            {upgradeOptions.map((option) => (
               <div 
-                key={plan.name}
+                key={option.key}
                 className={`relative p-4 border rounded-lg ${
-                  plan.highlighted 
+                  option.key === 'pro' 
                     ? 'border-primary bg-gradient-to-br from-primary/5 to-primary/10' 
                     : 'border-border'
                 }`}
               >
-                {plan.highlighted && (
+                {option.key === 'pro' && (
                   <Badge className="absolute -top-2 left-4 bg-gradient-to-r from-primary to-primary-glow">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Most Popular
@@ -186,39 +193,31 @@ export function UpgradeModal({
                 
                 <div className="space-y-3">
                   <div>
-                    <h3 className="font-semibold text-lg">{plan.name}</h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold">${plan.price}</span>
-                      <span className="text-muted-foreground">/month</span>
-                    </div>
+                    <h3 className="font-semibold text-lg capitalize">{option.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Perfect for {option.key === 'pro' ? 'growing businesses' : 'larger teams'}
+                    </p>
                   </div>
                   
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 bg-primary rounded-full" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  
                   <Button 
-                    onClick={() => handleUpgrade(plan.stripePrice, plan.name)}
+                    onClick={() => handlePlanUpgrade(option.key)}
                     disabled={upgrading !== null}
                     className={`w-full ${
-                      plan.highlighted 
+                      option.key === 'pro' 
                         ? 'bg-gradient-to-r from-primary to-primary-glow hover:from-primary-hover hover:to-primary' 
                         : ''
                     }`}
-                    variant={plan.highlighted ? 'default' : 'outline'}
+                    variant={option.key === 'pro' ? 'default' : 'outline'}
                   >
-                    {upgrading === plan.stripePrice ? (
+                    {upgrading === option.key ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Processing...
                       </>
+                    ) : option.key === 'enterprise' ? (
+                      'Contact Sales'
                     ) : (
-                      `Upgrade to ${plan.name}`
+                      `Upgrade to ${option.name}`
                     )}
                   </Button>
                 </div>

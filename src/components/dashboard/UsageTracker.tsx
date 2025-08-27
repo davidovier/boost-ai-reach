@@ -1,6 +1,7 @@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { usePlanManagement } from "@/hooks/usePlanManagement";
 
 interface UsageItem {
   label: string;
@@ -16,6 +17,9 @@ interface UsageTrackerProps {
 }
 
 export function UsageTracker({ items, className }: UsageTrackerProps) {
+  const { currentPlan, getNextPlan } = usePlanManagement();
+  const nextPlan = getNextPlan();
+
   const getUsageStatus = (current: number, max: number) => {
     const percentage = max > 0 ? (current / max) * 100 : 0;
     
@@ -28,11 +32,22 @@ export function UsageTracker({ items, className }: UsageTrackerProps) {
     return max > 0 ? Math.round((current / max) * 100) : 0;
   };
 
+  const getUpgradeHint = (current: number, max: number) => {
+    if (max === 0 || !nextPlan) return null;
+    
+    const percentage = (current / max) * 100;
+    if (percentage >= 75) {
+      return `Upgrade to ${nextPlan.name} for more capacity`;
+    }
+    return null;
+  };
+
   return (
     <div className={cn("space-y-4", className)}>
       {items.map((item, index) => {
         const percentage = formatPercentage(item.current, item.max);
         const { status, color } = getUsageStatus(item.current, item.max);
+        const upgradeHint = getUpgradeHint(item.current, item.max);
         
         return (
           <div 
@@ -73,6 +88,13 @@ export function UsageTracker({ items, className }: UsageTrackerProps) {
                 <span>0</span>
                 <span className="font-medium">{item.max}</span>
               </div>
+
+              {/* Upgrade hint */}
+              {upgradeHint && (
+                <p className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                  💡 {upgradeHint}
+                </p>
+              )}
             </div>
             
             {/* Status indicator */}

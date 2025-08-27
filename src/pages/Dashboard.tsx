@@ -18,6 +18,7 @@ import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { InviteFriend } from '@/components/referral/InviteFriend';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { UsageTracker } from '@/components/dashboard/UsageTracker';
+import { DynamicUpgradeButton } from '@/components/pricing/DynamicUpgradeButton';
 import { format } from 'date-fns';
 
 interface ActivityItem {
@@ -623,12 +624,12 @@ export default function Dashboard() {
                     ]}
                   />
 
-                  <button 
-                    className="w-full p-3 rounded-xl bg-gradient-primary text-primary-foreground font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] interactive touch-target btn-responsive"
-                    onClick={() => navigate('/pricing')}
-                  >
-                    Upgrade to Pro
-                  </button>
+                  <DynamicUpgradeButton
+                    variant="card"
+                    size="lg"
+                    className="w-full"
+                    showCurrentPlan={true}
+                  />
                 </div>
               </div>
             </div>
