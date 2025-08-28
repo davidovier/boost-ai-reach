@@ -7,9 +7,12 @@ import { StarRating } from '@/components/ui/star-rating';
 import { FAQAccordion } from '@/components/ui/faq-accordion';
 import { Shield, Zap, HeadphonesIcon } from 'lucide-react';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PlanCard } from '@/components/pricing/PlanCard';
 import { DynamicUpgradeButton } from '@/components/pricing/DynamicUpgradeButton';
+import { useAuth } from '@/hooks/useAuth';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Plan configuration - keys match translation keys
 const planKeys = ['free', 'pro', 'growth', 'enterprise'] as const;
@@ -17,6 +20,7 @@ const planKeys = ['free', 'pro', 'growth', 'enterprise'] as const;
 export default function Pricing() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { profile } = useAuth();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const pageUrl = `${origin}/pricing`;
   const ogImage = 'https://images.unsplash.com/photo-1551281044-8f785ba67e45?q=80&w=1600&auto=format&fit=crop';
@@ -166,6 +170,28 @@ export default function Pricing() {
         <div className="absolute top-4 right-4 z-10">
           <LanguageToggle />
         </div>
+        
+        {/* Navigation Header */}
+        <header className="absolute top-4 left-4 z-10">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(profile ? '/dashboard' : '/')}
+              className="flex items-center gap-2 hover:bg-background/80 backdrop-blur-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {profile ? 'Back to Dashboard' : 'Back to Home'}
+            </Button>
+            
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 text-lg font-bold text-foreground hover:text-primary transition-colors"
+            >
+              FindableAI
+            </Link>
+          </div>
+        </header>
         <section className="mx-auto max-w-6xl px-6 pt-20 pb-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">{t('pricing.heading')}</h1>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
