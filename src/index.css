@@ -76,10 +76,11 @@ All colors MUST be HSL.
     --gradient-accent: linear-gradient(135deg, hsl(199 89% 48%) 0%, hsl(242 47% 58%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 27% 98%) 100%);
 
-    /* Shadows */
+    /* Shadows - balanced for hover effects */
     --shadow-sm: 0 1px 2px 0 hsl(215 25% 27% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 25% 27% / 0.1), 0 2px 4px -1px hsl(215 25% 27% / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(215 25% 27% / 0.1), 0 4px 6px -2px hsl(215 25% 27% / 0.05);
+    --shadow-md: 0 2px 8px 0 hsl(215 25% 27% / 0.08), 0 1px 4px 0 hsl(215 25% 27% / 0.04);
+    --shadow-lg: 0 8px 25px -4px hsl(215 25% 27% / 0.12), 0 4px 10px -2px hsl(215 25% 27% / 0.08);
+    --shadow-hover: 0 12px 32px -4px hsl(215 25% 27% / 0.15), 0 8px 20px -4px hsl(215 25% 27% / 0.1);
     --shadow-glow: 0 0 0 1px hsl(242 47% 58% / 0.1), 0 0 20px hsl(242 47% 58% / 0.2);
   }
 
@@ -131,10 +132,11 @@ All colors MUST be HSL.
     --gradient-accent: linear-gradient(135deg, hsl(199 89% 58%) 0%, hsl(242 47% 65%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(215 28% 9%) 0%, hsl(215 32% 11%) 100%);
 
-    /* Dark shadows */
+    /* Dark shadows - balanced for hover effects */
     --shadow-sm: 0 1px 2px 0 hsl(215 32% 3% / 0.4);
-    --shadow-md: 0 4px 6px -1px hsl(215 32% 3% / 0.3), 0 2px 4px -1px hsl(215 32% 3% / 0.2);
-    --shadow-lg: 0 10px 15px -3px hsl(215 32% 3% / 0.3), 0 4px 6px -2px hsl(215 32% 3% / 0.2);
+    --shadow-md: 0 2px 8px 0 hsl(215 32% 3% / 0.25), 0 1px 4px 0 hsl(215 32% 3% / 0.15);
+    --shadow-lg: 0 8px 25px -4px hsl(215 32% 3% / 0.4), 0 4px 10px -2px hsl(215 32% 3% / 0.25);
+    --shadow-hover: 0 12px 32px -4px hsl(215 32% 3% / 0.5), 0 8px 20px -4px hsl(215 32% 3% / 0.3);
     --shadow-glow: 0 0 0 1px hsl(242 47% 65% / 0.2), 0 0 20px hsl(242 47% 65% / 0.3);
   }
 }

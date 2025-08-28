@@ -29,11 +29,8 @@
   }
   
   &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-      0 4px 6px -1px hsl(var(--foreground) / 0.08),
-      0 10px 25px -5px hsl(var(--foreground) / 0.08),
-      0 20px 40px -10px hsl(var(--primary) / 0.15);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: $shadow-hover;
     
     &::before {
       opacity: 1;
@@ -211,8 +208,9 @@
   transition: all 0.2s ease-in-out;
   
   &:hover {
-    border-color: hsl(var(--border) / 0.8);
-    box-shadow: 0 4px 12px hsl(var(--shadow) / 0.1);
+    border-color: hsl(var(--border) / 0.6);
+    box-shadow: $shadow-lg;
+    transform: translateY(-1px);
   }
 }
 
