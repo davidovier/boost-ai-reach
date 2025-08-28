@@ -401,16 +401,6 @@ export default function Dashboard() {
                     <div className="text-xs text-muted-foreground">
                       Click to manage your websites
                     </div>
-                    <div className="flex justify-center pt-2">
-                      {metricsLoading ? (
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                      ) : (
-                        <ProgressArc 
-                          percentage={usageData.maxSites > 0 ? (metrics.totalSites / usageData.maxSites) * 100 : 0} 
-                          size={48} 
-                        />
-                      )}
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -449,16 +439,6 @@ export default function Dashboard() {
                     <div className="text-sm font-medium">AI Tests Run</div>
                     <div className="text-xs text-muted-foreground">
                       Click to run AI visibility tests
-                    </div>
-                    <div className="flex justify-center pt-2">
-                      {metricsLoading ? (
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                      ) : (
-                        <ProgressArc 
-                          percentage={usageData.maxPrompts > 0 ? (usageData.promptCount / usageData.maxPrompts) * 100 : 0} 
-                          size={48} 
-                        />
-                      )}
                     </div>
                   </div>
                 </CardContent>
