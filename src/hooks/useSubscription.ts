@@ -69,6 +69,11 @@ export function useSubscription() {
 
   useEffect(() => {
     fetchSubscriptionData();
+    
+    // Set up periodic refresh every 30 seconds
+    const interval = setInterval(fetchSubscriptionData, 30000);
+    
+    return () => clearInterval(interval);
   }, [session]);
 
   const createCheckout = async (priceId: string) => {
@@ -90,6 +95,11 @@ export function useSubscription() {
     if (error) {
       throw new Error(error.message);
     }
+
+    // Refresh subscription data after a short delay to account for webhook processing
+    setTimeout(() => {
+      fetchSubscriptionData();
+    }, 2000);
 
     return response;
   };

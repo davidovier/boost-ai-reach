@@ -22,7 +22,7 @@ serve(async (req) => {
     // Get authenticated user
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     const authHeader = req.headers.get("Authorization")!;
@@ -64,11 +64,50 @@ serve(async (req) => {
       console.error("Failed to fetch usage metrics:", usageError);
     }
 
-    // Get plan limits
+    // Determine current plan based on subscription
+    let currentPlan = profile.plan || 'free';
+    
+    if (subscription && subscription.status === 'active') {
+      // Map subscription plan to our plan tiers
+      switch (subscription.plan) {
+        case 'pro':
+          currentPlan = 'pro';
+          break;
+        case 'growth':
+          currentPlan = 'growth';
+          break;
+        case 'enterprise':
+          currentPlan = 'enterprise';
+          break;
+        default:
+          currentPlan = 'pro'; // Default for active subscriptions
+      }
+      
+      // Update profile if plan has changed
+      if (currentPlan !== profile.plan) {
+        await supabaseClient
+          .from('profiles')
+          .update({ plan: currentPlan })
+          .eq('id', user.id);
+      }
+    } else if (!subscription || subscription.status !== 'active') {
+      // No active subscription, should be free plan
+      currentPlan = 'free';
+      
+      // Update profile if needed
+      if (profile.plan !== 'free') {
+        await supabaseClient
+          .from('profiles')
+          .update({ plan: 'free' })
+          .eq('id', user.id);
+      }
+    }
+
+    // Get plan limits based on current plan
     const { data: planLimits, error: planError } = await supabaseClient
       .from('plans')
       .select('*')
-      .eq('name', profile.plan)
+      .eq('name', currentPlan)
       .single();
 
     if (planError) {
@@ -81,7 +120,7 @@ serve(async (req) => {
         email: user.email,
         name: profile.name,
         role: profile.role,
-        plan: profile.plan,
+        plan: currentPlan,
       },
       subscription: subscription || null,
       usage: usage || {
