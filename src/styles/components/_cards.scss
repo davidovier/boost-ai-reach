@@ -14,27 +14,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   
-  // Gradient accent border on top
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: $gradient-primary;
-    border-radius: $radius $radius 0 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+  // Top accent removed
   
   &:hover {
     transform: translateY(-2px) scale(1.01);
     box-shadow: $shadow-hover;
     
-    &::before {
-      opacity: 1;
-    }
   }
   
   .kpi-header {
