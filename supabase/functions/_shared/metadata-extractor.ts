@@ -49,24 +49,28 @@ export function extractMetadata(html: string, baseUrl: string): MetadataResult {
   const metadata: MetadataResult = {};
   
   try {
-    // Extract title
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    // Extract title - handle HTML entities and nested tags
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     if (titleMatch) {
-      metadata.title = titleMatch[1].trim();
+      metadata.title = decodeHtmlEntities(titleMatch[1].replace(/<[^>]*>/g, '').trim());
     }
     
-    // Extract meta tags
-    const metaTags = html.match(/<meta[^>]+>/gi) || [];
+    // Extract meta tags with more robust regex
+    const metaTagRegex = /<meta\s+[^>]*>/gi;
+    let metaMatch;
     
-    metaTags.forEach(tag => {
-      const nameMatch = tag.match(/name=["']([^"']+)["']/i);
-      const propertyMatch = tag.match(/property=["']([^"']+)["']/i);
-      const contentMatch = tag.match(/content=["']([^"']*)["']/i);
+    while ((metaMatch = metaTagRegex.exec(html)) !== null) {
+      const tag = metaMatch[0];
+      const nameMatch = tag.match(/name\s*=\s*["']([^"']+)["']/i);
+      const propertyMatch = tag.match(/property\s*=\s*["']([^"']+)["']/i);
+      const contentMatch = tag.match(/content\s*=\s*["']([^"']*)["']/i);
       
-      if (!contentMatch) return;
+      if (!contentMatch) continue;
       
-      const content = contentMatch[1].trim();
+      const content = decodeHtmlEntities(contentMatch[1].trim());
       const identifier = (nameMatch?.[1] || propertyMatch?.[1] || '').toLowerCase();
+      
+      if (!content || !identifier) continue;
       
       switch (identifier) {
         case 'description':
@@ -109,10 +113,11 @@ export function extractMetadata(html: string, baseUrl: string): MetadataResult {
           metadata.twitterImage = resolveUrl(content, baseUrl);
           break;
       }
-    });
+    }
     
-    // Extract canonical link
-    const canonicalMatch = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
+    // Extract canonical link with more flexible regex
+    const canonicalMatch = html.match(/<link[^>]*rel\s*=\s*["']canonical["'][^>]*href\s*=\s*["']([^"']+)["']/i) ||
+                          html.match(/<link[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["']canonical["']/i);
     if (canonicalMatch) {
       metadata.canonical = resolveUrl(canonicalMatch[1], baseUrl);
     }
@@ -134,24 +139,53 @@ function extractJsonLdSchema(html: string): any[] {
   const schemas: any[] = [];
   
   try {
-    const scriptTags = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/gi) || [];
+    // More robust regex to handle multiline and various whitespace patterns
+    const scriptRegex = /<script[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+    let match;
     
-    scriptTags.forEach(scriptTag => {
-      const jsonMatch = scriptTag.match(/>([^<]+)</);
-      if (jsonMatch) {
+    while ((match = scriptRegex.exec(html)) !== null) {
+      const jsonContent = match[1].trim();
+      if (jsonContent) {
         try {
-          const jsonData = JSON.parse(jsonMatch[1].trim());
-          schemas.push(jsonData);
+          const jsonData = JSON.parse(jsonContent);
+          // Ensure we have valid schema data
+          if (jsonData && (jsonData['@type'] || jsonData.type)) {
+            schemas.push(jsonData);
+          }
         } catch (e) {
           console.warn('Failed to parse JSON-LD schema:', e);
         }
       }
-    });
+    }
   } catch (error) {
     console.error('Error extracting JSON-LD schema:', error);
   }
   
   return schemas;
+}
+
+/**
+ * Decode common HTML entities
+ */
+function decodeHtmlEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#x2F;': '/',
+    '&#x60;': '`',
+    '&#x3D;': '=',
+    '&nbsp;': ' ',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&trade;': '™'
+  };
+  
+  return text.replace(/&(?:#x?[a-f0-9]+|[a-z0-9]+);/gi, (entity) => {
+    return entities[entity.toLowerCase()] || entity;
+  });
 }
 
 /**

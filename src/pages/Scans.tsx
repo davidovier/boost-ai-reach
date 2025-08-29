@@ -165,7 +165,8 @@ export default function Scans() {
         .select(`
           id, scan_date, ai_findability_score, crawlability_score, 
           summarizability_score, metadata,
-          sites:site_id (name, url)
+          sites:site_id (name, url),
+          tips (count)
         `)
         .order('scan_date', { ascending: false })
         .limit(12);
@@ -199,23 +200,59 @@ export default function Scans() {
         return;
       }
 
+      // Show loading state
+      const loadingToast = toast({
+        title: 'Starting scan...',
+        description: 'Please wait while we analyze your website.',
+      });
+
       const response = await supabase.functions.invoke('create-scan', {
         body: { siteId }
       });
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        // Handle specific error types
+        let errorMessage = 'Could not start the scan. Please try again.';
+        let errorTitle = 'Failed to start scan';
+        
+        if (response.error.message) {
+          const error = response.error;
+          if (error.message.includes('limit reached')) {
+            errorTitle = 'Scan limit reached';
+            errorMessage = 'You have reached your monthly scan limit. Please upgrade your plan or wait until next month.';
+          } else if (error.message.includes('Invalid URL') || error.message.includes('Failed to fetch')) {
+            errorTitle = 'Website not accessible';
+            errorMessage = 'We could not access your website. Please check the URL and ensure the site is online.';
+          } else if (error.message.includes('content type')) {
+            errorTitle = 'Invalid content';
+            errorMessage = 'The URL does not point to a valid HTML page. Please check the URL.';
+          } else {
+            errorMessage = error.message;
+          }
+        }
+        
+        throw new Error(`${errorTitle}: ${errorMessage}`);
+      }
 
+      // Success - refresh data and show success message
+      await fetchScans();
+      
       toast({
-        title: 'Scan started successfully',
-        description: 'Your website scan is now in progress. Results will appear here soon.',
+        title: 'Scan completed successfully',
+        description: 'Your website analysis is ready. Check the results below.',
       });
 
-      fetchScans();
     } catch (error) {
       console.error('Error creating scan:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Could not start the scan. Please try again.';
+      const [title, description] = errorMessage.includes(':') 
+        ? errorMessage.split(':', 2)
+        : ['Failed to start scan', errorMessage];
+      
       toast({
-        title: 'Failed to start scan',
-        description: 'Could not start the scan. Please try again.',
+        title: title.trim(),
+        description: description.trim(),
         variant: 'destructive'
       });
     }

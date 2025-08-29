@@ -38,6 +38,13 @@ interface ScanDetail {
   };
 }
 
+interface Tip {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+}
+
 interface Issue {
   type: 'error' | 'warning' | 'info';
   title: string;
@@ -50,8 +57,9 @@ export default function ScanDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [scan, setScan] = useState<ScanDetail | null>(null);
+  const [tips, setTips] = useState<Tip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('metadata');
+  const [activeTab, setActiveTab] = useState('recommendations');
 
   useEffect(() => {
     if (user && id) {
@@ -88,6 +96,18 @@ export default function ScanDetail() {
         ...data,
         site: data.sites
       });
+
+      // Fetch tips for this scan
+      const { data: tipsData, error: tipsError } = await supabase
+        .from('tips')
+        .select('id, title, description, severity')
+        .eq('scan_id', id)
+        .order('severity', { ascending: false }); // Show high severity first
+
+      if (!tipsError && tipsData) {
+        setTips(tipsData);
+      }
+
     } catch (error) {
       console.error('Error fetching scan detail:', error);
     } finally {
@@ -335,7 +355,11 @@ export default function ScanDetail() {
         <section aria-labelledby="analysis-heading">
           <h2 id="analysis-heading" className="sr-only">Detailed Analysis</h2>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="recommendations" className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Tips</span>
+              </TabsTrigger>
               <TabsTrigger value="metadata" className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
                 <span className="hidden sm:inline">Metadata</span>
@@ -353,6 +377,54 @@ export default function ScanDetail() {
                 <span className="hidden sm:inline">Crawlability</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Recommendations Tab */}
+            <TabsContent value="recommendations" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5" />
+                    Optimization Recommendations
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Actionable tips to improve your AI findability score
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {tips.length > 0 ? (
+                    tips.map((tip) => (
+                      <div key={tip.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            {tip.severity === 'high' && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                            {tip.severity === 'medium' && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
+                            {tip.severity === 'low' && <CheckCircle className="h-4 w-4 text-blue-600" />}
+                            <Badge variant={
+                              tip.severity === 'high' ? 'destructive' : 
+                              tip.severity === 'medium' ? 'secondary' : 'outline'
+                            }>
+                              {tip.severity} priority
+                            </Badge>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground">{tip.title}</h4>
+                          <p className="text-muted-foreground text-sm mt-1">{tip.description}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <CheckCircle className="mx-auto h-12 w-12 text-green-600 mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground">Excellent!</h3>
+                      <p className="text-muted-foreground">
+                        No optimization recommendations found. Your website is well-optimized for AI discovery.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {['metadata', 'schema', 'performance', 'crawlability'].map(tab => (
               <TabsContent key={tab} value={tab} className="mt-6">

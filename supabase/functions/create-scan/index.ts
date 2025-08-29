@@ -192,26 +192,54 @@ serve(async (req) => {
     let scanData: ScanResult;
     
     try {
-      // Fetch the webpage
+      // Fetch the webpage with timeout and error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(pageUrl, {
         method: 'GET',
         headers: {
           'User-Agent': 'FindableAI-Scanner/1.0 (SEO Analysis Tool)',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate'
         },
-        redirect: 'follow'
+        redirect: 'follow',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         return jsonResponse({ 
           error: "Failed to fetch webpage", 
-          details: `HTTP ${response.status}: ${response.statusText}` 
+          details: `HTTP ${response.status}: ${response.statusText}`,
+          url: pageUrl
+        }, 400);
+      }
+      
+      // Check content type
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('text/html')) {
+        return jsonResponse({ 
+          error: "Invalid content type", 
+          details: `Expected HTML content, got: ${contentType}`,
+          url: pageUrl
         }, 400);
       }
       
       const html = await response.text();
       const scanEndTime = Date.now();
       const baseDomain = getBaseDomain(pageUrl);
+      
+      // Basic HTML validation
+      if (!html || html.trim().length < 100) {
+        return jsonResponse({ 
+          error: "Invalid or empty HTML content", 
+          details: "The webpage returned insufficient content for analysis",
+          url: pageUrl
+        }, 400);
+      }
       
       // Extract metadata from HTML
       const metadata = extractMetadata(html, pageUrl);
@@ -401,47 +429,79 @@ function calculateFindabilityScore(scanData: ScanResult): number {
   let score = 0;
   const { metadata } = scanData;
   
-  // Title (20 points)
+  // Title (20 points) - More nuanced scoring
   if (metadata.title) {
-    if (metadata.title.length >= 10 && metadata.title.length <= 60) {
-      score += 20;
-    } else {
-      score += 10;
+    const titleLength = metadata.title.length;
+    if (titleLength >= 30 && titleLength <= 60) {
+      score += 20; // Perfect range
+    } else if (titleLength >= 10 && titleLength <= 80) {
+      score += 15; // Good range
+    } else if (titleLength > 0) {
+      score += 8; // At least has a title
     }
   }
   
-  // Description (20 points)
+  // Description (20 points) - More nuanced scoring
   if (metadata.description) {
-    if (metadata.description.length >= 50 && metadata.description.length <= 160) {
-      score += 20;
-    } else {
-      score += 10;
+    const descLength = metadata.description.length;
+    if (descLength >= 120 && descLength <= 160) {
+      score += 20; // Perfect range
+    } else if (descLength >= 50 && descLength <= 200) {
+      score += 15; // Good range
+    } else if (descLength > 0) {
+      score += 8; // At least has a description
     }
   }
   
-  // Schema markup (25 points)
+  // Schema markup (25 points) - Quality-based scoring
   if (metadata.schema && metadata.schema.length > 0) {
-    score += 25;
+    const hasStructuredData = metadata.schema.some(schema => 
+      schema['@type'] && (
+        schema['@type'].includes('Organization') ||
+        schema['@type'].includes('WebPage') ||
+        schema['@type'].includes('Article') ||
+        schema['@type'].includes('Product') ||
+        schema['@type'].includes('LocalBusiness')
+      )
+    );
+    
+    if (hasStructuredData) {
+      score += 25; // High-value schema types
+    } else {
+      score += 15; // Any schema is better than none
+    }
   }
   
-  // Open Graph (15 points)
-  if (metadata.ogTitle && metadata.ogDescription) {
-    score += 15;
+  // Open Graph (15 points) - Complete vs partial
+  if (metadata.ogTitle && metadata.ogDescription && metadata.ogImage) {
+    score += 15; // Complete OG implementation
+  } else if (metadata.ogTitle && metadata.ogDescription) {
+    score += 12; // Title and description
   } else if (metadata.ogTitle || metadata.ogDescription) {
-    score += 7;
+    score += 6; // Partial implementation
   }
   
-  // Robots.txt (10 points)
+  // Technical SEO (20 points total)
+  let technicalScore = 0;
+  
+  // Robots.txt (8 points)
   if (scanData.robotsTxt?.exists) {
-    score += 10;
+    technicalScore += 8;
   }
   
-  // Sitemap (10 points)
+  // Sitemap (8 points)
   if (scanData.sitemap?.exists) {
-    score += 10;
+    technicalScore += 8;
   }
   
-  return Math.min(score, 100);
+  // Canonical URL (4 points)
+  if (metadata.canonical) {
+    technicalScore += 4;
+  }
+  
+  score += Math.min(technicalScore, 20);
+  
+  return Math.min(Math.max(score, 0), 100);
 }
 
 /**
