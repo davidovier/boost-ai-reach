@@ -31,7 +31,7 @@ const ReportDetail = lazy(() => import("./pages/ReportDetail"));
 const Account = lazy(() => import("./pages/Account"));
 
 // Redirect components for legacy routes
-const { SitesRedirect, ScansRedirect, AITestsRedirect, ReportsRedirect } = lazy(() => import("./components/redirects/DashboardRedirect"));
+import { SitesRedirect, ScansRedirect, AITestsRedirect, ReportsRedirect } from "./components/redirects/DashboardRedirect";
 
 // Admin pages - heavily code split
 const Admin = lazy(() => import("./pages/Admin"));
@@ -109,32 +109,16 @@ const App = () => (
                     </Suspense>
                   } />
                   {/* Legacy route redirects to dashboard sections */}
-                  <Route path="/scans" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ScansRedirect />
-                    </Suspense>
-                  } />
+                  <Route path="/scans" element={<ScansRedirect />} />
                   <Route path="/scans/:id" element={
                     <Suspense fallback={<PageLoader />}>
                       <ScanDetail />
                     </Suspense>
                   } />
-                  <Route path="/ai-tests" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AITestsRedirect />
-                    </Suspense>
-                  } />
-                  <Route path="/prompts" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AITestsRedirect />
-                    </Suspense>
-                  } />
+                  <Route path="/ai-tests" element={<AITestsRedirect />} />
+                  <Route path="/prompts" element={<AITestsRedirect />} />
                   <Route path="/competitors" element={<Navigate to="/dashboard#competitors" replace />} />
-                  <Route path="/reports" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ReportsRedirect />
-                    </Suspense>
-                  } />
+                  <Route path="/reports" element={<ReportsRedirect />} />
                   <Route path="/reports/:id" element={
                     <Suspense fallback={<PageLoader />}>
                       <ReportDetail />
@@ -145,11 +129,7 @@ const App = () => (
                       <Account />
                     </Suspense>
                   } />
-                  <Route path="/sites" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SitesRedirect />
-                    </Suspense>
-                  } />
+                  <Route path="/sites" element={<SitesRedirect />} />
                   <Route path="/admin" element={
                     <Suspense fallback={<PageLoader />}>
                       <Admin />
