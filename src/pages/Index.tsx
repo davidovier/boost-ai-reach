@@ -313,7 +313,7 @@ const Index = () => {
                 icon: Sparkles, 
                 titleKey: 'home.features.items.tips.title', 
                 textKey: 'home.features.items.tips.description',
-                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+                imageSrc: '/lovable-uploads/ceaa7f7d-8f31-4b46-b80b-eef9363cf9d8.png'
               },
             ].map(({ icon: Icon, titleKey, textKey, imageSrc }, index) => (
               <article 
