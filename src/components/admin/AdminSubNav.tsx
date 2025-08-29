@@ -7,6 +7,7 @@ const tabs = [
   { key: 'reports', label: 'Reports' },
   { key: 'dashboard', label: 'Dashboard Config' },
   { key: 'logs', label: 'Audit Logs' },
+  { key: 'security', label: 'Security' },
   { key: 'billing', label: 'Billing' },
   { key: 'ab-tests', label: 'A/B Tests' },
   { key: 'referrals', label: 'Referrals' },

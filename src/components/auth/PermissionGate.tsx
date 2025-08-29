@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { usePermission, useAnyPermission, useAllPermissions } from '@/hooks/usePermission';
 import { Permission } from '@/utils/rbac';
+import { useSecurityMonitoring } from '@/hooks/useSecurityMonitoring';
 
 interface PermissionGateProps {
   children: ReactNode;
@@ -21,8 +22,11 @@ interface MultiplePermissionGateProps extends PermissionGateProps {
  */
 export function PermissionGate({ permission, children, fallback }: SinglePermissionGateProps) {
   const hasAccess = usePermission(permission);
+  const { logPermissionDenied } = useSecurityMonitoring();
 
   if (!hasAccess) {
+    // Log permission denial for security monitoring
+    logPermissionDenied(permission);
     return fallback ? <>{fallback}</> : null;
   }
 
@@ -41,8 +45,11 @@ export function MultiplePermissionGate({
   const hasAccess = requireAll 
     ? useAllPermissions(permissions)
     : useAnyPermission(permissions);
+  const { logPermissionDenied } = useSecurityMonitoring();
 
   if (!hasAccess) {
+    // Log permission denial for security monitoring
+    logPermissionDenied(permissions.join(', '));
     return fallback ? <>{fallback}</> : null;
   }
 

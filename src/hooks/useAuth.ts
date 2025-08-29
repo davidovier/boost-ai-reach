@@ -66,9 +66,34 @@ export function useAuthState() {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
+    try {
+      // Log security event for logout
+      try {
+        await supabase.rpc('log_security_event', {
+          event_type: 'user_logout',
+          severity: 'info'
+        });
+      } catch (logError) {
+        // Don't block logout if logging fails
+        console.warn('Failed to log logout event:', logError);
+      }
+      
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        // Log failed logout
+        try {
+          await supabase.rpc('log_security_event', {
+            event_type: 'auth_failed_logout',
+            severity: 'warn',
+            details: { error: error.message }
+          });
+        } catch (logError) {
+          console.warn('Failed to log failed logout:', logError);
+        }
+      }
+    } catch (error) {
+      console.error('Error during sign out:', error);
     }
   };
 
@@ -86,6 +111,21 @@ export function useAuthState() {
             fetchProfile(session.user.id).then(profileData => {
               setProfile(profileData);
             });
+            
+            // Log auth events for security monitoring
+            if (event === 'SIGNED_IN') {
+              (async () => {
+                try {
+                  await supabase.rpc('log_security_event', {
+                    event_type: 'user_login',
+                    severity: 'info',
+                    details: { method: session.user.app_metadata.provider || 'email' }
+                  });
+                } catch (err) {
+                  console.warn('Failed to log login event:', err);
+                }
+              })();
+            }
           }, 0);
         } else {
           setProfile(null);

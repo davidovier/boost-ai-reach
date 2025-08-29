@@ -6,6 +6,7 @@ import { UsageTab } from '@/components/admin/UsageTab';
 import { ReportsTab } from '@/components/admin/ReportsTab';
 import { DashboardConfigTab } from '@/components/admin/DashboardConfigTab';
 import { AuditLogsTab } from '@/components/admin/AuditLogsTab';
+import SecurityTab from '@/components/admin/SecurityTab';
 import { BillingTab } from '@/components/admin/BillingTab';
 import { ABTestAnalytics } from '@/components/admin/ABTestAnalytics';
 import { ReferralAnalytics } from '@/components/admin/ReferralAnalytics';
@@ -27,6 +28,7 @@ function AdminPage() {
       reports: 'Reports',
       dashboard: 'Dashboard Config',
       logs: 'Audit Logs',
+      security: 'Security',
       billing: 'Billing',
       'ab-tests': 'A/B Tests',
       referrals: 'Referrals'
@@ -105,6 +107,7 @@ function AdminPage() {
               {tab === 'reports' && <ReportsTab />}
               {tab === 'dashboard' && <DashboardConfigTab />}
               {tab === 'logs' && <AuditLogsTab />}
+              {tab === 'security' && <SecurityTab />}
               {tab === 'billing' && <BillingTab />}
               {tab === 'ab-tests' && <ABTestAnalytics />}
               {tab === 'referrals' && <ReferralAnalytics />}
