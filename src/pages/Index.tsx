@@ -301,7 +301,7 @@ const Index = () => {
                 icon: Bot, 
                 titleKey: 'home.features.items.simulations.title', 
                 textKey: 'home.features.items.simulations.description',
-                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+                imageSrc: '/lovable-uploads/8e500d76-7979-4a97-bfee-2efa05cfc97b.png'
               },
               { 
                 icon: ShieldCheck, 
