@@ -196,7 +196,7 @@ const Index = () => {
               >
                 <Button 
                   size="lg" 
-                  onClick={() => navigate('/demo-scan')}
+                  onClick={() => navigate('/signup')}
                   className="w-full sm:w-auto min-h-[52px] px-8 text-lg font-semibold btn-focus shadow-xl bg-gradient-primary hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
                   aria-describedby="scan-description"
                 >
@@ -463,7 +463,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="secondary"
-              onClick={() => navigate('/demo-scan')}
+              onClick={() => navigate('/signup')}
               className="min-h-[52px] px-8 text-lg font-semibold shadow-xl"
             >
               Start Free Scan
