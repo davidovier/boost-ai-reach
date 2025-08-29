@@ -21,7 +21,7 @@ const DEFAULT_SEO = {
   domain: 'findable.ai',
   defaultTitle: 'FindableAI – AI Findability Optimization Platform',
   defaultDescription: 'Optimize your brand for AI discovery with comprehensive website scans, competitive analysis, and actionable insights.',
-  defaultOgImage: '/og-image.png', // You should create this
+  defaultOgImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&h=630&auto=format&fit=crop', // Fallback OG image
   twitterHandle: '@FindableAI',
   locale: 'en_US',
 } as const;

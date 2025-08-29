@@ -157,7 +157,7 @@ export default function Pricing() {
         title={t('pricing.seo.title')}
         description={t('pricing.seo.description')}
         url="/pricing"
-        ogImage="/og-pricing.png"
+        ogImage={ogImage}
         keywords={t('pricing.seo.keywords')}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: stringifyJsonLd(breadcrumbJson) }} />

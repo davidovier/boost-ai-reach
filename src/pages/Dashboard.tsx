@@ -12,7 +12,6 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Sparkline, ProgressArc } from '@/components/ui/sparkline';
 import { Activity, TrendingUp, Zap, Search, Globe } from 'lucide-react';
 import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
-import { ErrorTestTrigger } from '@/components/ErrorTestTrigger';
 import { EmptyActivity } from '@/components/ui/empty-states';
 import { UsageLimitBanner } from '@/components/ui/usage-limit-banner';
 import { InviteFriend } from '@/components/referral/InviteFriend';

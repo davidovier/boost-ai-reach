@@ -133,7 +133,7 @@ const Index = () => {
         title={t('home.seo.title')}
         description={t('home.seo.description')}
         url="/"
-        ogImage="/og-home.png"
+        ogImage={ogImage}
         keywords={t('home.seo.keywords')}
       />
       <script
