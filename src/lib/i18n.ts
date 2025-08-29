@@ -26,8 +26,24 @@ export function formatTranslation(template: string, params: Record<string, strin
 export function getBrowserLanguage(): SupportedLanguage {
   if (typeof window === 'undefined') return DEFAULT_LANGUAGE;
   
-  const browserLang = navigator.language.split('-')[0] as SupportedLanguage;
-  return Object.keys(SUPPORTED_LANGUAGES).includes(browserLang) ? browserLang : DEFAULT_LANGUAGE;
+  try {
+    const browserLang = navigator.language.split('-')[0] as SupportedLanguage;
+    return isValidLanguage(browserLang) ? browserLang : DEFAULT_LANGUAGE;
+  } catch (error) {
+    console.warn('Error detecting browser language:', error);
+    return DEFAULT_LANGUAGE;
+  }
+}
+
+// Validate if a language code is supported
+export function isValidLanguage(lang: string): lang is SupportedLanguage {
+  return Object.keys(SUPPORTED_LANGUAGES).includes(lang);
+}
+
+// Get language display name
+export function getLanguageDisplayName(lang: SupportedLanguage, native: boolean = true): string {
+  const langInfo = SUPPORTED_LANGUAGES[lang];
+  return native ? langInfo.nativeName : langInfo.name;
 }
 
 // Storage keys
