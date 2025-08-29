@@ -9,7 +9,7 @@ export default {
     hero: {
       announcement: "🚀 New: AI Prompt Simulation",
       heading: "Make Your Website",
-      headingHighlight: "AI Discoverable",
+      headingHighlight: "AI Discoverable!",
       description: "Optimize your website for AI tools like ChatGPT, Claude, and Perplexity. Get discovered when users ask AI about your industry.",
       ctaPrimary: "Start Free Scan",
       ctaSecondary: "Sign In",
