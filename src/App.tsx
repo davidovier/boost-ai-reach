@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
@@ -26,14 +26,12 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 // App pages - code split
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Sites = lazy(() => import("./pages/Sites"));
-const Scans = lazy(() => import("./pages/Scans"));
 const ScanDetail = lazy(() => import("./pages/ScanDetail"));
-const AITests = lazy(() => import("./pages/AITests"));
-const Competitors = lazy(() => import("./pages/Competitors"));
-const Reports = lazy(() => import("./pages/Reports"));
 const ReportDetail = lazy(() => import("./pages/ReportDetail"));
 const Account = lazy(() => import("./pages/Account"));
+
+// Redirect components for legacy routes
+const { SitesRedirect, ScansRedirect, AITestsRedirect, ReportsRedirect } = lazy(() => import("./components/redirects/DashboardRedirect"));
 
 // Admin pages - heavily code split
 const Admin = lazy(() => import("./pages/Admin"));
@@ -110,9 +108,10 @@ const App = () => (
                       <Dashboard />
                     </Suspense>
                   } />
+                  {/* Legacy route redirects to dashboard sections */}
                   <Route path="/scans" element={
                     <Suspense fallback={<PageLoader />}>
-                      <Scans />
+                      <ScansRedirect />
                     </Suspense>
                   } />
                   <Route path="/scans/:id" element={
@@ -122,22 +121,18 @@ const App = () => (
                   } />
                   <Route path="/ai-tests" element={
                     <Suspense fallback={<PageLoader />}>
-                      <AITests />
+                      <AITestsRedirect />
                     </Suspense>
                   } />
                   <Route path="/prompts" element={
                     <Suspense fallback={<PageLoader />}>
-                      <AITests />
+                      <AITestsRedirect />
                     </Suspense>
                   } />
-                  <Route path="/competitors" element={
-                    <Suspense fallback={<PageLoader />}>
-                      <Competitors />
-                    </Suspense>
-                  } />
+                  <Route path="/competitors" element={<Navigate to="/dashboard#competitors" replace />} />
                   <Route path="/reports" element={
                     <Suspense fallback={<PageLoader />}>
-                      <Reports />
+                      <ReportsRedirect />
                     </Suspense>
                   } />
                   <Route path="/reports/:id" element={
@@ -152,7 +147,7 @@ const App = () => (
                   } />
                   <Route path="/sites" element={
                     <Suspense fallback={<PageLoader />}>
-                      <Sites />
+                      <SitesRedirect />
                     </Suspense>
                   } />
                   <Route path="/admin" element={

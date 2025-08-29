@@ -25,10 +25,6 @@ import { useAuth } from '@/hooks/useAuth';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
-  { title: 'Scans', url: '/scans', icon: Scan },
-  { title: 'AI Tests', url: '/ai-tests', icon: Bot },
-  { title: 'Competitors', url: '/competitors', icon: Users },
-  { title: 'Reports', url: '/reports', icon: FileText },
   { title: 'Account', url: '/account', icon: Settings },
 ];
 
