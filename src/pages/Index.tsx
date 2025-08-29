@@ -307,7 +307,7 @@ const Index = () => {
                 icon: ShieldCheck, 
                 titleKey: 'home.features.items.crawlability.title', 
                 textKey: 'home.features.items.crawlability.description',
-                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+                imageSrc: '/lovable-uploads/e128e7a9-f6e9-406c-85db-381bb5292be7.png'
               },
               { 
                 icon: Sparkles, 
