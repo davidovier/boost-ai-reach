@@ -24,7 +24,7 @@ export function LanguageToggle() {
         <Button
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 hover:bg-background/80 backdrop-blur-sm"
+          className="flex items-center gap-2 text-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border/20 transition-all duration-200"
           aria-label={`Current language: ${getLanguageDisplayName(language)}. Click to change language`}
         >
           <Languages className="h-4 w-4" />
