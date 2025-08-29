@@ -674,7 +674,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      security_events: {
+        Row: {
+          email: string | null
+          event_name: string | null
+          id: string | null
+          metadata: Json | null
+          occurred_at: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_usage_limit: {
@@ -709,6 +720,10 @@ export type Database = {
       is_manager_or_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: { details?: Json; event_type: string; severity?: string }
+        Returns: undefined
       }
     }
     Enums: {
