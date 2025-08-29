@@ -291,11 +291,31 @@ const Index = () => {
           </h2>
           <div className="mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: Gauge, titleKey: 'home.features.items.score.title', textKey: 'home.features.items.score.description' },
-              { icon: Bot, titleKey: 'home.features.items.simulations.title', textKey: 'home.features.items.simulations.description' },
-              { icon: ShieldCheck, titleKey: 'home.features.items.crawlability.title', textKey: 'home.features.items.crawlability.description' },
-              { icon: Sparkles, titleKey: 'home.features.items.tips.title', textKey: 'home.features.items.tips.description' },
-            ].map(({ icon: Icon, titleKey, textKey }, index) => (
+              { 
+                icon: Gauge, 
+                titleKey: 'home.features.items.score.title', 
+                textKey: 'home.features.items.score.description',
+                imageSrc: '/lovable-uploads/0cd8486d-1086-45cb-bf87-1d47d9b208ca.png'
+              },
+              { 
+                icon: Bot, 
+                titleKey: 'home.features.items.simulations.title', 
+                textKey: 'home.features.items.simulations.description',
+                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+              },
+              { 
+                icon: ShieldCheck, 
+                titleKey: 'home.features.items.crawlability.title', 
+                textKey: 'home.features.items.crawlability.description',
+                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+              },
+              { 
+                icon: Sparkles, 
+                titleKey: 'home.features.items.tips.title', 
+                textKey: 'home.features.items.tips.description',
+                imageSrc: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+              },
+            ].map(({ icon: Icon, titleKey, textKey, imageSrc }, index) => (
               <article 
                 key={titleKey} 
                 className="card-feature animate-fade-in"
@@ -308,7 +328,7 @@ const Index = () => {
                 <h3>{t(titleKey)}</h3>
                 <p id={`feature-${index}-desc`}>{t(textKey)}</p>
                 <img
-                  src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop&fm=webp"
+                  src={imageSrc}
                   alt={`${t(titleKey)} feature visualization - demonstrating how FindableAI improves ${t(titleKey).toLowerCase()} for better AI discoverability`}
                   className="mt-6 rounded-lg border w-full h-32 sm:h-40 object-cover shadow-md"
                   loading="lazy"
