@@ -58,8 +58,8 @@ const PageLoader = () => (
 );
 
 const App = () => (
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
+  <LanguageProvider>
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
           <AppErrorBoundary>
