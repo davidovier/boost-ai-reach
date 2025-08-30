@@ -57,7 +57,7 @@ export default {
   pricing: {
     seo: {
       title: "Preise – KI-Auffindbarkeits-Pläne für Jedes Team",
-      description: "Starten Sie kostenlos oder upgraden Sie zu Pro, Growth oder Enterprise für erweiterte KI-Scans, Prompts und Wettbewerbsanalyse. Transparente Preise, jederzeit kündbar.",
+      description: "Starten Sie kostenlos oder upgraden Sie zu Pro oder Max für erweiterte KI-Scans, Prompts und Wettbewerbsanalyse. Transparente Preise, jederzeit kündbar.",
       keywords: "KI SEO Preise, FindableAI Pläne, KI Optimierung Kosten"
     },
     heading: "Einfache, transparente Preise",
@@ -76,21 +76,14 @@ export default {
         period: "pro Monat",
         cta: "Upgraden",
         popular: "Am beliebtesten",
-        features: ["3 Websites", "4 Scans / Monat", "10 KI-Prompts", "1 Konkurrent"]
+        features: ["5 Websites", "10 Scans / Monat", "25 KI-Prompts", "3 Konkurrenten", "Erweiterte Tipps"]
       },
-      growth: {
-        name: "Growth",
+      max: {
+        name: "Max",
         price: "99€", 
         period: "pro Monat",
         cta: "Upgraden",
-        features: ["10 Websites", "Tägliche Scans", "50 KI-Prompts", "5 Konkurrenten"]
-      },
-      enterprise: {
-        name: "Enterprise",
-        price: "Individuell",
-        period: "kontaktieren Sie uns", 
-        cta: "Vertrieb kontaktieren",
-        features: ["Individuelle Limits", "API-Zugang", "Gebrandete Berichte", "CSM-Support"]
+        features: ["Unbegrenzte Websites", "Unbegrenzte Scans", "Unbegrenzte KI-Prompts", "Unbegrenzte Konkurrenten", "Prioritäts-Support", "Individuelle Berichte", "API-Zugang"]
       }
     }
   }

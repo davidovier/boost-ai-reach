@@ -150,8 +150,7 @@ export class LimitsEnforcer {
   private getUpgradeHint(currentPlan: string, action: LimitAction): string {
     const upgradePaths: Record<string, string> = {
       free: 'Upgrade to Pro ($29/month) for higher limits',
-      pro: 'Upgrade to Growth ($99/month) for increased capacity', 
-      growth: 'Contact us for Enterprise solutions with unlimited usage'
+      pro: 'Upgrade to Max ($99/month) for unlimited usage'
     };
 
     return upgradePaths[currentPlan] || 'Consider upgrading your plan for higher limits';

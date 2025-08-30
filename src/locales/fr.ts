@@ -57,7 +57,7 @@ export default {
   pricing: {
     seo: {
       title: "Tarifs – Plans de Trouvabilité IA pour Chaque Équipe",
-      description: "Commencez gratuitement, ou passez à Pro, Growth ou Enterprise pour des scans IA avancés, prompts et analyse concurrentielle. Tarifs transparents, annulez à tout moment.",
+      description: "Commencez gratuitement, ou passez à Pro ou Max pour des scans IA avancés, prompts et analyse concurrentielle. Tarifs transparents, annulez à tout moment.",
       keywords: "tarifs SEO IA, plans FindableAI, coûts optimisation IA"
     },
     heading: "Tarifs simples et transparents",
@@ -76,21 +76,14 @@ export default {
         period: "par mois",
         cta: "Mettre à niveau",
         popular: "Le plus populaire",
-        features: ["3 sites", "4 scans / mois", "10 prompts IA", "1 concurrent"]
+        features: ["5 sites", "10 scans / mois", "25 prompts IA", "3 concurrents", "Conseils avancés"]
       },
-      growth: {
-        name: "Growth",
+      max: {
+        name: "Max",
         price: "99€", 
         period: "par mois",
         cta: "Mettre à niveau",
-        features: ["10 sites", "Scans quotidiens", "50 prompts IA", "5 concurrents"]
-      },
-      enterprise: {
-        name: "Enterprise",
-        price: "Sur mesure",
-        period: "nous contacter", 
-        cta: "Contacter les ventes",
-        features: ["Limites personnalisées", "Accès API", "Rapports de marque", "Support CSM"]
+        features: ["Sites illimités", "Scans illimités", "Prompts IA illimités", "Concurrents illimités", "Support prioritaire", "Rapports personnalisés", "Accès API"]
       }
     }
   }

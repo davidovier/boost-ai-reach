@@ -57,7 +57,7 @@ export default {
   pricing: {
     seo: {
       title: "Pricing – AI Findability Plans for Every Team",
-      description: "Start free, or upgrade to Pro, Growth, or Enterprise for advanced AI scans, prompts, and competitor analysis. Transparent pricing, cancel anytime.",
+      description: "Start free, or upgrade to Pro or Max for advanced AI scans, prompts, and competitor analysis. Transparent pricing, cancel anytime.",
       keywords: "AI SEO pricing, FindableAI plans, AI optimization costs"
     },
     heading: "Simple, transparent pricing",
@@ -76,21 +76,14 @@ export default {
         period: "per month",
         cta: "Upgrade",
         popular: "Most popular",
-        features: ["3 sites", "4 scans / month", "10 AI prompts", "1 competitor"]
+        features: ["5 sites", "10 scans / month", "25 AI prompts", "3 competitors", "Advanced tips"]
       },
-      growth: {
-        name: "Growth",
+      max: {
+        name: "Max",
         price: "$99", 
         period: "per month",
         cta: "Upgrade",
-        features: ["10 sites", "Daily scans", "50 AI prompts", "5 competitors"]
-      },
-      enterprise: {
-        name: "Enterprise",
-        price: "Custom",
-        period: "contact us", 
-        cta: "Contact sales",
-        features: ["Custom limits", "API access", "Branded reports", "CSM support"]
+        features: ["Unlimited sites", "Unlimited scans", "Unlimited AI prompts", "Unlimited competitors", "Priority support", "Custom reports", "API access"]
       }
     }
   }

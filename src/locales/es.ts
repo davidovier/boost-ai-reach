@@ -57,7 +57,7 @@ export default {
   pricing: {
     seo: {
       title: "Precios – Planes de Findabilidad de IA para Cada Equipo",
-      description: "Comienza gratis, o actualiza a Pro, Growth o Enterprise para análisis avanzados de IA, prompts y análisis competitivo. Precios transparentes, cancela en cualquier momento.",
+      description: "Comienza gratis, o actualiza a Pro o Max para análisis avanzados de IA, prompts y análisis competitivo. Precios transparentes, cancela en cualquier momento.",
       keywords: "precios SEO de IA, planes FindableAI, costos optimización IA"
     },
     heading: "Precios simples y transparentes",
@@ -76,21 +76,14 @@ export default {
         period: "por mes",
         cta: "Actualizar",
         popular: "Más popular",
-        features: ["3 sitios", "4 análisis / mes", "10 prompts IA", "1 competidor"]
+        features: ["5 sitios", "10 análisis / mes", "25 prompts IA", "3 competidores", "Consejos avanzados"]
       },
-      growth: {
-        name: "Growth",
+      max: {
+        name: "Max",
         price: "$99", 
         period: "por mes",
         cta: "Actualizar",
-        features: ["10 sitios", "Análisis diarios", "50 prompts IA", "5 competidores"]
-      },
-      enterprise: {
-        name: "Enterprise",
-        price: "Personalizado",
-        period: "contáctanos", 
-        cta: "Contactar ventas",
-        features: ["Límites personalizados", "Acceso API", "Reportes con marca", "Soporte CSM"]
+        features: ["Sitios ilimitados", "Análisis ilimitados", "Prompts IA ilimitados", "Competidores ilimitados", "Soporte prioritario", "Reportes personalizados", "Acceso API"]
       }
     }
   }

@@ -15,7 +15,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Plan configuration - keys match translation keys
-const planKeys = ['free', 'pro', 'growth', 'enterprise'] as const;
+const planKeys = ['free', 'pro', 'max'] as const;
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function Pricing() {
       name: 'Lisa Zhang',
       role: 'Digital Marketing Manager',
       company: 'GrowthTech',
-      content: 'The Growth plan is perfect for our agency. We can manage multiple clients and the competitor analysis is invaluable.',
+      content: 'The Max plan is perfect for our agency. We can manage unlimited clients and the competitor analysis is invaluable.',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?q=80&w=150&h=150&auto=format&fit=crop&fm=webp'
     }
@@ -64,8 +64,8 @@ export default function Pricing() {
       answer: 'We offer a 30-day money-back guarantee on all paid plans. If you\'re not satisfied, contact support for a full refund.'
     },
     {
-      question: 'What makes Enterprise different?',
-      answer: 'Enterprise includes unlimited everything, white-label reports, dedicated support, custom integrations, and a customer success manager.'
+      question: 'What makes Max different?',
+      answer: 'Max includes unlimited websites, scans, AI prompts, competitors, priority support, custom reports, and API access.'
     },
     {
       question: 'How accurate are the AI simulations?',

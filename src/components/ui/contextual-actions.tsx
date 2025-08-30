@@ -107,7 +107,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         description: 'See how you compare to competitors',
         icon: Users,
         action: () => navigate('/dashboard#competitors'),
-        requiresPlan: ['pro', 'growth', 'enterprise'],
+        requiresPlan: ['pro', 'max'],
         priority: 3
       }
     ],
@@ -126,7 +126,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         description: 'Track competitor AI mentions',
         icon: Users,
         action: () => navigate('/dashboard#competitors'),
-        requiresPlan: ['pro', 'growth', 'enterprise'],
+        requiresPlan: ['pro', 'max'],
         priority: 2
       },
       {
@@ -135,7 +135,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         description: 'Create a comprehensive AI findability report',
         icon: FileText,
         action: () => navigate('/dashboard#reports'),
-        requiresPlan: ['growth', 'enterprise'],
+        requiresPlan: ['max'],
         priority: 3
       }
     ],
@@ -162,7 +162,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         description: 'Generate a competitive analysis report',
         icon: FileText,
         action: () => navigate('/dashboard#reports'),
-        requiresPlan: ['growth', 'enterprise'],
+        requiresPlan: ['max'],
         priority: 3
       }
     ],
@@ -236,7 +236,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
             </Badge>
           )}
         </div>
-        <div className="grid gap-2 sm:gap-3 md:max-h-96 md:overflow-y-auto">
+        <div className="grid gap-2 sm:gap-3 md:max-h-96 md:overflow-y-auto relative">
           {availableActions.map((action) => {
             const Icon = action.icon;
             const isRestricted = action.requiresPlan && !action.requiresPlan.includes(userPlan);
@@ -248,7 +248,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
                 size="sm"
                 onClick={action.action}
                 disabled={isRestricted}
-                className="justify-start h-auto p-2 sm:p-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="justify-start h-auto p-2 sm:p-3 text-left hover:bg-accent hover:text-accent-foreground transition-all duration-200 hover:scale-[1.02] hover:shadow-md relative z-10"
               >
                 <div className="flex items-start gap-2 sm:gap-3 w-full">
                   <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${

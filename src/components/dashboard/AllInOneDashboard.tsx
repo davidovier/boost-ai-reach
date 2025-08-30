@@ -858,11 +858,11 @@ export function AllInOneDashboard() {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Scans:</span>
-                <span>{metrics.totalScans}/{profile?.plan === 'free' ? '1' : '∞'}</span>
+                <span>{metrics.totalScans}/{profile?.plan === 'free' ? '1' : profile?.plan === 'pro' ? '10' : '∞'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>AI Tests:</span>
-                <span>{metrics.totalAITests}/{profile?.plan === 'free' ? '1' : '∞'}</span>
+                <span>{metrics.totalAITests}/{profile?.plan === 'free' ? '1' : profile?.plan === 'pro' ? '25' : '∞'}</span>
               </div>
             </CardContent>
           </Card>
