@@ -122,9 +122,9 @@ export function AllInOneDashboard() {
           
         // Recent AI tests
         supabase.from('prompt_simulations')
-          .select('id, prompt, created_at, site_mentioned')
+          .select('id, prompt, run_date, includes_user_site')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('run_date', { ascending: false })
           .limit(5)
       ]);
 
@@ -145,7 +145,12 @@ export function AllInOneDashboard() {
         ...scan,
         site: scan.sites
       })) || []);
-      setRecentAITests(aiTestsRes.data || []);
+      setRecentAITests(aiTestsRes.data?.map(test => ({
+        id: test.id,
+        prompt: test.prompt,
+        created_at: test.run_date,
+        site_mentioned: test.includes_user_site
+      })) || []);
 
       // Calculate metrics
       const totalSites = sitesData.length;
@@ -497,7 +502,7 @@ export function AllInOneDashboard() {
         <div className="space-y-4">
           <ContextualActions 
             context="dashboard" 
-            currentData={{ sites, recentScans, userPlan: profile?.subscription_status }}
+            currentData={{ sites, recentScans, userPlan: profile?.plan }}
           />
           
           {/* Usage Summary Card */}
@@ -512,11 +517,11 @@ export function AllInOneDashboard() {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Scans:</span>
-                <span>{metrics.totalScans}/{profile?.subscription_status === 'free' ? '1' : '∞'}</span>
+                <span>{metrics.totalScans}/{profile?.plan === 'free' ? '1' : '∞'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>AI Tests:</span>
-                <span>{metrics.totalAITests}/{profile?.subscription_status === 'free' ? '1' : '∞'}</span>
+                <span>{metrics.totalAITests}/{profile?.plan === 'free' ? '1' : '∞'}</span>
               </div>
             </CardContent>
           </Card>
