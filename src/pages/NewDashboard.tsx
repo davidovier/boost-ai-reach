@@ -58,7 +58,7 @@ interface Report {
   error_message?: string;
 }
 
-export default function Dashboard() {
+export default function NewDashboard() {
   const { user } = useAuth();
   const { hasNearLimitWarnings } = useUsageLimits();
   const navigate = useNavigate();
@@ -138,7 +138,7 @@ export default function Dashboard() {
         supabase.from('prompt_simulations')
           .select('id, prompt, created_at, site_mentioned, response_preview')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false})
+          .order('created_at', { ascending: false })
           .limit(20),
           
         // Reports (mock data for now)

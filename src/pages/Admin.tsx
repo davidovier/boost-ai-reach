@@ -1,7 +1,30 @@
+import { useState, useEffect } from 'react';
 import { withAdminGuard } from '@/components/auth/withRoleGuard';
-import { useEffect } from 'react';
-import { AdminSubNav } from '@/components/admin/AdminSubNav';
-import { UsersTab } from '@/components/admin/UsersTab';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SEO } from '@/components/SEO';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { 
+  Home,
+  Settings,
+  Users,
+  BarChart3,
+  FileText,
+  Shield,
+  CreditCard,
+  Sliders,
+  Activity,
+  TestTube,
+  UserCheck
+} from 'lucide-react';
+import { SkipLink } from '@/components/ui/skip-link';
+import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
+
+// Import enhanced components
+import { AdminOverview } from '@/components/admin/AdminOverview';
+import { EnhancedUsersTab } from '@/components/admin/EnhancedUsersTab';
+
+// Import existing admin components
 import { UsageTab } from '@/components/admin/UsageTab';
 import { ReportsTab } from '@/components/admin/ReportsTab';
 import { DashboardConfigTab } from '@/components/admin/DashboardConfigTab';
@@ -10,16 +33,24 @@ import SecurityTab from '@/components/admin/SecurityTab';
 import { BillingTab } from '@/components/admin/BillingTab';
 import { ABTestAnalytics } from '@/components/admin/ABTestAnalytics';
 import { ReferralAnalytics } from '@/components/admin/ReferralAnalytics';
-import { useSearchParams, Link } from 'react-router-dom';
-import { SEO } from '@/components/SEO';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Home, Settings } from 'lucide-react';
-import { SkipLink } from '@/components/ui/skip-link';
-import { PageErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 
 function AdminPage() {
-  const [params] = useSearchParams();
-  const tab = params.get('tab') || 'users';
+  const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tab = params.get('tab') || 'overview';
+
+  const tabConfig = [
+    { id: 'overview', label: 'Overview', icon: Home },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'usage', label: 'Usage', icon: BarChart3 },
+    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'billing', label: 'Billing', icon: CreditCard },
+    { id: 'dashboard', label: 'Config', icon: Sliders },
+    { id: 'logs', label: 'Logs', icon: Activity },
+    { id: 'ab-tests', label: 'A/B Tests', icon: TestTube },
+    { id: 'referrals', label: 'Referrals', icon: UserCheck }
+  ];
 
   const getTabDisplayName = (tabKey: string) => {
     const tabMap: Record<string, string> = {
