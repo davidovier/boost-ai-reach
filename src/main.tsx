@@ -4,14 +4,9 @@ import '@/styles/variables.scss'
 import '@/styles/base.scss'
 import '@/styles/layout.scss'
 import './index.css'
-import { preloadCriticalAssets, logBundleMetrics } from './utils/performance'
-
-// Preload critical assets for better LCP
-preloadCriticalAssets();
-
-// Log performance metrics in development
+// Development performance logging
 if (import.meta.env.DEV) {
-  logBundleMetrics();
+  console.log('Development mode - performance monitoring available');
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
