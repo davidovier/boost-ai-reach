@@ -6,8 +6,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { lazy, Suspense, useEffect } from "react";
-import { logger } from "./utils/logger";
+import { lazy, Suspense } from "react";
 
 // Critical pages loaded immediately
 import Index from "./pages/Index";
@@ -58,13 +57,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => {
-  // Initialize core application
-  useEffect(() => {
-    logger.info('Application initialized with core optimizations');
-  }, []);
-
-  return (
+const App = () => (
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -205,7 +198,6 @@ const App = () => {
       </TooltipProvider>
     </QueryClientProvider>
   </LanguageProvider>
-  );
-};
+);
 
 export default App;

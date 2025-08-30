@@ -42,10 +42,10 @@ export function MultiplePermissionGate({
   children, 
   fallback 
 }: MultiplePermissionGateProps) {
+  const hasAccess = requireAll 
+    ? useAllPermissions(permissions)
+    : useAnyPermission(permissions);
   const { logPermissionDenied } = useSecurityMonitoring();
-  const hasAllPermissions = useAllPermissions(permissions);
-  const hasAnyPermission = useAnyPermission(permissions);
-  const hasAccess = requireAll ? hasAllPermissions : hasAnyPermission;
 
   if (!hasAccess) {
     // Log permission denial for security monitoring
