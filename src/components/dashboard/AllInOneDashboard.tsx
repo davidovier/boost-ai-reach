@@ -111,7 +111,7 @@ export function AllInOneDashboard() {
       setLoading(true);
       
       // Fetch all data in parallel
-      const [sitesRes, scansRes, aiTestsRes, reportsRes] = await Promise.all([
+      const [sitesRes, scansRes, aiTestsRes] = await Promise.all([
         // Sites with latest scan info
         supabase.from('sites')
           .select(`
@@ -170,7 +170,7 @@ export function AllInOneDashboard() {
         avgScore,
         totalScans: scansRes.data?.length || 0,
         totalAITests: aiTestsRes.data?.length || 0,
-        totalReports: reportsRes.data?.length || 0
+        totalReports: 0
       });
 
     } catch (error) {

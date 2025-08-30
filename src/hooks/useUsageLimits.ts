@@ -128,7 +128,7 @@ export function useUsageLimits() {
     return getUsageStatus().filter(status => status.isNearLimit && !status.isAtLimit);
   };
 
-  const canUseFeature = (feature: 'scan' | 'prompt' | 'competitor' | 'site'): boolean => {
+  const canUseFeature = (feature: 'scan' | 'prompt' | 'competitor' | 'site' | 'report'): boolean => {
     if (!usage || !limits) return false;
     
     switch (feature) {
@@ -140,6 +140,8 @@ export function useUsageLimits() {
         return usage.competitor_count < limits.max_competitors;
       case 'site':
         return true; // Sites are typically limited by plan, not usage count
+      case 'report':
+        return true; // Reports are typically available for all plans
       default:
         return false;
     }
