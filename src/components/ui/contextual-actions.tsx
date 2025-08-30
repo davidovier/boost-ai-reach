@@ -37,7 +37,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
   const { profile } = useAuth();
   const { getReachedLimits, canUseFeature } = useUsageLimits();
   const navigate = useNavigate();
-  const userPlan = profile?.subscription_status || 'free';
+  const userPlan = profile?.plan || 'free';
 
   const baseActions: Record<string, ContextualAction[]> = {
     dashboard: [

@@ -105,7 +105,10 @@ export default function ScanDetail() {
         .order('severity', { ascending: false }); // Show high severity first
 
       if (!tipsError && tipsData) {
-        setTips(tipsData);
+        setTips(tipsData.map(tip => ({
+          ...tip,
+          id: tip.id.toString()
+        })));
       }
 
     } catch (error) {

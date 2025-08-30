@@ -128,6 +128,23 @@ export function useUsageLimits() {
     return getUsageStatus().filter(status => status.isNearLimit && !status.isAtLimit);
   };
 
+  const canUseFeature = (feature: 'scan' | 'prompt' | 'competitor' | 'site'): boolean => {
+    if (!usage || !limits) return false;
+    
+    switch (feature) {
+      case 'scan':
+        return usage.scan_count < limits.max_scans;
+      case 'prompt':
+        return usage.prompt_count < limits.max_prompts;
+      case 'competitor':
+        return usage.competitor_count < limits.max_competitors;
+      case 'site':
+        return true; // Sites are typically limited by plan, not usage count
+      default:
+        return false;
+    }
+  };
+
   const refresh = () => {
     fetchUsageAndLimits();
   };
@@ -141,6 +158,7 @@ export function useUsageLimits() {
     hasReachedLimits,
     getReachedLimits,
     getNearLimitWarnings,
+    canUseFeature,
     refresh,
   };
 }
