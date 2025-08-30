@@ -355,15 +355,15 @@ export function AllInOneDashboard() {
       </div>
 
       {/* Main Content Tabs */}
-      <div className="grid gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3">
+      <div className="grid gap-6 xl:grid-cols-4 lg:grid-cols-1">
+        <div className="xl:col-span-3">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="websites">Websites</TabsTrigger>
-              <TabsTrigger value="scans">Scans</TabsTrigger>
-              <TabsTrigger value="ai-tests">AI Tests</TabsTrigger>
-              <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsList className="grid w-full h-auto grid-cols-5 sm:grid-cols-5 text-xs sm:text-sm p-1">
+              <TabsTrigger value="overview" className="text-xs px-2 py-1.5">Overview</TabsTrigger>
+              <TabsTrigger value="websites" className="text-xs px-2 py-1.5">Sites</TabsTrigger>
+              <TabsTrigger value="scans" className="text-xs px-2 py-1.5">Scans</TabsTrigger>
+              <TabsTrigger value="ai-tests" className="text-xs px-1 py-1.5">AI Tests</TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs px-2 py-1.5">Reports</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -840,7 +840,7 @@ export function AllInOneDashboard() {
         </div>
 
         {/* Contextual Actions Sidebar */}
-        <div className="space-y-4">
+        <div className="space-y-4 xl:sticky xl:top-6 xl:self-start">
           <ContextualActions 
             context="dashboard" 
             currentData={{ sites, recentScans, userPlan: profile?.plan }}

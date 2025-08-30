@@ -46,7 +46,13 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Add Website',
         description: 'Add a new website to analyze',
         icon: Plus,
-        action: () => navigate('/dashboard#add-website'),
+        action: () => {
+          navigate('/dashboard#websites');
+          setTimeout(() => {
+            const input = document.querySelector('input[placeholder*="website"]') as HTMLInputElement;
+            if (input) input.focus();
+          }, 100);
+        },
         priority: 1
       },
       {
@@ -54,7 +60,13 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Run Quick Scan',
         description: 'Analyze your latest website',
         icon: Search,
-        action: () => navigate('/dashboard#quick-scan'),
+        action: () => {
+          navigate('/dashboard#scans');
+          setTimeout(() => {
+            const scanBtn = document.querySelector('button:contains("New Scan")') as HTMLButtonElement;
+            if (scanBtn) scanBtn.click();
+          }, 100);
+        },
         priority: 2
       },
       {
@@ -62,7 +74,13 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Test AI Response',
         description: 'See how AI responds to queries about your brand',
         icon: Bot,
-        action: () => navigate('/dashboard#ai-test'),
+        action: () => {
+          navigate('/dashboard#ai-tests');
+          setTimeout(() => {
+            const section = document.querySelector('[data-section="ai-test-form"]');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        },
         priority: 3
       }
     ],
@@ -72,7 +90,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Add Another Website',
         description: 'Analyze more websites',
         icon: Plus,
-        action: () => navigate('/dashboard#add-website'),
+        action: () => navigate('/dashboard#websites'),
         priority: 1
       },
       {
@@ -80,7 +98,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Test AI Response',
         description: 'See how AI mentions your scanned sites',
         icon: Bot,
-        action: () => navigate('/dashboard#ai-test'),
+        action: () => navigate('/dashboard#ai-tests'),
         priority: 2
       },
       {
@@ -99,7 +117,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Run Website Scan',
         description: 'Analyze your website for AI optimization',
         icon: Search,
-        action: () => navigate('/dashboard#quick-scan'),
+        action: () => navigate('/dashboard#scans'),
         priority: 1
       },
       {
@@ -127,7 +145,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Test AI Response',
         description: 'See AI responses about your competitors',
         icon: Bot,
-        action: () => navigate('/dashboard#ai-test'),
+        action: () => navigate('/dashboard#ai-tests'),
         priority: 1
       },
       {
@@ -135,7 +153,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Scan Your Site',
         description: 'Compare your optimization to competitors',
         icon: Search,
-        action: () => navigate('/dashboard#quick-scan'),
+        action: () => navigate('/dashboard#scans'),
         priority: 2
       },
       {
@@ -154,7 +172,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Run New Scan',
         description: 'Get fresh data for your reports',
         icon: Search,
-        action: () => navigate('/dashboard#quick-scan'),
+        action: () => navigate('/dashboard#scans'),
         priority: 1
       },
       {
@@ -162,7 +180,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Test AI Changes',
         description: 'Verify improvements from your reports',
         icon: Bot,
-        action: () => navigate('/dashboard#ai-test'),
+        action: () => navigate('/dashboard#ai-tests'),
         priority: 2
       },
       {
@@ -170,7 +188,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
         title: 'Upgrade Plan',
         description: 'Get more detailed reports and insights',
         icon: Crown,
-        action: () => navigate('/account#upgrade'),
+        action: () => navigate('/account'),
         variant: 'secondary' as const,
         priority: 4
       }
@@ -209,7 +227,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
 
   return (
     <Card className={`${className}`}>
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-medium text-muted-foreground">Quick Actions</h3>
           {context !== 'dashboard' && (
@@ -218,7 +236,7 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
             </Badge>
           )}
         </div>
-        <div className="grid gap-2">
+        <div className="grid gap-2 sm:gap-3 md:max-h-96 md:overflow-y-auto">
           {availableActions.map((action) => {
             const Icon = action.icon;
             const isRestricted = action.requiresPlan && !action.requiresPlan.includes(userPlan);
@@ -230,20 +248,20 @@ export function ContextualActions({ context, currentData, className = '' }: Cont
                 size="sm"
                 onClick={action.action}
                 disabled={isRestricted}
-                className="justify-start h-auto p-3 text-left"
+                className="justify-start h-auto p-2 sm:p-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors"
               >
-                <div className="flex items-start gap-3 w-full">
+                <div className="flex items-start gap-2 sm:gap-3 w-full">
                   <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
                     isRestricted ? 'text-muted-foreground' : ''
                   }`} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{action.title}</span>
+                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                      <span className="text-sm font-medium truncate">{action.title}</span>
                       {isRestricted && (
-                        <Crown className="h-3 w-3 text-amber-500" />
+                        <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground block mt-0.5">
+                    <span className="text-xs text-muted-foreground block mt-0.5 line-clamp-2 sm:line-clamp-none">
                       {action.description}
                     </span>
                   </div>
