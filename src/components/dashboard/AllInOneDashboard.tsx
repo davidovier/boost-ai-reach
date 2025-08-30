@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { AITestForm } from './AITestForm';
 
 interface Site {
   id: string;
@@ -50,6 +51,14 @@ interface AITest {
   site_mentioned: boolean;
 }
 
+interface Report {
+  id: string;
+  type: string;
+  generated_at: string;
+  status: string;
+  site_name: string;
+}
+
 export function AllInOneDashboard() {
   const { user, profile } = useAuth();
   const { hasNearLimitWarnings, getNearLimitWarnings, canUseFeature } = useUsageLimits();
@@ -61,6 +70,7 @@ export function AllInOneDashboard() {
   const [sites, setSites] = useState<Site[]>([]);
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [recentAITests, setRecentAITests] = useState<AITest[]>([]);
+  const [recentReports, setRecentReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [newWebsiteUrl, setNewWebsiteUrl] = useState('');
   const [addingWebsite, setAddingWebsite] = useState(false);
@@ -101,36 +111,44 @@ export function AllInOneDashboard() {
       setLoading(true);
       
       // Fetch all data in parallel
-      const [sitesRes, scansRes, aiTestsRes] = await Promise.all([
+      const [sitesRes, scansRes, aiTestsRes, reportsRes] = await Promise.all([
         // Sites with latest scan info
         supabase.from('sites')
           .select(`
-            id, url, name, created_at,
-            scans!inner(ai_findability_score, scan_date)
+            id, url, name, created_at
           `)
           .eq('user_id', user.id)
           .order('created_at', { ascending: false }),
           
-        // Recent scans
+        // Recent scans with site info
         supabase.from('scans')
           .select(`
-            id, scan_date, ai_findability_score,
-            sites:site_id (name, url)
+            id, scan_date, ai_findability_score, site_id,
+            sites!inner (name, url)
           `)
+          .eq('sites.user_id', user.id)
           .order('scan_date', { ascending: false })
-          .limit(5),
+          .limit(10),
           
         // Recent AI tests
         supabase.from('prompt_simulations')
-          .select('id, prompt, created_at, site_mentioned')
+          .select('id, prompt, run_date, includes_user_site')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('run_date', { ascending: false })
+          .limit(5),
+
+        // Reports (if table exists, otherwise empty array)
+        supabase.from('reports')
+          .select('id, type, generated_at, status, site_name')
+          .eq('user_id', user.id)
+          .order('generated_at', { ascending: false })
           .limit(5)
+          .then(res => res.error ? { data: [], error: null } : res)
       ]);
 
-      // Process sites data
+      // Process sites data - get latest scan for each site
       const sitesData = sitesRes.data?.map(site => {
-        const latestScan = site.scans?.[0];
+        const latestScan = scansRes.data?.find(scan => scan.site_id === site.id);
         return {
           id: site.id,
           url: site.url,
@@ -145,7 +163,13 @@ export function AllInOneDashboard() {
         ...scan,
         site: scan.sites
       })) || []);
-      setRecentAITests(aiTestsRes.data || []);
+      setRecentAITests(aiTestsRes.data?.map(test => ({
+        id: test.id,
+        prompt: test.prompt,
+        created_at: test.run_date,
+        site_mentioned: test.includes_user_site
+      })) || []);
+      setRecentReports(reportsRes.data || []);
 
       // Calculate metrics
       const totalSites = sitesData.length;
@@ -159,7 +183,7 @@ export function AllInOneDashboard() {
         avgScore,
         totalScans: scansRes.data?.length || 0,
         totalAITests: aiTestsRes.data?.length || 0,
-        totalReports: 0 // Will be fetched separately if needed
+        totalReports: reportsRes.data?.length || 0
       });
 
     } catch (error) {
@@ -489,7 +513,342 @@ export function AllInOneDashboard() {
               </Card>
             </TabsContent>
 
-            {/* Add other tab contents as needed */}
+            {/* Scans Tab */}
+            <TabsContent value="scans" className="space-y-4">
+              <div className="grid gap-4">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Website Scans</CardTitle>
+                      <Button 
+                        size="sm"
+                        onClick={() => sites.length > 0 && handleQuickScan(sites[0].id)}
+                        disabled={!canUseFeature('scan') || sites.length === 0}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        New Scan
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {recentScans.length > 0 ? (
+                      <div className="space-y-3">
+                        {recentScans.map((scan) => (
+                          <Card key={scan.id} className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
+                                  <Search className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{scan.site.name}</p>
+                                  <p className="text-sm text-muted-foreground">{scan.site.url}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(scan.scan_date), 'MMM d, yyyy • h:mm a')}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                  <p className="text-sm font-medium">AI Findability Score</p>
+                                  {getScoreBadge(scan.ai_findability_score)}
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => navigate(`/scans/${scan.id}`)}
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View Details
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                        {recentScans.length >= 5 && (
+                          <Button variant="outline" className="w-full">
+                            View All Scans
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No scans yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Run your first scan to analyze how AI models discover your website.
+                        </p>
+                        {sites.length > 0 ? (
+                          <Button onClick={() => handleQuickScan(sites[0].id)} disabled={!canUseFeature('scan')}>
+                            <Play className="h-4 w-4 mr-2" />
+                            Run First Scan
+                          </Button>
+                        ) : (
+                          <Button onClick={() => setActiveTab('websites')}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Website First
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* AI Tests Tab */}
+            <TabsContent value="ai-tests" className="space-y-4">
+              <div className="grid gap-4">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>AI Findability Tests</CardTitle>
+                      <Button 
+                        size="sm"
+                        onClick={() => {
+                          // Navigate to AI test form
+                          const aiTestSection = document.querySelector('[data-section="ai-test-form"]');
+                          if (aiTestSection) {
+                            aiTestSection.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        disabled={!canUseFeature('prompt')}
+                      >
+                        <Bot className="h-3 w-3 mr-1" />
+                        New Test
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {recentAITests.length > 0 ? (
+                      <div className="space-y-3">
+                        {recentAITests.map((test) => (
+                          <Card key={test.id} className="p-4">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-3 flex-1">
+                                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                                  <Bot className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm mb-1">"{test.prompt}"</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(test.created_at), 'MMM d, yyyy • h:mm a')}
+                                  </p>
+                                  <Badge 
+                                    variant={test.site_mentioned ? "default" : "secondary"} 
+                                    className="mt-2"
+                                  >
+                                    {test.site_mentioned ? '✅ Site Found' : '❌ Not Found'}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline">
+                                <Eye className="h-3 w-3 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Bot className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No AI tests yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Test how AI models respond to queries about your business or industry.
+                        </p>
+                        <Button disabled={!canUseFeature('prompt')}>
+                          <Play className="h-4 w-4 mr-2" />
+                          Run First Test
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* AI Test Form Section */}
+                <Card data-section="ai-test-form">
+                  <CardHeader>
+                    <CardTitle>Quick AI Test</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Enter a prompt to test how AI responds to queries about your industry
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <AITestForm onSubmit={async (prompt) => {
+                      if (!canUseFeature('prompt')) {
+                        toast({
+                          title: 'AI test limit reached',
+                          description: 'You have reached your monthly AI test limit. Please upgrade your plan.',
+                          variant: 'destructive'
+                        });
+                        return;
+                      }
+
+                      try {
+                        const response = await supabase.functions.invoke('run-prompt', {
+                          body: { prompt }
+                        });
+                        
+                        if (response.error) throw response.error;
+                        
+                        toast({
+                          title: '✨ AI test completed',
+                          description: 'Results are ready for review'
+                        });
+                        
+                        await fetchAllDashboardData();
+                        
+                        // Scroll to the AI tests list to see new result
+                        setTimeout(() => {
+                          setActiveTab('ai-tests');
+                        }, 500);
+                        
+                      } catch (error: any) {
+                        toast({
+                          title: 'Test failed',
+                          description: error.message || 'Please try again later',
+                          variant: 'destructive'
+                        });
+                      }
+                    }} />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Reports Tab */}
+            <TabsContent value="reports" className="space-y-4">
+              <div className="grid gap-4">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>AI Findability Reports</CardTitle>
+                      <Button 
+                        size="sm"
+                        disabled={!canUseFeature('report') || sites.length === 0}
+                        onClick={async () => {
+                          try {
+                            const response = await supabase.functions.invoke('reports', {
+                              body: { 
+                                type: 'comprehensive',
+                                sites: sites.slice(0, 1).map(s => s.id)
+                              }
+                            });
+                            
+                            if (response.error) throw response.error;
+                            
+                            toast({
+                              title: 'Report generated',
+                              description: 'Your comprehensive AI findability report is ready'
+                            });
+                            
+                            await fetchAllDashboardData();
+                          } catch (error: any) {
+                            toast({
+                              title: 'Report generation failed',
+                              description: error.message || 'Please try again later',
+                              variant: 'destructive'
+                            });
+                          }
+                        }}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Generate Report
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {recentReports.length > 0 ? (
+                      <div className="space-y-3">
+                        {recentReports.map((report) => (
+                          <Card key={report.id} className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                                  <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{report.site_name}</p>
+                                  <p className="text-sm text-muted-foreground capitalize">{report.type} Report</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(report.generated_at), 'MMM d, yyyy • h:mm a')}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant={report.status === 'completed' ? 'default' : 'secondary'}>
+                                  {report.status}
+                                </Badge>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => navigate(`/reports/${report.id}`)}
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  View
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No reports generated</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Generate comprehensive reports to analyze your AI findability performance over time.
+                        </p>
+                        {sites.length > 0 ? (
+                          <div className="space-y-2">
+                            <Button 
+                              disabled={!canUseFeature('report')}
+                              onClick={async () => {
+                                try {
+                                  const response = await supabase.functions.invoke('reports', {
+                                    body: { 
+                                      type: 'comprehensive',
+                                      sites: sites.slice(0, 1).map(s => s.id)
+                                    }
+                                  });
+                                  
+                                  if (response.error) throw response.error;
+                                  
+                                  toast({
+                                    title: 'Report generated',
+                                    description: 'Your comprehensive AI findability report is ready'
+                                  });
+                                  
+                                  await fetchAllDashboardData();
+                                } catch (error: any) {
+                                  toast({
+                                    title: 'Report generation failed',
+                                    description: error.message || 'Please try again later',
+                                    variant: 'destructive'
+                                  });
+                                }
+                              }}
+                            >
+                              <BarChart3 className="h-4 w-4 mr-2" />
+                              Generate First Report
+                            </Button>
+                            <p className="text-xs text-muted-foreground">
+                              {!canUseFeature('report') ? 'Upgrade to access comprehensive reports' : ''}
+                            </p>
+                          </div>
+                        ) : (
+                          <Button onClick={() => setActiveTab('websites')}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Website First
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
 
