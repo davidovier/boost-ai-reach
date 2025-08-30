@@ -6,7 +6,10 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { performanceMonitor } from "./utils/performance";
+import { accessibilityManager } from "./utils/accessibility";
+import { logger } from "./utils/logger";
 
 // Critical pages loaded immediately
 import Index from "./pages/Index";
@@ -57,9 +60,23 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
-  <LanguageProvider>
-    <QueryClientProvider client={queryClient}>
+const App = () => {
+  // Initialize performance and accessibility monitoring
+  useEffect(() => {
+    // Performance monitoring will auto-initialize
+    // Accessibility manager will auto-initialize
+    logger.info('SAFE optimization utilities initialized');
+    
+    // Cleanup on unmount
+    return () => {
+      performanceMonitor.disconnect();
+      accessibilityManager.cleanup();
+    };
+  }, []);
+
+  return (
+    <LanguageProvider>
+      <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
           <AppErrorBoundary>
@@ -198,6 +215,7 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </LanguageProvider>
-);
+  );
+};
 
 export default App;

@@ -51,7 +51,7 @@ export function CompetitorComparisonChart({ userBaseline, competitors }: Competi
     return { grade: 'D', color: 'text-red-600', bg: 'bg-red-50' };
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: { isUser: boolean; domain: string }; value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const score = payload[0].value;

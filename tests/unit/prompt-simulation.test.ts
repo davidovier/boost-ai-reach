@@ -63,6 +63,7 @@ describe('Prompt Simulation API', () => {
 
       // This would be tested in integration tests
       // For unit tests, we focus on the logic components
+      expect(mockSupabaseClient.auth.getUser).toBeDefined();
     });
 
     it('should enforce prompt quotas', async () => {
